@@ -163,4 +163,5 @@ details .ans { color: var(--green); padding: 6px 0 2px 18px; }
     background: rgba(0, 0, 0, .35);
     z-index: 190;
   }
+  .main { padding-left: 0; padding-right: 0; }
 }
