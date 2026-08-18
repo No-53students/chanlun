@@ -13,7 +13,7 @@
       { o: 9.3, c: 9.6, l: 9.1, h: 9.7 },
       { o: 9.6, c: 10.2, l: 9.5, h: 10.3 },
     ];
-    const times = ['9:30', '10:00', '10:30', '11:00', '11:30', '13:00', '13:30', '14:00'];
+    const times = ['9:30', '10:00', '10:30', '11:00', '13:00', '13:30', '14:00', '14:30'];
     const mkA = function (x0, x1, lo, hi, name) { return [{ xAxis: x0, yAxis: lo }, { xAxis: x1, yAxis: hi, name: name }]; };
     const seg = function (x, y, name, color) {
       return { coord: [x, y], name: name, symbol: 'none', label: { show: true, color: color, fontSize: 11, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } };
@@ -91,7 +91,7 @@ ${drawZS(
     '给自己安排力所能及的活动');
 
   __chapters.push({
-    id: 'ch45', vol: '卷九 · 实战操作与图解', title: '第45章 一夜情行情 · 暴跌牛市的一夜情', source: '原文第47、48课',
+    id: 'ch45', vol: '卷九 · 实战操作与图解', title: '第45章 一夜情行情 · 暴跌牛市的一夜情', source: '原文第46、47、48课',
     figures: [
       { kind: 'echarts', title: '当日走势分类：平衡市中的中枢震荡', note: '一天交易 4 小时 = <b>8 根 30 分钟 K 线</b>。前三根 30 分钟 K 线构成<b>当日中枢 [10.2,10.5]</b>；跌破 5 日线后反抽（11:08）不升破 ZD，构成<span class="kw">第三类卖点</span>——这是被理论保障的<b>最后离开机会</b>。其后下跌，比较中枢前后两段 MACD 绿柱面积，后者力度不大，分笔背驰（绿柱缩短）即引发<span class="hl">强力回拉中枢</span>。', option: optCh45 },
       { kind: 'html', title: '暴跌是牛市的一夜情：按级别应对', note: '第48课：牛市中的暴跌（如 96 年 12 月）猛烈而刺激，<b>419 化</b>，但<span class="hl">所有真正的大顶都是反复冲击出来的，V 型顶在大型走势中基本不构成真顶</span>。只要<b>大级别中枢未破</b>，暴跌对操作者就是<b>降成本、增筹码</b>的机会；把握一夜情要<b>按级别</b>来——日线把握不住，就去把握周线、月线。', html: figCrash },

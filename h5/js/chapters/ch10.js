@@ -83,7 +83,7 @@
 
   // ④ ZG / ZD / GG / DD
   const figZGZD = mfig('ZG / ZD / GG / DD 四值',
-    drawZS([{ p: 10, label: 'DD', color: '#16a34a' }, { p: 16, label: 'GG', color: '#e74c3c', above: true }, { p: 11, label: 'd2', color: '#16a34a' }, { p: 15, label: 'g1', color: '#e74c3c', above: true }],
+    drawZS([{ p: 10, label: 'DD', color: '#16a34a' }, { p: 16, label: 'GG', color: '#e74c3c', above: true }, { p: 11, label: 'd2', color: '#16a34a' }, { p: 15, label: 'g2', color: '#e74c3c', above: true }],
       [{ lo: 11, hi: 15, x0: 0, x1: 3, label: '[ZD,ZG]' }], { zgzd: true, w: 42, h: 108 }),
     'ZG=min(高点) 上沿、ZD=max(低点) 下沿<br>GG=最高点、DD=最低点');
 
@@ -153,7 +153,7 @@
 
   // 第三类买卖点
   const figBS3 = mfig('第三类买卖点',
-    drawZS([{ p: 10, label: '底', color: '#16a34a' }, { p: 15, label: '离开', color: '#e74c3c', above: true }, { p: 13, label: '回试不破ZG', color: '#2563eb', above: true }, { p: 17, label: '3买', color: '#16a34a' }],
+    drawZS([{ p: 10, label: '底', color: '#16a34a' }, { p: 15, label: '离开', color: '#e74c3c', above: true }, { p: 13, label: '3买', color: '#16a34a', above: true }, { p: 17, label: '顶', color: '#e74c3c', above: true }],
       [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '中枢' }], { w: 42, h: 104 }),
     '向上离开后回试不跌破 ZG → <b>第三类买点</b><br>（向下离开后回抽不升破 ZD → 第三类卖点）');
 

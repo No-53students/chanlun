@@ -10,6 +10,8 @@
 </head>
 <body>
 <div id="app" class="layout">
+  <button class="nav-fab" v-show="!navOpen" @click="navOpen = true" aria-label="打开目录">☰</button>
+  <div class="nav-backdrop" v-show="navOpen" @click="navOpen = false"></div>
   <aside class="sidebar" :class="{ collapsed: !navOpen }">
     <div class="brand">缠论可视化学习<small>按术语依赖顺序 · 自底向上</small></div>
     <button class="nav-toggle" @click="navOpen = !navOpen" :title="navOpen ? '收起目录' : '展开目录'">
@@ -20,11 +22,11 @@
       <div class="search-results" v-if="searchQuery.trim()">
         <template v-if="searchTerms.length">
           <div class="sr-h">术语</div>
-          <a v-for="g in searchTerms" :key="g.term" :href="'#/' + g.ch" @click="searchQuery = ''">{{ g.term }}<span class="sr-def">{{ g.def }}</span></a>
+          <a v-for="g in searchTerms" :key="g.term" :href="'#/' + g.ch" @click="searchQuery = ''; closeNav()">{{ g.term }}<span class="sr-def">{{ g.def }}</span></a>
         </template>
         <template v-if="searchChapters.length">
           <div class="sr-h">章节</div>
-          <a v-for="c in searchChapters" :key="c.id" :href="'#/' + c.id" @click="searchQuery = ''">{{ c.title }}</a>
+          <a v-for="c in searchChapters" :key="c.id" :href="'#/' + c.id" @click="searchQuery = ''; closeNav()">{{ c.title }}</a>
         </template>
         <div class="sr-empty" v-if="!searchTerms.length && !searchChapters.length">无匹配</div>
       </div>
@@ -33,7 +35,7 @@
       <template v-for="g in groupedChapters" :key="g.vol">
         <li class="grp">{{ g.vol }}</li>
         <li v-for="c in g.chapters" :class="{ active: c.id === cur.id }">
-          <a :href="'#/' + c.id">{{ c.title }}</a>
+          <a :href="'#/' + c.id" @click="closeNav()">{{ c.title }}</a>
         </li>
       </template>
       <li class="grp">远期规划</li>

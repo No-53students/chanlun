@@ -219,9 +219,8 @@
 
   const figJiehelv = mfig('结合律：a+b+c+d+e+f = a+b+c+(d+e+f)',
     '<div style="font-size:12px;line-height:1.9;font-family:ui-monospace,Consolas,monospace;color:#1f2937">'
-    + 'a+b+c+d+e <span style="color:#6b7280">(线段类上涨)</span><br>'
-    + '= a+b+c + <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px">(d+e+f)</span><br>'
-    + '<span style="font-family:sans-serif;color:#6b7280">c+d+e 重合=最后类中枢，f 类背驰后回调</span>'
+    + 'a+b+c+d+e+f = a+b+c + <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px">(d+e+f)</span><br>'
+    + '<span style="font-family:sans-serif;color:#6b7280">a+b+c+d+e 是线段类上涨；c+d+e 重合=最后类中枢；f 类背驰后回调</span>'
     + '</div>',
     '按结合律重新分组，保持连接走势最完美形态');
 

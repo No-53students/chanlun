@@ -51,7 +51,7 @@
 <div class="lbl">资金管理：0 成本，把本拿走（第95课）</div>
 <div style="font-size:13px;color:#374151;line-height:1.7">
 <span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:6px">第一笔钱</span> → 严格操作 → <span style="background:#bfdbfe;color:#1e3a8a;padding:3px 10px;border-radius:6px">把本拿走</span> → 利润滚成巨大数字<br>
-<div class="cap">10 次翻倍：1 万 → 1000 万；10 次亏损：1000 万 → 归零（关键是技术，不是本金多少）</div>
+<div class="cap">10 次翻倍：1 万 → 1000 万；10 次亏损：1000 万 → 没多少钱了（关键是技术，不是本金多少）</div>
 </div>
 <div class="lbl" style="margin-top:10px">赌徒心理 vs 操作者心态（第96课）</div>
 <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:4px">
@@ -122,7 +122,7 @@
   const figFanbei = mfig('关键在技术，不在本金',
     '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
     + '<span style="background:#f0fdf4;color:#166534;padding:3px 8px;border-radius:6px">1万 ×10次翻倍 → 1000万</span><br>'
-    + '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:6px">1000万 ×10次亏损 → 归零</span>'
+    + '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:6px">1000万 ×10次亏损 → 没多少钱了</span>'
     + '</div>',
     '问题不是投入多少，而是技术与操作');
 
@@ -196,7 +196,7 @@
       ]},
       { type: 'definition', title: '资金管理（第95课）', items: [
         { term: '① 0 成本投入', fig: figLingchengben, text: '市场就是要<b>0 投入去赚钱</b>。把<b>第一笔钱运作好，然后把本拿走</b>，剩下的利润滚成巨大数字——这才是真正的市场操作。真正成功以<b>十年为单位</b>，一笔 0 成本的钱让你无比轻松。', },
-        { term: '② 投入的钱不能无限增加', fig: figFanbei, text: '第一笔 100 万都赚不到钱，还想搞 100 万的平方？<span class="hl">问题不是投入多少，而是技术与操作。</span>就算只有 1 万，10 次翻倍后也是 1000 万；而 1000 万连续 10 次亏损，也就没多少钱了。', formula: '10 次翻倍：1万→1000万；10 次亏损：1000万→归零' },
+        { term: '② 投入的钱不能无限增加', fig: figFanbei, text: '第一笔 100 万都赚不到钱，还想搞 100 万的平方？<span class="hl">问题不是投入多少，而是技术与操作。</span>就算只有 1 万，10 次翻倍后也是 1000 万；而 1000 万连续 10 次亏损，也就没多少钱了。', formula: '10 次翻倍：1万→1000万；10 次亏损：1000万→没多少钱了' },
         { term: '③ 用不影响生活的钱', fig: figBuyingxiang, text: '用一笔<b>绝对不影响你生活的钱</b>，创造一个操作的故事。绝大多数人因<b>贪婪</b>不断投入、因<b>恐惧</b>落荒而逃，最后都在高潮中又被忽悠进来。', },
         { term: '④ 修炼自己，别无他法', fig: figXiulian, text: '战胜市场，就是战胜市场的合力、战胜构成合力的绝大多数人。这是人与人智力、体力、资金综合的搏杀。<span class="hl">偷心不死，永无出期。</span>市场唯一的评价就是你的操作，别人最多是陪练。', },
       ]},

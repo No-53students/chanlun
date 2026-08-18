@@ -67,13 +67,13 @@
           markArea: {
             silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
             label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 10 },
-            data: [mk(1, 4, 11, 13, '中枢 [11,13]')],
+            data: [mk(1, 4, 12, 13, '中枢 [12,13]')],
           },
           markLine: {
             silent: true, symbol: 'none',
             lineStyle: { color: '#2563eb', type: 'dashed', width: 1 },
             label: { show: true, position: 'end', formatter: function (p) { return p.name; }, color: '#2563eb', fontSize: 10 },
-            data: [{ yAxis: 13, name: 'ZG=13' }, { yAxis: 11, name: 'ZD=11' }],
+            data: [{ yAxis: 13, name: 'ZG=13' }, { yAxis: 12, name: 'ZD=12' }],
           },
           markPoint: {
             data: [

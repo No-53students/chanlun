@@ -11,7 +11,7 @@
   createApp({
     setup() {
       const curIdx = ref(0);
-      const navOpen = ref(true);
+      const navOpen = ref(window.innerWidth > 768);
       const cur = computed(() => chapters[curIdx.value]);
       const prev = computed(() => curIdx.value > 0 ? chapters[curIdx.value - 1] : null);
       const next = computed(() => curIdx.value < chapters.length - 1 ? chapters[curIdx.value + 1] : null);
@@ -38,6 +38,10 @@
       }
       // 全局搜索（术语 + 章节）
       const searchQuery = ref('');
+      // 移动端点击目录/搜索结果后收起抽屉
+      function closeNav() {
+        if (window.matchMedia('(max-width: 768px)').matches) navOpen.value = false;
+      }
       const searchTerms = computed(() => {
         const q = searchQuery.value.trim();
         if (!q) return [];
@@ -90,6 +94,7 @@
         chapters, upcoming, cur, prev, next, navOpen, groupedChapters,
         anim, animStep, original, quiz, quizPicked, pickQuiz,
         searchQuery, searchTerms, searchChapters,
+        closeNav,
       };
     },
   }).mount('#app');

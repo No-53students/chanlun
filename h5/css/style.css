@@ -118,3 +118,49 @@ details .ans { color: var(--green); padding: 6px 0 2px 18px; }
 .quiz-opt:disabled { cursor: default; }
 .quiz-explain { font-size: 13px; margin-top: 6px; color: #991b1b; line-height: 1.6; }
 .quiz-explain.ok { color: #166534; }
+
+/* 移动端：目录折叠为悬浮按钮，展开为抽屉 */
+.nav-fab { display: none; }
+.nav-backdrop { display: none; }
+@media (max-width: 768px) {
+  .sidebar, .sidebar.collapsed {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: 280px;
+    flex: none;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    z-index: 200;
+  }
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+    box-shadow: 0 0 32px rgba(0, 0, 0, .18);
+  }
+  .nav-fab {
+    display: flex;
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    background: var(--blue);
+    color: #fff;
+    font-size: 24px;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, .35);
+    z-index: 150;
+    cursor: pointer;
+  }
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .35);
+    z-index: 190;
+  }
+}

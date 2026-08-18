@@ -2,7 +2,7 @@
 (function () {
 
   function optCh16() {
-    const pts = [8, 13, 11, 14, 12, 17, 15, 16, 14, 18, 15, 20, 21, 22];
+    const pts = [8, 13, 11, 14, 12, 17, 15, 16, 14, 18, 17, 20, 21, 22];
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: pos || 'top', formatter: function (p) { return p.name; } } });
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 5, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
@@ -17,7 +17,7 @@
         markArea: {
           silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
           label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 11 },
-          data: [mk(1, 4, 11, 13, '中枢A [11,13]'), mk(5, 8, 15, 17, '中枢B [15,17]')],
+          data: [mk(1, 4, 12, 13, '中枢A [12,13]'), mk(5, 8, 15, 16, '中枢B [15,16]')],
         },
         markLine: {
           silent: true, symbol: 'none',
@@ -25,19 +25,19 @@
           label: { show: true, position: 'end', formatter: function (p) { return p.name; }, color: '#2563eb', fontSize: 10 },
           data: [
             { yAxis: 13, name: 'A ZG=13' },
-            { yAxis: 11, name: 'A ZD=11' },
-            { yAxis: 17, name: 'B ZG=17' },
+            { yAxis: 12, name: 'A ZD=12' },
+            { yAxis: 16, name: 'B ZG=16' },
             { yAxis: 15, name: 'B ZD=15' },
           ],
         },
         markPoint: {
           data: [
             mp(0, 'a·起点', '#1f2937', 'bottom'),
-            mp(1, 'A·GG=14', '#e74c3c', 'top'),
+            mp(3, 'A·GG=14', '#e74c3c', 'top'),
             mp(4, 'b·起点', '#1f2937', 'bottom'),
             mp(5, 'B·GG=17', '#e74c3c', 'top'),
             mp(8, 'B·DD=14', '#16a34a', 'bottom'),
-            { coord: [10, 15], name: '三买(15)', symbol: 'pin', symbolSize: 40, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#9333ea', fontSize: 11, position: 'bottom', distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } },
+            { coord: [10, 17], name: '三买(17)', symbol: 'pin', symbolSize: 40, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#9333ea', fontSize: 11, position: 'bottom', distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } },
             mp(13, 'c·顶', '#e74c3c', 'top'),
             seg(0.5, 7, 'a', '#1f2937', 'bottom'),
             seg(2.5, 12, 'A', '#2563eb', 'top'),
@@ -68,7 +68,7 @@
   __chapters.push({
     id: 'ch16', vol: '卷四 · 背驰与买卖点', title: '第16章 a+A+b+B+c 的当下操作', source: '原文第32课',
     figures: [
-      { kind: 'echarts', title: 'a+A+b+B+c 上涨走势的结构', note: '一段 30 分钟上涨被分解为 <code>a+A+b+B+c</code>：<b>a、b、c</b> 是同级别的<b>次级别走势段</b>，<b>A、B</b> 是两个同级别中枢（A 已出现、B 待生长）。蓝色矩形是中枢 A[11,13]、B[15,17]，虚线是各自的 ZG/ZD。c 段要出现，必须先有<b>第三类买点</b>（紫色 15，离开 B 后回抽不破 ZG=17）；c 顶（22）是否背驰，决定是否离场。', option: optCh16 },
+      { kind: 'echarts', title: 'a+A+b+B+c 上涨走势的结构', note: '一段 30 分钟上涨被分解为 <code>a+A+b+B+c</code>：<b>a、b、c</b> 是同级别的<b>次级别走势段</b>，<b>A、B</b> 是两个同级别中枢（A 已出现、B 待生长）。蓝色矩形是中枢 A[12,13]、B[15,16]，虚线是各自的 ZG/ZD。c 段要出现，必须先有<b>第三类买点</b>（紫色 17，离开 B 后回抽不破 ZG=16）；c 顶（22）是否背驰，决定是否离场。', option: optCh16 },
       { kind: 'html', title: '当下判断的完全分类流程', note: '第32课的核心思维：<b>不预测，只分类</b>。b 段走不走、c 段有没有、B 是啥级别，都<b>不假设、不幻想</b>，而是按定义对每一个当下的走势做完全分类，机械地买卖点买卖点卖。', html: figFlow },
     ],
     sections: [

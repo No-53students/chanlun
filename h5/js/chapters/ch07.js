@@ -2,7 +2,7 @@
 (function () {
   const figBasic = `
 <div class="fig"><div class="lbl">线段基本形态（至少三笔）</div>${biLineSVG([{p:10,tag:'底'},{p:16,tag:'顶'},{p:12,tag:'底'},{p:18,tag:'顶'}], {w:56,h:150})}<div class="cap">上-下-上三笔<br>前三笔有重叠 → 成一线段</div></div>
-<div class="fig"><div class="lbl">线段破坏（两段线段）</div>${biLineSVG([{p:10,tag:'底'},{p:16,tag:'顶'},{p:12,tag:'底'},{p:19,tag:'顶'},{p:9,tag:'底'},{p:14,tag:'顶'},{p:7,tag:'底'}], {segColors:{3:'#f59e0b',4:'#f59e0b',5:'#f59e0b'}, w:56,h:150})}<div class="cap">蓝＝第一段（向上 5 笔）<br>橙＝第二段（向下）<br>线段只能被线段破坏</div></div>`;
+<div class="fig"><div class="lbl">线段破坏（两段线段）</div>${biLineSVG([{p:10,tag:'底'},{p:16,tag:'顶'},{p:12,tag:'底'},{p:19,tag:'顶'},{p:9,tag:'底'},{p:14,tag:'顶'},{p:7,tag:'底'}], {segColors:{3:'#f59e0b',4:'#f59e0b',5:'#f59e0b'}, w:56,h:150})}<div class="cap">蓝＝第一段（向上 3 笔）<br>橙＝第二段（向下）<br>线段只能被线段破坏</div></div>`;
 
   const figOverlap = `
 <div class="fig"><div class="lbl good">✓ 前三笔有重叠（成线段）</div>${biLineSVG([{p:10,tag:'底'},{p:15,tag:'顶'},{p:12,tag:'底'},{p:18,tag:'顶'}], {w:56,h:150})}<div class="cap">笔2 低点 12 &lt; 笔1 顶 15<br>回调进入前笔区间 → 重叠</div></div>

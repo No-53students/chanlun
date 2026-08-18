@@ -65,13 +65,13 @@
           markArea: {
             silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
             label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 10 },
-            data: [mk(1, 4, 16, 18, 'c` 中枢 [16,18]')],
+            data: [mk(1, 4, 17, 18, 'c` 中枢 [17,18]')],
           },
           markLine: {
             silent: true, symbol: 'none',
             lineStyle: { color: '#2563eb', type: 'dashed', width: 1 },
             label: { show: true, position: 'end', formatter: function (p) { return p.name; }, color: '#2563eb', fontSize: 10 },
-            data: [{ yAxis: 18, name: 'c` ZG=18' }, { yAxis: 16, name: 'c` ZD=16' }],
+            data: [{ yAxis: 18, name: 'c` ZG=18' }, { yAxis: 17, name: 'c` ZD=17' }],
           },
           markPoint: {
             data: [
@@ -100,7 +100,7 @@
   __chapters.push({
     id: 'ch18', vol: '卷四 · 背驰与买卖点', title: '第18章 小转大定理', source: '原文第44课',
     figures: [
-      { kind: 'echarts', title: '大级别末端的小背驰 + 末次中枢三卖（双图）', note: '上图为 30 分钟 <code>a+A+b+B+c</code> 上涨：c 段创新高（21），但 30 分钟图上<b>并无 30 分背驰</b>，只在 c 段内部出现<b>1 分顶背驰</b>。下图为把 c 段放大到 1 分钟：<code>c\`</code> 是 c 中最后一个 5 分钟中枢，1 分顶背驰后走势拉回 c\`，随后跌破、反抽不升破 c\` 的 ZD=16，出现<b>第三类卖点</b>——于是引发大级别（30 分）转折，拉回中枢 B。', option: optCh18 },
+      { kind: 'echarts', title: '大级别末端的小背驰 + 末次中枢三卖（双图）', note: '上图为 30 分钟 <code>a+A+b+B+c</code> 上涨：c 段创新高（21），但 30 分钟图上<b>并无 30 分背驰</b>，只在 c 段内部出现<b>1 分顶背驰</b>。下图为把 c 段放大到 1 分钟：<code>c\`</code> 是 c 中最后一个 5 分钟中枢，1 分顶背驰后走势拉回 c\`，随后跌破、反抽不升破 c\` 的 ZD=17，出现<b>第三类卖点</b>——于是引发大级别（30 分）转折，拉回中枢 B。', option: optCh18 },
       { kind: 'html', title: '小转大的判据链', note: '<b>小背驰 → 末次中枢三卖 → 大级别转折</b>。核心是「三卖」这个<b>必要条件</b>：没有末次次级别中枢的第三类买卖点，小级别背驰不可能转成大级别转折。', html: figChain },
     ],
     sections: [
