@@ -72,7 +72,7 @@
 <div class="fig"><div class="lbl bad">② 有缺口（第二种情况）</div>${gapSVG([{lo:12,hi:16,label:'X1'},{lo:17,hi:20,label:'X2'},{lo:14,hi:19,label:'X3'}], {fenxing:'顶分型(待确认)', gap:{lo:16,hi:17,label:'缺口',color:'#e74c3c'}})}<div class="cap">X1 与 X2 之间留缺口<br>需看反向序列是否出底分型</div></div>`;
 
   __chapters.push({
-    id: 'ch6', title: '第6章 特征序列与线段划分', source: '原文第67、71、77课',
+    id: 'ch08', vol: '卷二 · 形态学', title: '第8章 特征序列与线段划分', source: '原文第67、71、77课',
     figures: [
       { kind: 'html', title: '特征序列：与线段方向相反的笔', note: '向上线段的内部笔是 上-下-上-下-上，其中的<b>向下笔</b>（橙色 X1、X2）就是特征序列。向下线段的特征序列则是其中的向上笔。', html: figSeq },
       { kind: 'html', title: '两种情况：第一二元素间有无缺口', note: '把特征序列元素当成 K 线找分型，看分型<b>第一、第二元素</b>间有没有缺口（区间不重叠）：无缺口是第一种情况，有缺口是第二种情况。', html: figGap },

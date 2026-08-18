@@ -25,7 +25,7 @@
 </div>`;
 
   __chapters.push({
-    id: 'ch2', title: '第2章 K线与包含关系', source: '原文第62、65课',
+    id: 'ch04', vol: '卷二 · 形态学', title: '第4章 K线与包含关系', source: '原文第62、65课',
     figures: [
       { kind: 'echarts', title: '包含处理：合并前后对比', note: '灰色细线是原始 K 线，<b>黄色虚线</b>是被包含的 K 线，<b>彩色粗线</b>是合并后的新 K 线。本例有三处包含：第 2 根包住第 3 根、第 4 根包住第 5 根、第 8 根包住第 9 根。', option: optCh2 },
       { kind: 'html', title: '方向决定结果：向上取高高 vs 向下取低低', note: '同样两根“大包小”的 K 线，<b>方向不同，合并结果不同</b>。向上时新 K 线取<b>高高</b>（H=max、L=max），向下时取<b>低低</b>（H=min、L=min）。这正是最容易出错的地方——方向看的是“之前的趋势”，不是当前两根的高点谁高。', html: figUpDown },

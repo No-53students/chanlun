@@ -6,7 +6,7 @@
 <div class="fig"><div class="lbl good">✓ 最基本图形（算）</div>${klineAnnSVG([mk(9,11,true), mk(10,13,true), mk(9,11,false), mk(10,11,true), mk(9,11,true), mk(8,10,false), mk(9,11,true)], [{ i: 1, text: '顶', pos: 'top', color: '#e74c3c' }, { i: 5, text: '底', pos: 'bottom', color: '#16a34a' }, { i: 3, text: '独立K线', pos: 'top', color: '#16a34a' }], { w: 40, h: 110, padT: 22, padB: 18 })}<div class="cap">顶底之间还有<br>一根独立K线</div></div>`;
 
   __chapters.push({
-    id: 'ch4', title: '第4章 笔', source: '原文第62、65、77、81课',
+    id: 'ch06', vol: '卷二 · 形态学', title: '第6章 笔', source: '原文第62、65、77、81课',
     figures: [
       { kind: 'echarts', title: '笔的识别与连线', note: '<b>黄色折线</b>是“笔”——把相邻的顶分型与底分型依次连起来。底→顶为向上笔，顶→底为向下笔，上下交替。', option: optCh4 },
       { kind: 'html', title: '笔的三种基本图形（原文图3/4/5）', note: '顶和底之间必须<b>至少有一根独立 K 线</b>：共用一根 K 线（违反结合律）不算；光有顶底（中间无 K 线）最好也不算；顶底之间还有一根 K 线，才是一笔的<b>最基本图形</b>。', html: figThree },

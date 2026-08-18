@@ -9,7 +9,7 @@
 <div class="fig"><div class="lbl bad">✗ 前三笔无重叠（不成线段）</div>${biLineSVG([{p:10,tag:'底'},{p:15,tag:'顶'},{p:16,tag:'底'},{p:21,tag:'顶'}], {w:56,h:150})}<div class="cap">笔2 低点 16 &gt; 笔1 顶 15<br>回调不回前笔区间 → 无重叠</div></div>`;
 
   __chapters.push({
-    id: 'ch5', title: '第5章 线段', source: '原文第62、65、77、78课',
+    id: 'ch07', vol: '卷二 · 形态学', title: '第7章 线段', source: '原文第62、65、77、78课',
     figures: [
       { kind: 'echarts', title: '笔连成线段', note: '<b>黄色细线</b>是笔，<b>蓝色粗线</b>是线段。左半是向上线段（底 P0→顶 P5，5 笔），右半是向下线段（顶 P5→底 P10）把它破坏——线段只取首尾两个极值点，中间笔的波动被“忽略”。', option: optCh5 },
       { kind: 'html', title: '线段基本形态 vs 线段破坏', note: '线段至少三笔；一条线段只能被<b>另一条线段</b>破坏，而不是被单独一笔破坏。', html: figBasic },

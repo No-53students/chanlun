@@ -7,7 +7,7 @@
 <div class="fig"><div class="lbl kw">④ 底分型</div>${klineAnnSVG([mk(11,13,false), mk(9,11,false), mk(11,13,true)], [{ i: 1, text: '底 L=9', pos: 'bottom', color: '#16a34a' }, { i: 0, text: 'L=11', pos: 'bottom', color: '#16a34a' }, { i: 2, text: 'L=11', pos: 'bottom', color: '#16a34a' }, { i: 1, text: 'H=11', pos: 'top', color: '#e74c3c' }, { i: 0, text: 'H=13', pos: 'top', color: '#e74c3c' }, { i: 2, text: 'H=13', pos: 'top', color: '#e74c3c' }], { w: 48, h: 118, padT: 22, padB: 18 })}<div class="cap">中间最低：L=9 最小、H=11 也最小</div></div>`;
 
   __chapters.push({
-    id: 'ch3', title: '第3章 分型', source: '原文第62、65、79、82课',
+    id: 'ch05', vol: '卷二 · 形态学', title: '第5章 分型', source: '原文第62、65、79、82课',
     figures: [
       { kind: 'echarts', title: '分型的识别', note: '<b>红色▼</b>是顶分型（中间 K 线最高），<b>绿色▲</b>是底分型（中间 K 线最低）。每个分型由<b>三根连续</b>（已消除包含）的 K 线构成。', option: optCh3 },
       { kind: 'html', title: '三相邻 K 线的四类完全分类', note: '这是第62课图7的核心：消除包含关系后，任意三根相邻 K 线<b>只有</b>这四种组合。其中②④是分型，①③是“上升/下降 K 线”（它们是构成“笔”的中间部分）。', html: figFour },

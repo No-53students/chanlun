@@ -1,224 +1,128 @@
-/* 第17章 资金与心态 */
+/* 第17章 背驰级别与买卖点再分辨 */
 (function () {
 
   function optCh17() {
-    const pts = [20, 17, 18, 15, 16, 13, 14, 11, 9, 12, 10, 13, 11];
-    const zones = [
-      { x0: 9, x1: 12, lo: 10, hi: 12, label: '反弹中枢 [10,12]（机会②区间）' },
-    ];
-    const markAreaData = zones.map(z => [{ xAxis: z.x0, yAxis: z.lo, name: z.label }, { xAxis: z.x1, yAxis: z.hi }]);
-    const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold' } });
-    const pin = (i, name, color) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold' } });
-    const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top' } });
-    const markPointData = [
-      mp(0, '顶·前走势高点', '#e74c3c', 'top'),
-      mp(11, '顶·反弹高点', '#e74c3c', 'top'),
-      pin(8, '机会①：线段底背驰', '#16a34a'),
-      pin(12, '机会②：中枢震荡买点', '#2563eb'),
-      seg(3.5, 20.5, '下跌走势', '#e74c3c'),
-      seg(10.5, 16.5, '反弹 + 中枢震荡', '#16a34a'),
-    ];
-    const markLineData = [
-      { yAxis: 12, name: '中枢 ZG=12' },
-      { yAxis: 10, name: '中枢 ZD=10' },
-    ];
+    const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
+    const mp = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 4, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const buyPin = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, color, fontSize: 11, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: pos || 'top', formatter: function (p) { return p.name; } } });
+
+    // 级别1：30 分钟（本级别）——下跌趋势背驰 = 第一类买点 = 本级别一买
+    const p30 = [20, 16, 18, 14, 17, 11, 14, 10, 13, 8];
+    // 级别2：5 分钟（放大）——一买后第一次次级别回调低点 = 第二类买点 = 次级别一买
+    const p5 = [8, 13, 11, 15];
+    // 级别3：1 分钟（再放大）——离开中枢后回抽不破 ZG = 第三类买点 = 更次级别一买
+    const p1 = [10, 13, 11, 14, 12, 16, 14];
+
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      grid: { left: 60, right: 70, top: 40, bottom: 40 },
-      xAxis: { type: 'value', min: 0, max: 12, interval: 1 },
-      yAxis: { type: 'value', scale: true, name: '价格' },
-      series: [{
-        name: '走势', type: 'line', data: pts.map((p, i) => [i, p]),
-        symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
-        markArea: {
-          silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
-          label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 11 },
-          data: markAreaData,
+      grid: [
+        { left: 60, right: 70, top: 34, height: 110 },
+        { left: 60, right: 70, top: 186, height: 100 },
+        { left: 60, right: 70, top: 328, height: 100 },
+      ],
+      xAxis: [
+        { type: 'value', gridIndex: 0, min: 0, max: 9, interval: 1 },
+        { type: 'value', gridIndex: 1, min: 0, max: 3, interval: 1 },
+        { type: 'value', gridIndex: 2, min: 0, max: 6, interval: 1 },
+      ],
+      yAxis: [
+        { type: 'value', gridIndex: 0, scale: true, name: '30分', nameLocation: 'middle', nameGap: 36 },
+        { type: 'value', gridIndex: 1, scale: true, name: '5分', nameLocation: 'middle', nameGap: 36 },
+        { type: 'value', gridIndex: 2, scale: true, name: '1分', nameLocation: 'middle', nameGap: 36 },
+      ],
+      series: [
+        {
+          name: '30分钟级别', type: 'line', xAxisIndex: 0, yAxisIndex: 0,
+          data: p30.map((p, i) => [i, p]), symbol: 'circle', symbolSize: 5,
+          lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
+          markArea: {
+            silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
+            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 10 },
+            data: [mk(1, 4, 16, 17, 'A [16,17]'), mk(5, 8, 11, 13, 'B [11,13]')],
+          },
+          markPoint: {
+            data: [
+              buyPin(p30, 9, '一买＝本级别背驰点', '#16a34a', 'bottom'),
+              seg(4.5, 19.5, '30 分钟下跌趋势（两个中枢）', '#1f2937', 'top'),
+            ],
+          },
         },
-        markLine: {
-          silent: true, symbol: 'none',
-          lineStyle: { color: '#2563eb', type: 'dashed', width: 1 },
-          label: { show: true, position: 'end', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 10 },
-          data: markLineData,
+        {
+          name: '5分钟级别', type: 'line', xAxisIndex: 1, yAxisIndex: 1,
+          data: p5.map((p, i) => [i, p]), symbol: 'circle', symbolSize: 5,
+          lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
+          markPoint: {
+            data: [
+              mp(p5, 0, '一买后首涨', '#16a34a', 'bottom'),
+              buyPin(p5, 2, '二买＝次级别一买', '#2563eb', 'bottom'),
+              seg(1.5, 14, '第一次次级别回调', '#2563eb', 'top'),
+            ],
+          },
         },
-        markPoint: { data: markPointData },
-      }],
+        {
+          name: '1分钟级别', type: 'line', xAxisIndex: 2, yAxisIndex: 2,
+          data: p1.map((p, i) => [i, p]), symbol: 'circle', symbolSize: 5,
+          lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
+          markArea: {
+            silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
+            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 10 },
+            data: [mk(1, 4, 11, 13, '中枢 [11,13]')],
+          },
+          markLine: {
+            silent: true, symbol: 'none',
+            lineStyle: { color: '#2563eb', type: 'dashed', width: 1 },
+            label: { show: true, position: 'end', formatter: function (p) { return p.name; }, color: '#2563eb', fontSize: 10 },
+            data: [{ yAxis: 13, name: 'ZG=13' }, { yAxis: 11, name: 'ZD=11' }],
+          },
+          markPoint: {
+            data: [
+              buyPin(p1, 6, '三买＝更次级别一买', '#9333ea', 'bottom'),
+              seg(5, 16.5, '离开后回抽不破 ZG', '#9333ea', 'top'),
+            ],
+          },
+        },
+      ],
     };
   }
 
-  const figMind = `
-<div class="fig" style="min-width:320px">
-<div class="lbl">资金管理：0 成本，把本拿走（第95课）</div>
-<div style="font-size:13px;color:#374151;line-height:1.7">
-<span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:6px">第一笔钱</span> → 严格操作 → <span style="background:#bfdbfe;color:#1e3a8a;padding:3px 10px;border-radius:6px">把本拿走</span> → 利润滚成巨大数字<br>
-<div class="cap">10 次翻倍：1 万 → 1000 万；10 次亏损：1000 万 → 归零（关键是技术，不是本金多少）</div>
-</div>
-<div class="lbl" style="margin-top:10px">赌徒心理 vs 操作者心态（第96课）</div>
-<table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:4px">
-<tr style="background:#fef2f2;color:#991b1b"><td style="padding:5px 8px;border:1px solid #fecaca;width:50%"><b>✗ 赌徒心理</b></td><td style="padding:5px 8px;border:1px solid #fecaca;width:50%"><b>✓ 操作者心态</b></td></tr>
-<tr><td style="padding:5px 8px;border:1px solid #e5e7eb">① 预设“涨到X就卖”的虚拟目标</td><td style="padding:5px 8px;border:1px solid #e5e7eb">① 只看图形，按买卖点操作</td></tr>
-<tr><td style="padding:5px 8px;border:1px solid #e5e7eb">② 怕错过机会，追高杀跌</td><td style="padding:5px 8px;border:1px solid #e5e7eb">② 错过就错过，机会无穷</td></tr>
-<tr><td style="padding:5px 8px;border:1px solid #e5e7eb">③ 不断加码，砍了又追</td><td style="padding:5px 8px;border:1px solid #e5e7eb">③ 0 成本，纪律规范操作</td></tr>
-<tr><td style="padding:5px 8px;border:1px solid #e5e7eb">④ 听消息、找捷径</td><td style="padding:5px 8px;border:1px solid #e5e7eb">④ 只倾听市场与自己</td></tr>
-</table>
-<div class="cap" style="margin-top:6px"><b style="color:#166534">技术</b>（分类机会） + <b style="color:#1e3a8a">资金</b>（0 成本） + <b style="color:#991b1b">心态</b>（戒赌徒） = 长期稳定的操作者</div></div>`;
-
-  // ---- 讲解点小图（第17章 资金与心态） ----
-
-  // Section1 当机立断与完全分类（第94课）
-  const figXixin = mfig('洗心革面 → 当机立断',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '<span style="color:#6b7280;text-decoration:line-through">预测点位、时间</span><br>'
-    + '→ <span style="background:#f0fdf4;color:#166534;padding:3px 8px;border-radius:6px">严格分类后的不同操作类型</span><br>'
-    + '→ <b>当机立断</b>'
-    + '</div>',
-    '清空过去的知识，只留下分类与当下');
-
-  const figJihui = mfig('机会 = 完全分类的边界',
-    drawZS([
-      { p: 16, label: '顶', color: '#e74c3c' },
-      { p: 9, label: '底背驰(机会)', color: '#16a34a' },
-      { p: 11, label: '反弹', color: '#2563eb', above: true },
-      { p: 12 },
-      { p: 10 },
-    ], [], { w: 44, h: 100 }),
-    '不预测点位时间，只列出必然出现的机会边界');
-
-  const figSanbu = mfig('操作三步法',
-    '<div style="font-size:12.5px;line-height:2;color:#1f2937">'
-    + '<b>①</b> 列出后面必然出现的机会<br>'
-    + '<b>②</b> 按心情、资金选择介入/放弃<br>'
-    + '<b>③</b> 等待显现 → <b>当机立断</b>'
-    + '</div>',
-    '第三步足够修炼 N 年');
-
-  const figTuichu = mfig('先设退出边界条件',
-    drawZS([
-      { p: 10, label: '底', color: '#16a34a' },
-      { p: 14, label: '介入', color: '#2563eb', above: true },
-      { p: 12, label: '退出边界', color: '#e74c3c' },
-      { p: 13 },
-    ], [{ lo: 12, hi: 13, x0: 1, x1: 3, label: '最后类中枢' }], { w: 42, h: 100 }),
-    '介入前先设好退出边界（类中枢/背驰）');
-
-  const figJiezou = mfig('级别 = 节奏',
-    drawZS([
-      { p: 10, label: '买', color: '#16a34a' },
-      { p: 16, label: '卖(顶背驰)', color: '#e74c3c', above: true },
-      { p: 12, label: '不卖→无下次买入', color: '#2563eb' },
-      { p: 11, label: '再买', color: '#16a34a' },
-    ], [], { w: 42, h: 100 }),
-    '不会卖出 = 失去下次买入机会（贪嗔痴疑慢作怪）');
-
-  // Section2 资金管理（第95课）
-  const figLingchengben = mfig('0 成本：把本拿走',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '<span style="background:#dcfce7;color:#166534;padding:3px 8px;border-radius:6px">第一笔钱</span>'
-    + ' → 严格操作 → <span style="background:#bfdbfe;color:#1e3a8a;padding:3px 8px;border-radius:6px">把本拿走</span>'
-    + ' → 利润滚成巨大数字'
-    + '</div>',
-    '一笔 0 成本的钱让你无比轻松');
-
-  const figFanbei = mfig('关键在技术，不在本金',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '<span style="background:#f0fdf4;color:#166534;padding:3px 8px;border-radius:6px">1万 ×10次翻倍 → 1000万</span><br>'
-    + '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:6px">1000万 ×10次亏损 → 归零</span>'
-    + '</div>',
-    '问题不是投入多少，而是技术与操作');
-
-  const figBuyingxiang = mfig('用不影响生活的钱',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '<span style="background:#eef2ff;color:#3730a3;padding:3px 8px;border-radius:6px">不影响生活的钱</span><br>'
-    + '→ 创造一个操作的故事<br>'
-    + '<span style="color:#6b7280">戒：贪婪(不断投入) / 恐惧(落荒而逃)</span>'
-    + '</div>',
-    '心态稳，操作才不走样');
-
-  const figXiulian = mfig('战胜市场 = 战胜合力',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '市场合力 = 绝大多数人<br>'
-    + '<b>偷心不死，永无出期</b><br>'
-    + '<span style="color:#6b7280">市场唯一评价 = 你的操作</span>'
-    + '</div>',
-    '修炼自己，别人最多是陪练');
-
-  // Section3 赌徒心理（第96课）
-  const figDiren = mfig('最大的敌人：赌徒心理',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '<span style="background:#fee2e2;color:#991b1b;padding:4px 10px;border-radius:6px;font-size:14px">赌徒心理 / 赌徒思维</span><br>'
-    + '<span style="color:#6b7280">结局早已注定：养肥了再煮</span>'
-    + '</div>',
-    '以赌徒心理参与市场，必败无疑');
-
-  const figBiaoxian = mfig('赌徒心理的六种表现',
-    '<div style="font-size:12px;line-height:1.85;color:#1f2937">'
-    + '①预设虚拟目标　②怕失去机会<br>'
-    + '③不断加码/砍了又追　④不敢操作后追高<br>'
-    + '⑤听消息找捷径　⑥"赚钱买房买车"'
-    + '</div>',
-    '核心：预设想象中的目标，无视市场本身');
-
-  const figChengxu = mfig('严格操作程序 → 长期成功',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '<span style="color:#6b7280;text-decoration:line-through">一次暴富 → 倾家荡产</span><br>'
-    + '<span style="background:#f0fdf4;color:#166534;padding:3px 8px;border-radius:6px">严格操作程序 → 长期成功</span>'
-    + '</div>',
-    '机会不断涌现，严格程序足以保证');
-
-  const figZuihou = mfig('给自己最后一次机会',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '输光 → <b>彻底解剖自己</b> → 最后一次尝试<br>'
-    + '再输光 → <b>退出</b>（承认"我不行"）'
-    + '</div>',
-    '不是每个人都适合市场');
-
-  const figShenghuo = mfig('市场只是生活的一部分',
-    '<div style="font-size:12.5px;line-height:1.9;color:#1f2937">'
-    + '<b>错过了就错过了</b><br>'
-    + '后面有无数的机会等着<br>'
-    + '<span style="color:#6b7280">平静地按自己的韵律成长</span>'
-    + '</div>',
-    '机会无穷，无需烦躁期盼恐惧');
+  const figTurn = `
+<div class="fig" style="min-width:100%"><div class="lbl">两种转折方式：背驰级别 vs 走势级别（第43课）</div>
+<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+  <div style="min-width:220px">${drawZS([{ p: 20, label: '顶', color: '#e74c3c', above: true }, { p: 16 }, { p: 18 }, { p: 14 }, { p: 17 }, { p: 11 }, { p: 14 }, { p: 10 }, { p: 13 }, { p: 8, label: '30分背驰', color: '#16a34a' }, { p: 12, label: '必回拉B', color: '#2563eb', above: true }], [{ lo: 16, hi: 17, x0: 1, x1: 4, label: 'A' }, { lo: 11, hi: 13, x0: 5, x1: 8, label: 'B' }], { w: 30, h: 96, zgzd: true })}<div class="cap" style="color:#16a34a">① 背驰级别 = 走势级别<br>30 分背驰 → <b>必回拉最后中枢 B</b></div></div>
+  <div style="min-width:220px">${drawZS([{ p: 20, label: '顶', color: '#e74c3c', above: true }, { p: 16 }, { p: 18 }, { p: 14 }, { p: 17 }, { p: 11 }, { p: 14 }, { p: 10 }, { p: 13, label: 'c段内1分背驰', color: '#f59e0b' }, { p: 9, label: '?', color: '#6b7280' }], [{ lo: 16, hi: 17, x0: 1, x1: 4, label: 'A' }, { lo: 11, hi: 13, x0: 5, x1: 8, label: 'B' }], { w: 30, h: 96, zgzd: true })}<div class="cap" style="color:#f59e0b">② 背驰级别 < 走势级别<br>30 分无背驰、只 c 段内 1 分背驰 → <b>不必然回拉</b>（先成大一级中枢再定方向）</div></div>
+</div></div>`;
 
   __chapters.push({
-    id: 'ch17', title: '第17章 资金与心态', source: '原文第94、95、96课',
+    id: 'ch17', vol: '卷四 · 背驰与买卖点', title: '第17章 背驰级别与买卖点再分辨', source: '原文第43、53课',
     figures: [
-      { kind: 'echarts', title: '机会的完全分类：必然出现、不预测', note: '下跌在 <b>9</b> 线段底背驰——这是<b>机会①</b>；其后的反弹震荡出中枢——<b>机会②</b>。第94课：理论把<b>所有必然出现的机会逐一列出</b>（<b>不预测具体点位与时间</b>），你只需等它显现、<b>当机立断</b>。市场的机会与理论输出是<b>严格一一对应</b>的。', option: optCh17 },
-      { kind: 'html', title: '资金管理与心态', note: '第95课：<b>0 成本投入</b>，把第一笔钱的本拿走后，用利润滚出巨大数字；本金多少不重要，关键是<b>技术与操作</b>。第96课：最大的敌人是<b>赌徒心理</b>——预设虚拟目标、怕错过、不断加码、听消息，最终都只有一个结局。', html: figMind },
+      { kind: 'echarts', title: '同一段走势在三个级别（显微镜）下，三类买点＝各自级别的一买', note: '从上到下是<b>同一段下跌+转折</b>在 30 分、5 分、1 分三个显微镜下的样子：<b>30 分</b>上，下跌趋势背驰点就是<b>第一类买点</b>（本级别一买）；<b>5 分</b>放大看，一买后第一次次级别回调的低点就是<b>第二类买点</b>（次级别一买）；<b>1 分</b>再放大，离开中枢后回抽不破 ZG 的低点就是<b>第三类买点</b>（更次级别一买）。三类买卖点本质是同一件事——某一级别的第一类买卖点。', option: optCh17 },
+      { kind: 'html', title: '背驰级别 vs 走势级别的两种转折', note: '第43课强调：<span class="hl">背驰的级别不可能大于当下走势的级别</span>。背驰级别<b>等于</b>走势级别时，必回拉最后中枢；背驰级别<b>小于</b>走势级别时（如 30 分无背驰、只在 c 段内出现 1 分背驰），则不必然回拉。', html: figTurn },
     ],
     sections: [
-      { type: 'definition', title: '当机立断与完全分类（第94课）', items: [
-        { term: '① 洗心革面，第一层次：当机立断', fig: figXixin, text: '学缠论首先要<b>洗心革面</b>——你前面一切关于股票的知识，可能都是后面学习的毒药。第一层次目标，就是达到<b>当机立断</b>：只有严格分类后的不同操作类型，没有无聊的预测。', },
-        { term: '② 机会 = 完全分类，不是预测', fig: figJihui, text: '机会可以预先分析，但这分析<b>不是预测</b>，而是建立在<b>完全分类</b>基础上的边界分划，来自理论的纯数学构造。<span class="hl">市场的机会与理论的输出，是严格一一对应的</span>——理论把一切机会无一遗漏地输出。', formula: '机会 = 完全分类的边界分划（唯一、精确、当下确认），≠ 预测点位时间' },
-        { term: '③ 操作三步法', fig: figSanbu, text: '<b>第一步</b>：任何时刻，马上根据理论<b>列出后面必然出现的机会</b>；<b>第二步</b>：根据自己当下的<b>心情、资金</b>，选择介入的机会、放弃不想介入的机会；<b>第三步</b>：等待机会显现，<b>当机立断</b>。最后一步，足够修炼 N 年。', },
-        { term: '④ 设置退出边界条件', fig: figTuichu, text: '想介入某个机会，就要先做好<b>通道、资金、一切安排</b>，关键是<b>把退出的边界条件设置好</b>（如原来的最后一个类中枢、类背驰/类盘整背驰）。判断机会力度，决定进出的<b>资金量</b>。', },
-        { term: '⑤ 级别与节奏', fig: figJiezou, text: '脑子里必须时刻有<b>“级别”</b>二字。有了级别就是节奏问题：<span class="hl">不会卖出，就等于失去了下次买入的机会</span>。这个节奏之所以难，就是<b>贪嗔痴疑慢</b>作怪。初学者可先用 5 周、5 日线做机械束缚：分型后有效跌破就走。', },
+      { type: 'definition', title: '背驰的级别与走势的级别（第43课）', items: [
+        { term: '① 背驰级别 ≤ 走势级别', text: '一个 30 分钟级别的背驰，只可能存在于一个至少 30 分钟级别的走势类型中。<span class="hl">背驰的级别不可能大于当下走势的级别</span>——不能拿小级别去套大级别，也不能在一个 1 分钟的背驰里断言一个年线级别的下跌（那需要一步步级别扩张才慢慢形成）。', formula: '30 分背驰 ∈ 至少 30 分走势 ⇒ 背驰级别 ≤ 走势级别', fig: mfig('背驰级别 ≤ 走势级别', '<div style="font-size:12px;line-height:1.9;color:#1f2937">30 分背驰 存在于 至少 30 分走势<br>∴ <b>背驰级别 ≤ 走势级别</b></div>', '背驰级别不可能大于当下走势级别') },
+        { term: '② 转折必然由背驰导致，但级别不一定同', text: '<span class="hl">转折必然由背驰导致，但背驰导致的转折并不一定是同一级别的。</span>某级别的背驰必然导致该级别原走势类型的终止，进而开始该级别或以上级别的另一个走势类型（背驰-转折定理）。', formula: '某级别背驰 → 该级别走势终止 + 该级别或以上级别的新走势', fig: mfig('背驰 → 终止 + 新走势', '<div style="font-size:12px;line-height:1.9;color:#1f2937"><b style="color:#e74c3c">背驰</b> → 原走势<b>终止</b><br>→ 开始<b>同级或更高级</b>的新走势</div>', '转折级别 ≥ 背驰级别') },
+        { term: '③ 两种转折方式', text: '按「背驰级别」与「当下走势级别」的关系，转折分两种：<b>① 背驰级别 = 走势级别</b>——背驰至少把走势拉回该走势最后一个中枢（含进入背驰段且最终成立的情况）；<b>② 背驰级别 < 走势级别</b>——走势明显没有相应级别背驰，只出现更小级别背驰，此时<b>不必然回拉</b>，往往先形成一个比该小级别大的中枢，再决定方向。', fig: mfig('两种转折方式', '<div style="font-size:12px;line-height:1.9;color:#1f2937">① <b style="color:#16a34a">同级背驰</b>：必回拉最后中枢<br>② <b style="color:#f59e0b">小级别背驰</b>：不必然回拉</div>', '区分两种转折方式十分关键') },
+        { term: '④ 走势类型分解原则', text: '<span class="hl">一个某级别的走势类型中，不可能出现比该级别更大的中枢；一旦出现，就证明这不是一个某级别的走势类型，而是更大级别走势类型的一部分或几个该级别走势类型的连接。</span>分解点一般取背驰点为界。', fig: mfig('走势类型分解原则', '<div style="font-size:12px;line-height:1.9;color:#1f2937">某级别走势中<br><b>出现更大中枢</b> ⇒ 它不是该级别走势<br>而是<b>更大级别走势的一部分</b></div>', '分解点一般取背驰点') },
       ]},
-      { type: 'definition', title: '资金管理（第95课）', items: [
-        { term: '① 0 成本投入', fig: figLingchengben, text: '市场就是要<b>0 投入去赚钱</b>。把<b>第一笔钱运作好，然后把本拿走</b>，剩下的利润滚成巨大数字——这才是真正的市场操作。真正成功以<b>十年为单位</b>，一笔 0 成本的钱让你无比轻松。', },
-        { term: '② 投入的钱不能无限增加', fig: figFanbei, text: '第一笔 100 万都赚不到钱，还想搞 100 万的平方？<span class="hl">问题不是投入多少，而是技术与操作。</span>就算只有 1 万，10 次翻倍后也是 1000 万；而 1000 万连续 10 次亏损，也就没多少钱了。', formula: '10 次翻倍：1万→1000万；10 次亏损：1000万→归零' },
-        { term: '③ 用不影响生活的钱', fig: figBuyingxiang, text: '用一笔<b>绝对不影响你生活的钱</b>，创造一个操作的故事。绝大多数人因<b>贪婪</b>不断投入、因<b>恐惧</b>落荒而逃，最后都在高潮中又被忽悠进来。', },
-        { term: '④ 修炼自己，别无他法', fig: figXiulian, text: '战胜市场，就是战胜市场的合力、战胜构成合力的绝大多数人。这是人与人智力、体力、资金综合的搏杀。<span class="hl">偷心不死，永无出期。</span>市场唯一的评价就是你的操作，别人最多是陪练。', },
+      { type: 'definition', title: '三类买卖点＝不同级别的第一类买卖点（第53课）', items: [
+        { term: '⑤ 三类买卖点归根结底都是第一类买卖点', text: '<span class="hl">第一、二、三买卖点，归根结底都可以归到第一类买卖点上，只是级别不同。</span>不统称为「第一类买卖点」，是因为那等于同时用不同级别的显微镜去看、太乱；所以统一在一个级别上研究，才有三类买卖点的分别。', fig: mfig('三类买点 = 三个级别的一买', '<div style="font-size:12px;line-height:1.9;color:#1f2937">一买＝<b>本级别</b>一买<br>二买＝<b>次级别</b>一买<br>三买＝<b>次级别回抽</b>的一买</div>', '同一件事，不同显微镜') },
+        { term: '⑥ 三类买点各自的本质', text: '<b>第一类买点</b>＝该级别的背驰点；<b>第二类买点</b>＝第一类买点后第一次次级别回调的低点（放大看是次级别的一买）；<b>第三类买点</b>＝次级别离开中枢后回抽不破 ZG 的低点（放大看也是次级别的一买）。<span class="kw">它们都是不同显微镜下的同一件事——某一级别的第一类买卖点。</span>', formula: '一买＝本级别背驰点　二买＝次级别回调一买　三买＝次级别回抽一买', fig: mfig('三类买点＝不同级别的一买', drawZS([{ p: 8, label: '一买(本级别背驰)', color: '#16a34a' }, { p: 14, tag: '顶' }, { p: 11, label: '二买(次级别回调)', color: '#2563eb' }, { p: 13, tag: '顶' }, { p: 10, tag: '底' }, { p: 16, tag: '顶' }, { p: 13, label: '三买(次级别回抽)', color: '#9333ea' }, { p: 18, tag: '顶' }], [{ lo: 11, hi: 13, x0: 1, x1: 4, label: '中枢 [11,13]' }], { w: 32, h: 100, zgzd: true }), '一买=本级别背驰点；二买=次级别回调低点；三买=次级别回抽不破 ZG') },
+        { term: '⑦ 显微镜比喻', text: '级别之于走势，就像用<b>不同倍数的显微镜看一滴水</b>：放大倍数越高，看到的内部结构越精细。当你决定用 30 分钟级别观察时，就已经先把所有完成的 5 分钟走势都看成「没有内部结构的线段」了；要精细定位背驰段内部，再临时换更大的显微镜（区间套）。', fig: mfig('显微镜比喻', '<div style="font-size:12px;line-height:1.9;color:#1f2937">低倍（30分）：5分走势 = 线段<br>高倍（1分）：看背驰段内部<br>换镜头时，次级别即被看成线段</div>', '选什么级别，就把次级别当线段') },
+        { term: '⑧ 二、三类买卖点在中枢形成中的意义', text: '<b>第二类买卖点</b>（站在中枢形成角度）的意义是：<span class="hl">必然要形成更大级别的中枢</span>，因为其后至少还有一段次级别走势，且必然与前两段有重叠。<b>第三类买卖点</b>的意义是：<span class="kw">对付中枢的结束</span>——一个级别的中枢结束，无非转成更大的中枢，或上涨/下跌直到形成新的该级别中枢。', fig: mfig('二、三类买点的中枢意义', '<div style="font-size:12px;line-height:1.9;color:#1f2937">二买 ⇒ 必然形成<b>更大级别中枢</b><br>三买 ⇒ 中枢<b>结束</b>的信号</div>', '二、三买点之间都是中枢延续') },
       ]},
-      { type: 'definition', title: '赌徒心理（第96课）', items: [
-        { term: '① 最大的敌人', fig: figDiren, text: '市场中最大的敌人之一，就是<b>赌徒心理、赌徒思维</b>。以赌徒心理参与市场，结局就已注定——就算还没进锅，也只是养肥了再煮。', },
-        { term: '② 赌徒心理的典型表现', fig: figBiaoxian, text: '①<b>预设虚拟目标</b>：“等反弹到 X 一定出来”，完全无视市场本身；②<b>怕失去机会</b>：怕走错、怕还涨；③<b>不断加码</b>、砍了又追、追了又砍；④<b>不敢操作</b>：机会来了怕，起来了又后悔追高（5 元不敢买、50 元敢买）；⑤<b>听消息、找捷径</b>；⑥<b>“我要赚钱买房买车”</b>——把市场当慈善场所。', },
-        { term: '③ 成功靠严格操作程序', fig: figChengxu, text: '市场成功从来不是靠一次暴富，<b>一次暴富最后倾家荡产的多了</b>。真正的成功，都是在<b>严格的操作程序</b>下完成的：操作失误没什么大不了，机会不断涌现，严格程序足以保证长期成功。', },
-        { term: '④ 给自己最后一次机会', fig: figZuihou, text: '用不影响生活的钱，当作你<b>唯一的资本、没有后援</b>。输光了，先<b>彻底解剖自己</b>、挖出所有失败根源，再给自己<b>最后一次</b>尝试；再输光就退出——不是每个人都适合市场，必须面对“我不行”这个最客观的事实。', },
-        { term: '⑤ 市场只是生活的一部分', fig: figShenghuo, text: '你不需要如赌徒般烦躁不安、又期盼又恐惧。平静地按自己的韵律、按市场的显现与日俱增地强大自己。<span class="hl">错过了就错过了，后面有无数的机会等着。市场，只是生活的一部分，如此而已。</span>', },
-      ]},
-      { type: 'motivation', title: '理论输出机会，人决定成败', text: '缠论把<b>所有必然机会无一遗漏地输出</b>——这一步谁读懂都能做到；但机会如何进入操作层面，<b>最终修炼的是人</b>。资金管理（0 成本、把本拿走）给你“不死”的底气，心态修炼（当机立断、戒赌徒心理）给你“必胜”的纪律。技术 + 资金 + 心态，三者合一，才是真正的操作者。' },
+      { type: 'motivation', title: '为什么要把买卖点统一到「级别」上', text: '买卖点与背驰，一旦脱离级别，就会变成一锅粥：同一个低点，30 分钟看是第三类买点，5 分钟看可能只是中枢震荡里的一段。第43、53课把「背驰级别 ≤ 走势级别」和「三类买卖点＝不同级别的第一类买卖点」两条定下来，就是给操作装上一套<span class="kw">可切换的显微镜</span>——既不会拿 1 分钟背驰去吓唬自己说年线要崩，也不会在三类买卖点之间迷失，因为它们归根结底是同一件事。' },
       { type: 'pitfalls', title: '常见误区', items: [
-        '把“机会分析”当<b>预测</b>（缠论只做<b>完全分类</b>，不预测点位时间）。',
-        '不断<b>加码</b>投入本金（应 0 成本、把本拿走、用利润滚）。',
-        '预设“涨到 X 就卖”的<b>虚拟目标</b>，无视市场本身。',
-        '<b>砍了又追、追了又砍</b>，或机会来了<b>不敢操作</b>、起来了又追高。',
-        '<b>听消息、找捷径</b>，把市场当慈善场所或赌场。',
+        '拿 1 分钟背驰去断言年线级别下跌（错：那需要一步步级别扩张，不是 1 分钟背驰直接造成的）。',
+        '以为背驰级别可以大于走势级别（错：背驰级别不可能大于当下走势级别）。',
+        '把三类买卖点当成三个互不相干的东西（错：本质都是不同级别的第一类买卖点）。',
+        '忘了「用某级别时就把次级别当线段」的显微镜原则，一会儿 30 分、一会儿 1 分，把自己换晕。',
       ]},
       { type: 'exercises', title: '练习', items: [
-        { q: '缠论的“机会分析”为什么不是预测？', a: '因为它是建立在<b>完全分类</b>基础上的<b>边界分划</b>，来自理论的纯数学构造，<b>只列出必然出现的机会、不预测具体点位与时间</b>；机会与理论输出严格一一对应（第94课）。' },
-        { q: '资金管理的核心原则是什么？', a: '<b>0 成本投入</b>：把第一笔钱运作好、<b>把本拿走</b>，用利润滚动；投入的钱<b>不能无限增加</b>，关键是技术而非本金多少（第95课）。' },
-        { q: '赌徒心理有哪些典型表现？', a: '<b>预设虚拟目标</b>、<b>怕失去机会</b>、<b>不断加码/砍了又追</b>、<b>不敢操作后追高</b>、<b>听消息找捷径</b>、<b>“赚钱买房买车”</b>——核心是预设一个想象中的目标、无视市场本身（第96课）。' },
+        { q: '背驰级别和走势级别是什么关系？', a: '背驰级别<b>不可能大于</b>当下走势级别（背驰级别 ≤ 走势级别）。一个 30 分钟背驰只存在于至少 30 分钟的走势类型中。' },
+        { q: '三类买卖点本质上是什么？', a: '都是<b>第一类买卖点，只是级别不同</b>：一买＝本级别背驰点；二买＝次级别回调的一买；三买＝次级别回抽的一买。' },
+        { q: '背驰级别小于走势级别时，转折与同级背驰有何不同？', a: '同级背驰<b>必回拉最后中枢</b>；小级别背驰<b>不必然回拉</b>，往往先形成一个比该小级别大的中枢，再决定方向。' },
       ]},
     ],
   });

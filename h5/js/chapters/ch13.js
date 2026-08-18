@@ -1,215 +1,132 @@
-/* 第13章 走势分解与多义性 */
+/* 第9章 级别与递归 */
 (function () {
 
-  function optCh13() {
-    const pts = [10, 14, 11, 13, 10, 14, 11, 13, 10, 14]; // 9 段 1 分钟震荡
-    const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
-    const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
+  function optCh9() {
+    const coarse = [10, 16, 11, 15];      // 5分钟图：3 段（一个中枢）
+    const fine = [10, 13, 16, 14, 11, 13, 15]; // 1分钟图：同样 3 段，每段再拆 2 小段
+    const ZD = 11, ZG = 15;
+    const line = { symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' } };
+    const area = (name, x1) => ({ silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' }, label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || name; }, color: '#2563eb', fontSize: 11 }, data: [[{ xAxis: 0, yAxis: ZD, name: name }, { xAxis: x1, yAxis: ZG }]] });
+    const zl = () => ({
+      silent: true, symbol: 'none',
+      label: { show: true, position: 'end', formatter: '{b}', color: '#2563eb', fontSize: 10 },
+      lineStyle: { type: 'dashed', width: 1, color: '#2563eb' },
+      data: [
+        { yAxis: ZG, name: 'ZG=15' },
+        { yAxis: ZD, name: 'ZD=11' },
+      ],
+    });
+    const mp = (series, i, name, color, pos) => ({ coord: [i, series[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 4, fontWeight: 'bold' } });
+    const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      grid: { left: 60, right: 70, top: 40, bottom: 40 },
-      xAxis: { type: 'value', min: 0, max: 9, interval: 1 },
-      yAxis: { type: 'value', scale: true, name: '价格' },
-      series: [{
-        name: '走势', type: 'line', data: pts.map((p, i) => [i, p]),
-        symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
-        markArea: {
-          silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
-          label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 11 },
-          data: [mk(0, 3, 11, 13, '5分钟中枢① [11,13]'), mk(3, 6, 11, 13, '5分钟中枢② [11,13]'), mk(6, 9, 11, 13, '5分钟中枢③ [11,13]')],
-        },
-        markLine: {
-          silent: true, symbol: 'none',
-          lineStyle: { color: '#2563eb', type: 'dashed', width: 1 },
-          label: { show: true, position: 'end', formatter: function (p) { return p.name; }, color: '#2563eb', fontSize: 10 },
-          data: [
-            { yAxis: 13, name: 'ZG=13' },
-            { yAxis: 11, name: 'ZD=11' },
-          ],
-        },
-        markPoint: {
-          data: [
-            mp(0, '底·第1段', '#16a34a', 'bottom'),
-            mp(5, '顶·第6段', '#e74c3c', 'top'),
-            mp(9, '顶·第9段', '#e74c3c', 'top'),
-            seg(4.5, 15.5, '9段1分钟震荡（中枢延伸）', '#6b7280'),
-            seg(4.5, 8.5, '3×5分钟中枢重合 = 30分钟中枢', '#2563eb'),
-          ],
-        },
-      }],
+      title: [
+        { text: '5分钟图', left: 'center', top: 2, textStyle: { fontSize: 13, fontWeight: 'bold', color: '#1f2937' } },
+        { text: '1分钟图', left: 'center', top: 206, textStyle: { fontSize: 13, fontWeight: 'bold', color: '#1f2937' } },
+      ],
+      grid: [
+        { left: 60, right: 96, top: 26, height: 152 },
+        { left: 60, right: 96, top: 228, height: 152 },
+      ],
+      xAxis: [
+        { type: 'value', gridIndex: 0, min: 0, max: 3, interval: 1, axisLabel: { fontSize: 10 } },
+        { type: 'value', gridIndex: 1, min: 0, max: 6, interval: 1, axisLabel: { fontSize: 10 } },
+      ],
+      yAxis: [
+        { type: 'value', gridIndex: 0, scale: true },
+        { type: 'value', gridIndex: 1, scale: true },
+      ],
+      series: [
+        Object.assign({}, line, {
+          name: '5分钟图', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: coarse.map((p, i) => [i, p]),
+          markArea: area('中枢 [11,15]', 3),
+          markLine: zl(),
+          markPoint: { data: [
+            mp(coarse, 0, '底', '#16a34a', 'bottom'),
+            mp(coarse, 1, '顶', '#e74c3c', 'top'),
+            mp(coarse, 2, '底', '#16a34a', 'bottom'),
+            mp(coarse, 3, '顶', '#e74c3c', 'top'),
+            seg(0.5, 14.5, '①上', '#2563eb', 'top'),
+            seg(1.5, 12, '②下', '#2563eb', 'bottom'),
+            seg(2.5, 14.5, '③上', '#2563eb', 'top'),
+          ] },
+        }),
+        Object.assign({}, line, {
+          name: '1分钟图', type: 'line', xAxisIndex: 1, yAxisIndex: 1, data: fine.map((p, i) => [i, p]),
+          markArea: area('同一中枢 [11,15]', 6),
+          markLine: zl(),
+          markPoint: { data: [
+            mp(fine, 0, '底', '#16a34a', 'bottom'),
+            mp(fine, 2, '顶', '#e74c3c', 'top'),
+            mp(fine, 4, '底', '#16a34a', 'bottom'),
+            mp(fine, 6, '顶', '#e74c3c', 'top'),
+            mp(fine, 1, '次级', '#94a3b8', 'top'),
+            mp(fine, 3, '次级', '#94a3b8', 'bottom'),
+            mp(fine, 5, '次级', '#94a3b8', 'top'),
+            seg(3, 11.8, '每段再拆 2 小段', '#6b7280', 'top'),
+          ] },
+        }),
+      ],
     };
   }
 
-  const figJiehe = `
-<div class="fig" style="min-width:320px"><div class="lbl">结合律：a+B+b 的两种分解</div>
-${drawZS([
-{p:8,label:'a',color:'#2563eb'},
-{p:12},
-{p:11,label:'B1',color:'#16a34a'},
-{p:12.5,label:'B2',color:'#e74c3c',above:true},
-{p:11.5,label:'B3',color:'#16a34a'},
-{p:15,label:'b',color:'#2563eb',above:true}
-], [{lo:11,hi:12.5,x0:1,x1:4,label:'B=30分钟中枢 [11,12.5]'}], {zgzd:true,w:52,h:150})}
-<div style="display:flex;align-items:center;gap:4px;font-size:13px;font-family:ui-monospace,Consolas,monospace;flex-wrap:wrap">
-<span style="background:#e5e7eb;padding:4px 10px;border-radius:6px">a</span><span>+</span><span style="background:#bfdbfe;padding:4px 10px;border-radius:6px">B1</span><span style="background:#bfdbfe;padding:4px 10px;border-radius:6px">B2</span><span style="background:#bfdbfe;padding:4px 10px;border-radius:6px">B3</span><span>+</span><span style="background:#e5e7eb;padding:4px 10px;border-radius:6px">b</span>
-</div><div class="cap">B = B1+B2+B3：30分钟中枢由 3 个 5 分钟走势构成</div>
-<div style="display:flex;align-items:center;gap:4px;font-size:13px;font-family:ui-monospace,Consolas,monospace;flex-wrap:wrap;margin-top:10px">
-<span style="background:#dcfce7;padding:4px 10px;border-radius:6px">(a+B1)</span><span>+</span><span style="background:#bfdbfe;padding:4px 10px;border-radius:6px">B2</span><span>+</span><span style="background:#dcfce7;padding:4px 10px;border-radius:6px">(B3+b)</span>
-</div><div class="cap">重新组合后 = 3 个 5 分钟走势类型<br>符合结合律、但<b>不满足交换律</b></div></div>`;
-
-  // ---- 讲解点小图 ----
-
-  // ① 多义性都与中枢有关
-  const fig13a = mfig('多义性源于中枢的延伸与扩展',
-    drawZS(
-      [{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 10 }, { p: 14 }],
-      [{ lo: 11, hi: 13, x0: 0, x1: 9, label: '中枢·延伸中' }],
-      { w: 30, h: 88 }
-    ),
-    '中枢不断延伸、扩展，走势才有多义性；<br>标准 a+A+b+B+c 反而不多义');
-
-  // ② 第一种多义性：中枢延伸 9 段 → 两种级别
-  const fig13b = mfig('同一走势：两种级别划分',
-    drawZS(
-      [{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 10 }, { p: 14 }],
-      [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '5分钟①' }, { lo: 11, hi: 13, x0: 3, x1: 6, label: '5分钟②' }, { lo: 11, hi: 13, x0: 6, x1: 9, label: '5分钟③' }],
-      { w: 28, h: 76 }
-    )
-    + '<div class="cap">上：每 3 段 = 1 个 5 分钟中枢（共 3 个）</div><div style="margin-top:8px"></div>'
-    + drawZS(
-      [{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 10 }, { p: 14 }],
-      [{ lo: 11, hi: 13, x0: 0, x1: 9, label: '30分钟中枢（三中枢重合）' }],
-      { w: 28, h: 76 }
-    )
-    + '<div class="cap">下：3 个 5 分钟中枢重合 = 1 个 30 分钟中枢</div>',
-    '中枢延伸超 5 段（共 9 段）→ 升级为更大级别中枢');
-
-  // ③ 第二种多义性：模本简略（不同精度图）
-  const fig13c = mfig('不同级别图 = 不同精度的模本',
-    '<div style="display:flex;gap:14px;align-items:flex-start">'
-    + drawZS([{ p: 10, label: '5分钟图', color: '#2563eb' }, { p: 16 }, { p: 13 }, { p: 20 }], [], { w: 34, h: 76, lineColor: '#2563eb' })
-    + drawZS([{ p: 10, label: '每笔成交', color: '#7c3aed' }, { p: 14 }, { p: 12 }, { p: 15 }, { p: 13 }, { p: 17 }, { p: 15 }, { p: 20 }], [], { w: 24, h: 76, lineColor: '#7c3aed' })
-    + '</div>',
-    '左：简略模本；右：真实递归。<br>级别应逐笔确认，5/30分钟图只是简略');
-
-  // ④ 第三种多义性：多种合理释义
-  const fig13d = mfig('同一走势的两种合理释义',
-    drawZS(
-      [{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 16 }, { p: 12.5 }, { p: 15 }],
-      [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '中枢A' }, { lo: 13, hi: 15, x0: 4, x1: 7, label: '中枢B' }],
-      { w: 30, h: 76 }
-    )
-    + '<div class="cap">释义1：两个同向中枢 = 趋势</div><div style="margin-top:8px"></div>'
-    + drawZS(
-      [{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 16 }, { p: 12.5 }, { p: 15 }],
-      [{ lo: 11, hi: 15, x0: 0, x1: 7, label: '大级别中枢（波动重叠）' }],
-      { w: 30, h: 76 }
-    )
-    + '<div class="cap">释义2：波动重叠 = 一个更大级别中枢</div>',
-    '多种合理释义都符合理论逻辑，<br>可从多角度分析同一走势');
-
-  // ⑤ 多义性 ≠ 含糊性
-  const fig13e = mfig('多义性 vs 含糊性',
-    '<div style="display:flex;gap:14px;align-items:flex-start">'
-    + drawZS([{ p: 10, label: '多义性', color: '#2563eb' }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 16 }, { p: 12.5 }, { p: 15 }], [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '中枢A' }, { lo: 13, hi: 15, x0: 4, x1: 7, label: '中枢B' }], { w: 30, h: 76, lineColor: '#2563eb' })
-    + drawZS([{ p: 10, label: '含糊性', color: '#9ca3af' }, { p: 18 }, { p: 7 }, { p: 16 }, { p: 9 }, { p: 15 }, { p: 6 }, { p: 14 }], [], { w: 30, h: 76, lineColor: '#9ca3af' })
-    + '</div>',
-    '左：严格理论下的多种清晰划分 = 多义性；<br>右：无中枢可依的散乱 = 含糊性');
-
-  // Section2 ① 结合律
-  const fig13f = mfig('A+B+C 依序相连',
-    drawZS(
-      [{ p: 10, label: 'A', color: '#16a34a' }, { p: 15, label: 'B', color: '#e74c3c', above: true }, { p: 11, label: 'C', color: '#16a34a' }],
-      [], { w: 44, h: 90 }
-    ),
-    '结合律：(A+B)+C = A+(B+C) 成立；<br>交换律：A+B ≠ B+A，顺序不可颠倒');
-
-  // Section2 ② 拆散重分 a+B+b
-  const fig13g = mfig('B = B1+B2+B3，可重新组合',
-    drawZS(
-      [{ p: 8, label: 'a', color: '#2563eb' }, { p: 12 }, { p: 11, label: 'B1', color: '#16a34a' }, { p: 12.5, label: 'B2', color: '#e74c3c', above: true }, { p: 11.5, label: 'B3', color: '#16a34a' }, { p: 15, label: 'b', color: '#2563eb', above: true }],
-      [{ lo: 11, hi: 12.5, x0: 1, x1: 4, label: 'B=30分钟中枢' }],
-      { w: 40, h: 104 }
-    ),
-    'a+B+b = a+B1+B2+B3+b<br>= (a+B1)+B2+(B3+b)（三个 5 分钟走势）');
-
-  // Section2 ③ 按级别分解
-  const fig13h = mfig('同一走势按不同级别分解',
-    drawZS([{ p: 10 }, { p: 13 }, { p: 11 }, { p: 14 }, { p: 12 }, { p: 15 }, { p: 13 }, { p: 16 }, { p: 14 }, { p: 20 }], [], { w: 20, h: 58, lineColor: '#7c3aed' })
-    + '<div class="cap">1分钟：A = A1-1 + A1-2 + …（细）</div><div style="margin-top:6px"></div>'
-    + drawZS([{ p: 10 }, { p: 14 }, { p: 11 }, { p: 15 }, { p: 12 }, { p: 20 }], [], { w: 26, h: 58, lineColor: '#2563eb' })
-    + '<div class="cap">5分钟：A = A5-1 + A5-2 + …（中）</div><div style="margin-top:6px"></div>'
-    + drawZS([{ p: 10 }, { p: 20 }], [], { w: 40, h: 58, lineColor: '#1f2937' })
-    + '<div class="cap">30分钟：A = A30-1（粗，一段）</div>',
-    '选哪个级别操作，等价于选等式列中<br>对应子式进行操作');
-
-  // Section2 ④ 当下判断依赖分解方式
-  const fig13i = mfig('同一当下：不同级别结论不同',
-    '<div style="display:flex;gap:14px;align-items:flex-start">'
-    + drawZS([{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 15, label: '5分钟:已完成', color: '#16a34a', above: true }], [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '5分钟中枢' }], { w: 30, h: 80 })
-    + drawZS([{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 15, label: '30分钟:未完成', color: '#e74c3c', above: true }], [{ lo: 11, hi: 14, x0: 0, x1: 4, label: '30分钟中枢' }], { w: 30, h: 80 })
-    + '</div>',
-    '同一当下：5分钟里走势已走完，<br>30分钟里可能仍在延伸、未完成');
-
-  // Section2 ⑤ 组合要点：避繁就简
-  const fig13j = mfig('避繁就简：重组避开中枢扩展',
-    drawZS(
-      [{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 15 }, { p: 12.5 }, { p: 14 }],
-      [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '中枢A' }, { lo: 12.5, hi: 14, x0: 4, x1: 7, label: '中枢B' }],
-      { w: 30, h: 76 }
-    )
-    + '<div class="cap">左：中枢A、B 波动重叠 → 扩展（复杂）</div><div style="margin-top:8px"></div>'
-    + drawZS(
-      [{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 15 }, { p: 12.5 }, { p: 14 }],
-      [{ lo: 11, hi: 14, x0: 0, x1: 7, label: '重组成一个中枢' }],
-      { w: 30, h: 76 }
-    )
-    + '<div class="cap">右：重组为一个大中枢，避免扩展（清晰）</div>',
-    '若有组合能避免出现扩展，就采用该组合');
-
-  // Section2 ⑥ 纯中枢角度的背驰释义
-  const fig13k = mfig('b 向下离开强、c 向上离开弱 = 顶背驰',
-    drawZS(
-      [{ p: 6, label: 'a', color: '#2563eb' }, { p: 10 }, { p: 8 }, { p: 10.5 }, { p: 6.5, label: 'b·下离开(强)', color: '#16a34a' }, { p: 9.5, label: 'c·上离开(弱=顶背驰)', color: '#e74c3c', above: true }],
-      [{ lo: 8, hi: 10.5, x0: 1, x1: 3, label: '中枢 B' }],
-      { w: 40, h: 104 }
-    ),
-    'b 向下离开(幅度 4) 强、c 向上离开(幅度 3) 弱<br>→ 顶背驰，本质与盘整背驰相同');
+  function chainSVG() {
+    const steps = [
+      { t: 'a0：K线 → 分型 → 笔 → 线段', d: '（最低级别，可替换的启始规则）', f: '#fef3c7', s: '#f59e0b' },
+      { t: 'a1：1分钟中枢 = 3个线段重叠', d: '（f1 启始：造出最低级别中枢）', f: '#e0e7ff', s: '#2563eb' },
+      { t: 'a2：5分钟中枢 = 3个1分钟走势类型重叠', d: '（f2 递归：次级别走势类型重叠）', f: '#dcfce7', s: '#16a34a' },
+      { t: 'a3：30分钟中枢 = 3个5分钟走势类型重叠', d: '（f2 递归：逐级上升，共 8 个级别）', f: '#f3e8ff', s: '#9333ea' },
+    ];
+    const bw = 400, bh = 50, gap = 40, cx = 260;
+    const H = steps.length * (bh + gap) - gap;
+    let s = `<svg viewBox="0 0 520 ${H}" width="520" height="${H}" style="display:block;max-width:100%">`;
+    s += `<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker></defs>`;
+    steps.forEach((st, i) => {
+      const y = i * (bh + gap), x = cx - bw / 2;
+      s += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="8" fill="${st.f}" stroke="${st.s}" stroke-width="1.5"/>`;
+      s += `<text x="${cx}" y="${y + 20}" text-anchor="middle" font-size="13" fill="#1f2937" font-weight="bold">${st.t}</text>`;
+      s += `<text x="${cx}" y="${y + 38}" text-anchor="middle" font-size="11" fill="#6b7280">${st.d}</text>`;
+      if (i < steps.length - 1) {
+        const ay = y + bh;
+        s += `<line x1="${cx}" y1="${ay}" x2="${cx}" y2="${ay + gap}" stroke="#2563eb" stroke-width="2" marker-end="url(#arr)"/>`;
+        s += `<text x="${cx + 14}" y="${ay + gap - 8}" font-size="12" fill="#2563eb" font-weight="bold">${i === 0 ? 'f1' : 'f2'}</text>`;
+      }
+    });
+    s += '</svg>';
+    return s;
+  }
 
   __chapters.push({
-    id: 'ch13', title: '第13章 走势分解与多义性', source: '原文第33、35、36课',
+    id: 'ch13', vol: '卷三 · 中枢与走势', title: '第13章 级别与递归', source: '原文第63、84课',
     figures: [
-      { kind: 'echarts', title: '中枢延伸 9 段：同一走势的两种级别', note: '9 段 1 分钟走势围绕中枢震荡：<b>每 3 段</b>可看成一个 5 分钟中枢（①②③），而 3 个 5 分钟中枢<b>完全重合</b>，就构成 1 个 30 分钟中枢。同一段走势，<b>两种级别分解都成立</b>——这就是多义性（第33课：中枢延伸 9 段即升级）。', option: optCh13 },
-      { kind: 'html', title: '结合律：重新组合走势', note: '走势类型连接<b>符合结合律</b>：a+B+b 可以重组为 (a+B1)+B2+(B3+b)，把“一个 30 分钟中枢”重排成“三个 5 分钟走势类型”。利用它可以把走势重新组合得更清晰、更利于操作。', html: figJiehe },
+      { kind: 'echarts', title: '显微镜：同一走势的不同精细度', note: '上面的<b>5分钟图</b>只能看到 3 段、一个中枢 <code>[11,15]</code>；换<b>1分钟图</b>，同样的 3 段每段内部还能再拆出 2 个小段。走势与中枢是<b>客观存在</b>的“观察物”，级别图只是<b>显微镜的倍数</b>——倍率越高，看到越精细的次级别结构，但那个中枢本身不变。', option: optCh9 },
+      { kind: 'html', title: '递归定义：f1 与 f2', note: '级别不是凭空来的，是<b>递归</b>出来的：<b>f1(a0)=a1</b> 用分型/笔/线段搭出最低级别中枢；<b>f2(an)=an+1</b> 用“次级别走势类型的重叠”一级级往上造出更高级别中枢。f1 与 f2 是<b>两套不同的规则</b>。', html: chainSVG() },
     ],
     sections: [
-      { type: 'definition', title: '三种多义性', items: [
-        { term: '① 多义性都与中枢有关（第33课）', text: '<span class="hl">所有走势的多义性，都与中枢有关。</span>市场若总是标准的 a+A+b+B+c（A、B 中枢级别相同），就太简单了；正是中枢的延伸、扩展等，才让走势呈现多义性。', fig: fig13a },
-        { term: '② 第一种多义性：中枢延伸（第33课）', text: '一个 5 分钟中枢不断延伸，出现 <b>9 段以上</b> 1 分钟走势——每 3 段构成 1 个 5 分钟中枢，3 个 5 分钟中枢重合就解释成 1 个 <b>30 分钟中枢</b>。消除办法：限制中枢延伸——<span class="hl">延伸不能超过 5 段；一旦出现第 6 段延伸（加形成中枢本身 3 段，共 9 段），就构成更大级别中枢</span>。', formula: '延伸 ≤ 5 段 → 本级别；延伸 ≥ 6 段（共9段）→ 更大级别中枢', fig: fig13b },
-        { term: '③ 第二种多义性：模本简略（第33课）', text: '不同级别图是对真实走势<b>不同精度</b>的模本。走势级别严格说应从<b>每笔成交</b>递归精确确认，与 5/30 分钟等图无关；用 1/5/30/日/周/月/季/年这套级别，只是<b>简略</b>（你完全可以按等比数列自设级别序列）。', fig: fig13c },
-        { term: '④ 第三种多义性：多种合理释义（第33课）', text: '还有一种<b>有实质意义</b>的多义性：走势分析中的多种<b>合理释义</b>，它们都符合理论内在逻辑。这种多义性不是负担，反而可用来<b>从多角度</b>分析同一走势。', fig: fig13d },
-        { term: '⑤ 多义性 ≠ 含糊性（第36课）', text: '含糊性是理论基础不牢的表现；<span class="hl">多义性则是站在严格、精确的理论基础上，用同一理论的不同视角分析同一现象</span>。无论怎么组合，都不会违反理论。', fig: fig13e },
+      { type: 'definition', title: '级别的来源：递归定义', items: [
+        { term: '① 递归定义解决存在性问题（第63课）', text: '一个数学/几何对象首先要证明其<b>存在</b>。前面关于中枢的递归定义，正是解决“中枢或走势类型是<b>按级别存在</b>”的存在性问题——它既是存在性证明，又是<b>可操作</b>的找中枢方法。', fig: mfig('递归 = 存在性证明 + 可操作方法', '<div style="font-size:12px;line-height:1.9;color:#1f2937">a0(K线) <b style="color:#f59e0b">→f1→</b> a1(1分钟中枢) <b style="color:#2563eb">→f2→</b> a2(5分钟中枢) <b style="color:#2563eb">→f2→</b> a3…</div>', '递归既证明“按级别存在”，又是找中枢的方法') },
+        { term: '② 递归定义的两部分：f1 与 f2（第84课）', text: '中枢定义的关键在于<b>递归性</b>。一般递归定义由两部分组成：<span class="kw">一、f1(a0)=a1</span>；<span class="kw">二、f2(an)=an+1</span>。第二条（中枢过程规则）从不改变；第一条（启始规则）可随意设置，且 <b>f1 与 f2 可以是完全不同的两个函数</b>。', formula: 'f1(a0) = a1　；　f2(an) = a(n+1)', fig: mfig('两套规则：f1 与 f2', '<div style="font-size:12px;line-height:1.9;color:#1f2937"><b style="color:#f59e0b">f1(a0)=a1</b>：分型/笔/线段 → 最低级别中枢<br><b style="color:#2563eb">f2(an)=a(n+1)</b>：次级别走势类型重叠 → 更高级别中枢</div>', 'f1 启始（可替换），f2 过程规则（不变）') },
+        { term: '③ f1：最低级别的构造（第84课）', text: '用<b>分型、线段</b>这样的函数关系去构造<b>最低级别</b>的中枢、走势类型（即 a1）。这是递归的<b>启始程序</b>，并非必然需要——也可用收盘价、成交量等定义，<b>只要能保证分解的唯一性</b>即可。', fig: mfig('f1：线段构造最低级别中枢', drawZS([{ p: 10, label: '线段1', color: '#f59e0b' }, { p: 15 }, { p: 11, label: '线段2', color: '#f59e0b' }, { p: 14 }, { p: 12, label: '线段3', color: '#f59e0b' }], [{ lo: 11, hi: 14, x0: 0, x1: 4, label: '1分钟中枢' }], { w: 40, h: 100 }), '3 个线段重叠 → 最低级别中枢（a1）') },
+        { term: '④ f2：更高级别的构造（第84课）', text: '最低级别<b>以上</b>，用<b>另一套规则</b>（f2）去定义：更高级别中枢 = <span class="hl">至少三个连续次级别走势类型的重叠</span>。它和 f1 完全不同，但递归结构不变。', fig: mfig('f2：次级别走势类型重叠', drawZS([{ p: 10 }, { p: 16 }, { p: 11 }, { p: 15 }, { p: 12 }, { p: 17 }, { p: 13 }, { p: 16 }], [{ lo: 11, hi: 15, x0: 0, x1: 3, label: '次级别1' }, { lo: 12, hi: 16, x0: 2, x1: 5, label: '次级别2' }, { lo: 12, hi: 16, x0: 4, x1: 7, label: '次级别3' }], { w: 32, h: 100 }), '3 个次级别走势类型重叠 → 更高级别中枢') },
+        { term: '⑤ 存在性 vs 可操作性（第63课）', text: '光有存在性定义（递归）不够——像质数分解那样，理想化却可能算不动。于是有了<b>分型、笔、线段</b>这套变通方法，以及不同级别图的研究，让递归变成<b>当下可操作</b>的程序。', fig: mfig('从“存在”到“可操作”', '<div style="font-size:12px;line-height:1.9;color:#1f2937">递归定义（存在性）<b style="color:#2563eb">→</b> 分型/笔/线段（可操作）<b style="color:#2563eb">→</b> 不同级别图（落地）</div>', '光有存在性不够，要有可操作程序') },
       ]},
-      { type: 'definition', title: '结合律与重新组合', items: [
-        { term: '① 走势类型连接的结合律（第36课）', text: '走势类型连接符合<b>结合律</b>：<code>A+B+C = (A+B)+C = A+(B+C)</code>，A、B、C 的级别<b>可以不同</b>。但<span class="hl">不满足交换律</span>（A+B ≠ B+A）——这就是该运算的特别之处。', formula: 'A+B+C = (A+B)+C = A+(B+C)　（结合律；不交换）', fig: fig13f },
-        { term: '② 一个高级别走势的拆散重分（第35课）', text: '高级别走势类型由几个低级别走势类型连接而成。设 B（30分钟中枢）由 B1、B2、B3 三个 5 分钟走势构成，则 <code>a+B+b = a+B1+B2+B3+b = (a+B1)+B2+(B3+b)</code>，(a+B1)、B2、(B3+b) 都是 5 分钟走势类型——这正是”走势分解定理二”的由来。', fig: fig13g },
-        { term: '③ 按级别分解的释义（第36课）', text: '任何一段走势都可根据<b>不同级别</b>分解：<code>A = A1-1+…+A1-m1 = A5-1+…+A5-m5 = A30-1+…+A30-m30 = …</code>。选择某级别操作，等价于选择该等式列中某个子式进行操作。', fig: fig13h },
-        { term: '④ 当下判断依赖分解方式（第36课）', text: '当下判断的基础是<b>所采取的分解方式</b>：按 5 分钟分解与按 30 分钟分解，同一时间看到的走势意义不同；在 5 分钟分解里完成的走势，在 30 分钟却不一定完成。<b>不同分解角度，可当下看到不同级别的未完成走势。</b>', fig: fig13i },
-        { term: '⑤ 组合要点：避繁就简（第36课）', text: '利用结合律<b>重新组合</b>使走势更清晰。要点：<span class="hl">尽量避繁就简</span>——因为中枢扩展较复杂，若有组合能避免出现扩展，就采用该组合。当下采用哪种组合，就按该组合的图形意义来判断操作。', fig: fig13j },
-        { term: '⑥ 纯中枢角度的背驰释义（第33课）', text: '对 a+A+b+B+c，把 b 看成<b>向下离开</b>中枢 B、c 看成<b>向上离开</b>中枢 B。中枢对两个方向离开的回拉作用相同，故“向上离开比向下离开弱”（c&lt;b）就是顶背驰。站在中枢角度，<b>盘整背驰与背驰本质一样</b>，只是力度、级别、位置不同。', fig: fig13k },
+      { type: 'definition', title: '级别与图、与时间的关系', items: [
+        { term: '① 显微镜比喻（第63课）', text: '<span class="hl">什么级别的图，和什么级别的中枢，没有任何必然关系。</span>走势类型与中枢是“显微镜下的观察物”，客观存在（由递归定义保证）；级别图只是“显微镜”，不同倍数看到不同精细程度。不能把显微镜和它观察的东西混为一谈。', fig: mfig('级别图 = 显微镜倍数', '<div style="display:flex;gap:8px;align-items:flex-start">' + drawZS([{ p: 10 }, { p: 16 }, { p: 11 }, { p: 15 }], [{ lo: 11, hi: 15, x0: 0, x1: 3, label: '中枢' }], { w: 30, h: 80 }) + drawZS([{ p: 10 }, { p: 13 }, { p: 16 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 15 }], [{ lo: 11, hi: 15, x0: 0, x1: 6, label: '同一中枢' }], { w: 30, h: 80 }) + '</div>', '左：5分钟图（粗）；右：1分钟图（细），中枢不变') },
+        { term: '② 从 1 分钟递归出 8 个级别（第63课）', text: '选定<b>1分钟图</b>为最基本图：先定义分型/笔/线段 → 线段定义<b>1分钟中枢</b> → 1分钟走势类型 → 再按递归，逐步定义 <b>5分钟、30分钟、日、周、月、季度、年</b>的中枢与走势类型，共 <span class="kw">8 个级别</span>。', fig: mfig('从1分钟递归出8个级别', '<div style="font-size:12px;line-height:1.9;color:#1f2937">1分钟 <b style="color:#2563eb">→</b> 5分钟 <b style="color:#2563eb">→</b> 30分钟 <b style="color:#2563eb">→</b> 日 <b style="color:#2563eb">→</b> 周 <b style="color:#2563eb">→</b> 月 <b style="color:#2563eb">→</b> 季 <b style="color:#2563eb">→</b> 年</div>', '8 个级别，逐级递归') },
+        { term: '③ 级别与时间无关（第84课）', text: '<span class="hl">级别，本质上与时间无关，级别也不是什么时间结构。级别，只是按照本ID的规则，自生长出来的一种分类方法。</span>一个最低级别不到的走势类型，可以生长 100 年也不长成更高级别。级别被破坏，就是因为被破坏，与时间因素无关。', formula: '级别 = 按规则自生长的分类，与时间无关', fig: mfig('级别与时间无关', drawZS([{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13, label: '100年', color: '#6b7280', above: true }, { p: 12 }, { p: 14 }, { p: 11 }, { p: 13 }], [{ lo: 11, hi: 13, x0: 0, x1: 7, label: '仍是最低级别' }], { w: 30, h: 100 }), '最低级别走势可生长 100 年也不长级') },
+        { term: '④ 三大客观支点（第84课）', text: '① <b>走势的不可重复性</b>；② <b>自同构性结构的绝对复制性</b>（任何级别结构相同，故能递归）；③ <b>理论的纯逻辑推导</b>。这三点构成缠论视角的三个客观支点。', fig: mfig('三大客观支点', '<div style="font-size:12px;line-height:1.9;color:#1f2937">① 走势的<b>不可重复性</b><br>② <b>自同构结构</b>的绝对复制性<br>③ 理论的<b>纯逻辑推导</b></div>', '这三点是缠论视角的客观支点') },
+        { term: '⑤ 分型 ≠ 分形（第84课）', text: '<span class="kw">分型</span>建立在一个 K 线组合的<b>纯粹分类</b>基础上，结论绝对唯一；而<span class="kw">分形</span>是归纳性结构，<b>划分不唯一</b>、必有缺陷。两者本质不同。', fig: mfig('分型 ≠ 分形', '<div style="font-size:12px;line-height:1.9;color:#1f2937"><b style="color:#16a34a">分型</b>：K线组合的纯粹分类，结论唯一<br><b style="color:#e74c3c">分形</b>：归纳结构，划分不唯一、有缺陷</div>', '分型是唯一分类，分形是归纳近似') },
       ]},
-      { type: 'motivation', title: '多义性让你“一眼看穿”走势', text: '多义性不是缺陷，而是缠论的强大之处：同一段走势，可以用<b>多个严格等价的角度</b>去分解——按级别、按结合律重组、按中枢位置。学会切换这些视角，就能把缠绕的走势<b>重新组合成最清晰、最利于操作</b>的形式；而“当下选择最有利组合”的本事，正是从“懂理论”到“会看图”的关键一步。' },
+      { type: 'motivation', title: '为什么“级别”是缠论的骨架', text: '级别让“同一段走势”能在不同层次被<b>唯一地分解</b>：1分钟的中枢、5分钟的走势、30分钟的趋势……层层递归。它同时回答了两个关键问题：<b>买卖点是哪个级别的</b>、<b>背驰是哪个级别的</b>。没有级别，中枢、走势类型、买卖点、背驰全都悬空；而“级别与时间无关”恰恰提醒我们：<b>不要被 K 线的时间周期图骗了</b>，级别是结构自生长的结果。' },
       { type: 'pitfalls', title: '常见误区', items: [
-        '把<b>多义性</b>当成<b>含糊性</b>（多义性是严格理论下的多视角，含糊性是理论不牢）。',
-        '中枢延伸<b>超过 5 段</b>还当本级别中枢看（应升级为更大级别中枢）。',
-        '以为结合律也满足<b>交换律</b>（错：A+B ≠ B+A，顺序不可颠倒）。',
-        '死守<b>一种分解</b>（应结合当下走势，选择最清晰、避免扩展的组合）。',
+        '把“<b>级别</b>”等同于“<b>时间周期图</b>”（5分钟图 ≠ 5分钟级别；级别与图、与时间无关）。',
+        '以为更高级别中枢必须<b>等更长的时间</b>才形成（错：级别与时间无关，可能瞬间扩展，也可能 100 年不长级）。',
+        '混淆 <b>f1 与 f2</b>：最低级别用“分型/笔/线段”，更高用“次级别走势类型重叠”，两套规则不同。',
+        '把<b>分型</b>和<b>分形</b>混为一谈（分型是唯一分类，分形是归纳近似）。',
       ]},
       { type: 'exercises', title: '练习', items: [
-        { q: '中枢延伸多少段会升级为更大级别中枢？', a: '<b>延伸超过 5 段</b>（即出现第 6 段延伸，加上形成中枢本身的 3 段，共 <b>9 段</b>）时，就构成更大级别中枢（第33课）。' },
-        { q: '为什么说“走势类型连接符合结合律、但不满足交换律”？', a: '<b>结合律</b>：A+B+C=(A+B)+C=A+(B+C)，怎么分组结果一样；<b>不满足交换律</b>：A+B≠B+A，因为走势是有时间顺序的，先涨后跌和先跌后涨是两回事。' },
-        { q: '“有实质意义的多义性”指什么？', a: '指同一走势存在<b>多种合理释义</b>（如按不同级别分解、按结合律重组），都符合理论逻辑。它不是含糊，而是可以<b>多角度</b>分析、选择最有利分解的工具。' },
+        { q: '“5分钟图上的中枢就是5分钟级别的中枢”这句话对吗？', a: '<b>不对</b>。级别图（显微镜）与级别（观察物）没有必然关系。一个 5 分钟级别中枢可能出现在 30 分钟图上；反过来 5 分钟图上的某个中枢也可能是 1 分钟级别的。要看它由<b>哪个次级别的走势类型</b>重叠而成。' },
+        { q: 'f1 和 f2 分别是什么？为什么它们是两套不同规则？', a: '<b>f1(a0)=a1</b>：用分型/笔/线段构造<b>最低级别</b>中枢（启始，可替换）；<b>f2(an)=a(n+1)</b>：用<b>次级别走势类型的重叠</b>构造更高级别中枢。最低级别之下没有更次级别可用，故必须换规则，所以两套不同。' },
       ]},
     ],
   });

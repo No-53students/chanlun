@@ -11,6 +11,15 @@
       const cur = computed(() => chapters[curIdx.value]);
       const prev = computed(() => curIdx.value > 0 ? chapters[curIdx.value - 1] : null);
       const next = computed(() => curIdx.value < chapters.length - 1 ? chapters[curIdx.value + 1] : null);
+      const groupedChapters = computed(() => {
+        const groups = [], index = {};
+        for (const c of chapters) {
+          const v = c.vol || '其他';
+          if (!index[v]) { index[v] = { vol: v, chapters: [] }; groups.push(index[v]); }
+          index[v].chapters.push(c);
+        }
+        return groups;
+      });
       let charts = [];
 
       function route() {
@@ -43,7 +52,7 @@
 
       watch(curIdx, () => nextTick(renderFigures));
 
-      return { chapters, upcoming, cur, prev, next, navOpen };
+      return { chapters, upcoming, cur, prev, next, navOpen, groupedChapters };
     },
   }).mount('#app');
 })();

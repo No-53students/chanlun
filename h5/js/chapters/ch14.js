@@ -1,225 +1,123 @@
-/* 第14章 同级别分解 */
+/* 第10章 背驰 */
 (function () {
 
-  function optCh14() {
-    const pts = [10, 16, 13, 18, 15, 20, 17, 22]; // A0..A6：7 段同级别走势，交替上下
+  function optCh10() {
+    const pts = [8, 13, 10, 14, 11, 17, 14, 18, 15, 21];
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
-    const marks = [
-      { coord: [0, 10], name: 'A0=a（上涨段）', color: '#e74c3c' },
-      { coord: [1, 16], name: 'a 高点', color: '#1f2937' },
-      { coord: [3, 18], name: 'A2 升破 a 高点', color: '#1f2937' },
-      { coord: [4, 15], name: 'A3 跌回 a 高点', color: '#1f2937' },
-    ];
-    const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
-    const segData = [
-      seg(0.5, 13, 'A0↑', '#e74c3c'),
-      seg(1.5, 14.5, 'A1↓', '#16a34a'),
-      seg(2.5, 15.5, 'A2↑', '#e74c3c'),
-      seg(3.5, 16.5, 'A3↓', '#16a34a'),
-      seg(4.5, 17.5, 'A4↑', '#e74c3c'),
-      seg(5.5, 18.5, 'A5↓', '#16a34a'),
-      seg(6.5, 19.5, 'A6↑', '#e74c3c'),
-      seg(3.5, 21.5, '比较 Ai 与 Ai+2 力度（盘整背驰）', '#1f2937'),
-    ];
-    const markPointData = marks.map(m => ({
-      coord: m.coord, name: m.name, symbol: 'pin', symbolSize: 36,
-      itemStyle: { color: m.color },
-      label: { show: true, formatter: function (p) { return p.name; }, color: m.color, fontSize: 10, fontWeight: 'bold' },
-    })).concat(segData);
+    const segMacd = [4, -1, 2, -1, 5, -1, 2, -1, 2];
+    const barData = segMacd.map((v, i) => ({
+      value: [i + 0.5, v],
+      itemStyle: { color: v >= 0 ? '#e74c3c' : '#16a34a' },
+    }));
+    const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 4, fontWeight: 'bold' } });
+    const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      grid: { left: 60, right: 70, top: 40, bottom: 40 },
-      xAxis: { type: 'value', min: 0, max: 7, interval: 1 },
-      yAxis: { type: 'value', scale: true, name: '价格' },
-      series: [{
-        name: '走势', type: 'line', data: pts.map((p, i) => [i, p]),
-        symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
-        markArea: {
-          silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
-          label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 11 },
-          data: [mk(1, 4, 15, 16, '30分钟中枢 [15,16]（A1+A2+A3）')],
+      grid: [
+        { left: 60, right: 90, top: 40, height: 220 },
+        { left: 60, right: 90, top: 310, height: 100 },
+      ],
+      xAxis: [
+        { type: 'value', gridIndex: 0, min: 0, max: 9, interval: 1 },
+        { type: 'value', gridIndex: 1, min: 0, max: 9, interval: 1, axisLabel: { show: false } },
+      ],
+      yAxis: [
+        { type: 'value', gridIndex: 0, scale: true, name: '价格', nameLocation: 'middle', nameGap: 40 },
+        { type: 'value', gridIndex: 1, name: 'MACD', nameLocation: 'middle', nameGap: 30 },
+      ],
+      series: [
+        {
+          name: '走势', type: 'line', xAxisIndex: 0, yAxisIndex: 0,
+          data: pts.map((p, i) => [i, p]), symbol: 'circle', symbolSize: 5,
+          lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
+          markArea: {
+            silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
+            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 11 },
+            data: [mk(1, 4, 11, 13, '中枢A [11,13]'), mk(5, 8, 15, 17, '中枢B [15,17]')],
+          },
+          markLine: {
+            silent: true, symbol: 'none',
+            label: { show: true, position: 'end', formatter: '{b}' },
+            lineStyle: { type: 'dashed', width: 1 },
+            data: [
+              { yAxis: 13, name: '中枢A ZG=13' },
+              { yAxis: 11, name: '中枢A ZD=11' },
+              { yAxis: 17, name: '中枢B ZG=17' },
+              { yAxis: 15, name: '中枢B ZD=15' },
+            ],
+          },
+          markPoint: {
+            data: [
+              mp(0, '底', '#16a34a', 'bottom'),
+              mp(1, '顶', '#e74c3c', 'top'),
+              mp(3, 'A·GG=14', '#e74c3c', 'top'),
+              mp(5, '顶', '#e74c3c', 'top'),
+              mp(6, 'B·DD=14', '#16a34a', 'bottom'),
+              mp(7, 'B·GG=18', '#e74c3c', 'top'),
+              mp(8, 'B·ZD=15', '#16a34a', 'bottom'),
+              mp(9, '背驰点 c顶', '#e74c3c', 'top'),
+              seg(0.5, 9.8, 'a', '#1f2937', 'bottom'),
+              seg(2.5, 12.6, 'A', '#2563eb', 'top'),
+              seg(4.5, 14.8, 'b', '#1f2937', 'top'),
+              seg(6.5, 16.2, 'B', '#2563eb', 'top'),
+              seg(8.5, 19.5, 'c', '#e74c3c', 'top'),
+            ],
+          },
         },
-        markLine: {
-          silent: true, symbol: 'none',
-          lineStyle: { color: '#2563eb', type: 'dashed', width: 1 },
-          label: { show: true, position: 'end', formatter: function (p) { return p.name; }, color: '#2563eb', fontSize: 10 },
-          data: [
-            { yAxis: 16, name: 'ZG=16' },
-            { yAxis: 15, name: 'ZD=15' },
-          ],
+        {
+          name: 'MACD', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: barData, barWidth: '55%',
+          markPoint: {
+            data: [
+              { coord: [4.5, 5], name: 'b段红柱面积（大）', symbol: 'circle', symbolSize: 6, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#e74c3c', fontSize: 10, position: 'top', distance: 2 } },
+              { coord: [8.5, 2], name: 'c段红柱面积（小）', symbol: 'circle', symbolSize: 6, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#e74c3c', fontSize: 10, position: 'top', distance: 2 } },
+            ],
+          },
         },
-        markPoint: { data: markPointData },
-      }],
+      ],
     };
   }
 
-  const figShift = `
-<div class="fig" style="min-width:320px"><div class="lbl">同级别分解的“换档”（第40课）</div>
-${drawZS([
-{p:10,label:'A0↑',color:'#e74c3c'},
-{p:16,label:'A1↓',color:'#16a34a',above:true},
-{p:12,label:'A2↑',color:'#e74c3c'},
-{p:18,label:'A3↓',color:'#16a34a',above:true},
-{p:14,label:'A4↑',color:'#e74c3c'},
-{p:20,label:'A5↓',color:'#16a34a',above:true},
-{p:16,label:'结束',color:'#6b7280'}
-], [], {w:52,h:150})}
-<div style="display:flex;align-items:center;gap:4px;font-size:12px;font-family:ui-monospace,Consolas,monospace;flex-wrap:wrap">
-<span style="background:#fecaca;color:#991b1b;padding:4px 9px;border-radius:6px">A0↑</span><span>+</span><span style="background:#bbf7d0;color:#166534;padding:4px 9px;border-radius:6px">A1↓</span><span>+</span><span style="background:#fecaca;color:#991b1b;padding:4px 9px;border-radius:6px">A2↑</span><span>+</span><span style="background:#bbf7d0;color:#166534;padding:4px 9px;border-radius:6px">A3↓</span><span>+</span><span style="background:#fecaca;color:#991b1b;padding:4px 9px;border-radius:6px">A4↑</span><span>+</span><span style="background:#bbf7d0;color:#166534;padding:4px 9px;border-radius:6px">A5↓</span>
-</div><div class="cap">5分钟同级别分解：6 段交替上下的 5 分钟走势（红=偶段上、绿=奇段下）</div>
-<div style="text-align:center;margin:6px 0;color:#6b7280">↓ 合并换档：A0+A1+A2+A3 = B1，A4+A5 = B2</div>
-<div style="display:flex;align-items:center;gap:4px;font-size:13px;font-family:ui-monospace,Consolas,monospace;flex-wrap:wrap">
-<span style="background:#bfdbfe;color:#1e3a8a;padding:6px 16px;border-radius:6px">B1</span><span>+</span><span style="background:#bfdbfe;color:#1e3a8a;padding:6px 16px;border-radius:6px">B2</span>
-</div><div class="cap">换档后：30分钟同级别分解（由小级别自动升级）</div></div>`;
+  const figPan = `
+<div class="fig"><div class="lbl">盘整背驰（一个中枢）</div>${drawZS([{p:8,tag:'底'},{p:13,tag:'顶'},{p:10,tag:'底'},{p:14,tag:'顶'},{p:11,tag:'底',label:'C段起点',color:'#16a34a'},{p:16,label:'C段顶',color:'#e74c3c',above:true},{p:14,label:'三买',color:'#9333ea'}], [{lo:11,hi:13,x0:1,x1:4,label:'中枢 [11,13]'}], {zgzd:true,w:52,h:150})}<div class="cap">C段 11→16 上破中枢但力度弱<br>回跌 16→14 <b>不破中枢</b> → 第三类买点</div></div>
+<div class="fig"><div class="lbl">趋势背驰（两个中枢）</div>${drawZS([{p:8,tag:'底'},{p:13,tag:'顶'},{p:10,tag:'底'},{p:14,tag:'顶'},{p:11,tag:'底'},{p:17,tag:'顶'},{p:14,tag:'底'},{p:18,tag:'顶'},{p:15,tag:'底',label:'c段起点',color:'#16a34a'},{p:21,label:'c段顶·背驰',color:'#e74c3c',above:true}], [{lo:11,hi:13,x0:1,x1:4,label:'中枢A [11,13]'},{lo:15,hi:17,x0:5,x1:8,label:'中枢B [15,17]'}], {zgzd:true,w:52,h:150})}<div class="cap">c段 15→21 创新高但力度弱<br>背驰后<b>至少回拉中枢B</b> [15,17]</div></div>`;
 
-  // ---- 讲解点小图 ----
-
-  // ① 什么是同级别分解
-  const figSameLevel = mfig('固定级别拆成段落',
-    drawZS([{ p: 10, label: '起点', color: '#6b7280' }, { p: 16, label: 'A1↑', color: '#e74c3c', above: true }, { p: 12, label: 'A2↓', color: '#16a34a' }, { p: 18, label: 'A3↑', color: '#e74c3c', above: true }, { p: 14, label: 'A4↓', color: '#16a34a' }, { p: 20, label: 'A5↑', color: '#e74c3c', above: true }],
-      [], { w: 40, h: 104 }),
-    '任意走势被同一固定级别切成 A1+A2+A3+… 交替段落');
-
-  // ② 分解的唯一性
-  const figUnique = mfig('唯一性：同级别分解无歧义',
-    '<div style="display:flex;gap:14px;align-items:flex-end">'
-    + drawZS([{ p: 10 }, { p: 16 }, { p: 11 }, { p: 15 }, { p: 12 }], [{ lo: 11, hi: 15, x0: 0, x1: 3, label: '按中枢(可多义)' }], { w: 34, h: 88 })
-    + drawZS([{ p: 10, label: 'A1', color: '#e74c3c', above: true }, { p: 16, label: 'A2', color: '#16a34a' }, { p: 11, label: 'A3', color: '#e74c3c', above: true }, { p: 15, label: 'A4', color: '#16a34a' }], [], { w: 34, h: 88 })
-    + '</div>',
-    '左：按中枢可能多义；右：同级别逐段 A1..An 唯一确定');
-
-  // ③ 不需要中枢延伸/扩展
-  const figNoExtend = mfig('不需要中枢延伸/扩展',
-    '<div style="display:flex;gap:14px;align-items:flex-end">'
-    + drawZS([{ p: 10 }, { p: 16 }, { p: 11 }, { p: 15 }], [{ lo: 11, hi: 15, x0: 0, x1: 3, label: '1个中枢' }], { w: 34, h: 88 })
-    + drawZS([{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 12 }, { p: 15 }, { p: 12.5 }], [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '盘整1' }, { lo: 12, hi: 14, x0: 3, x1: 6, label: '盘整2' }], { w: 34, h: 88 })
-    + '</div>',
-    '左：三段上下上=1个中枢；右：延伸6段=两个盘整连接');
-
-  // ④ 允许“盘整+盘整”
-  const figAllowPanPan = mfig('允许 盘整+盘整（同级别）',
-    drawZS([{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 18 }, { p: 21 }, { p: 17 }], [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '盘整1' }, { lo: 18, hi: 21, x0: 4, x1: 6, label: '盘整2' }], { w: 38, h: 96 }),
-    '同级别分解允许盘整+盘整；按中枢（非同级别）则不允许');
-
-  // ⑤ 最基本的韵律
-  const figRhythm = mfig('向上段先买后卖 / 向下段先卖后买',
-    drawZS([{ p: 10, label: '买', color: '#16a34a' }, { p: 16, label: '卖', color: '#e74c3c', above: true }, { p: 11, label: '买', color: '#16a34a' }, { p: 15, label: '卖', color: '#e74c3c', above: true }, { p: 12, label: '买', color: '#16a34a' }],
-      [], { w: 40, h: 96 }),
-    '向上段：买→卖；向下段：卖→买（先卖后买）');
-
-  // ⑥ 向上段的运作
-  const figUpOperate = mfig('向上段：三段运作',
-    drawZS([{ p: 10, label: '起点', color: '#6b7280' }, { p: 16, label: '①第1段上', color: '#e74c3c', above: true }, { p: 11, label: '②第2段下', color: '#16a34a' }, { p: 15, label: '③第3段上', color: '#e74c3c', above: true }],
-      [], { w: 40, h: 100 }),
-    '第1段背驰卖；第2段不破前低买；第3段背驰则卖');
-
-  // ⑦ 向下段的运作
-  const figDownOperate = mfig('向下段：先卖后买',
-    drawZS([{ p: 17, label: '起点', color: '#6b7280' }, { p: 12, label: '①第1段下', color: '#16a34a' }, { p: 15, label: '②第2段上', color: '#e74c3c', above: true }, { p: 11, label: '③第3段下', color: '#16a34a' }],
-      [], { w: 40, h: 100 }),
-    '向下段与向上段相反：先卖后买');
-
-  // ⑧ 机械节奏的意义
-  const figMechanic = mfig('机械韵律',
-    drawZS([{ p: 10, label: '买', color: '#16a34a' }, { p: 14, label: '卖', color: '#e74c3c', above: true }, { p: 11, label: '买', color: '#16a34a' }, { p: 15, label: '卖', color: '#e74c3c', above: true }, { p: 12, label: '买', color: '#16a34a' }, { p: 16, label: '卖', color: '#e74c3c', above: true }],
-      [], { w: 36, h: 92 }),
-    '反复“买→卖→买→卖”形成韵律感');
-
-  // ⑨ a+A 的分解
-  const figAplusA = mfig('a=A0，Ai 奇向下偶向上',
-    drawZS([{ p: 10, label: 'A0=a↑', color: '#e74c3c' }, { p: 16, label: 'A1↓', color: '#16a34a', above: true }, { p: 12, label: 'A2↑', color: '#e74c3c' }, { p: 15, label: 'A3↓', color: '#16a34a', above: true }, { p: 11, label: 'A4↑', color: '#e74c3c' }],
-      [], { w: 40, h: 104 }),
-    'a 定义为 A0；Ai 奇数向下、偶数向上，A=A1+A2+…+Am');
-
-  // ⑩ 一般性 a+A 情况
-  const figGeneralAA = mfig('A3 跌回 a 高点 → 30分钟中枢',
-    drawZS([{ p: 10, label: 'a=A0', color: '#e74c3c' }, { p: 16, label: 'a高点', color: '#e74c3c', above: true }, { p: 13, label: 'A1', color: '#16a34a' }, { p: 18, label: 'A2升破', color: '#e74c3c', above: true }, { p: 15, label: 'A3跌回', color: '#16a34a' }],
-      [{ lo: 15, hi: 16, x0: 1, x1: 4, label: '30分钟中枢' }], { zgzd: true, w: 40, h: 108 }),
-    'A2 升破 a 高点、A3 跌回其下 → A1+A2+A3 = 30分钟中枢');
-
-  // ⑪ Ai 与 Ai+2 比较力度
-  const figForceCmp = mfig('Ai 与 Ai+2 力度比较（盘整背驰）',
-    drawZS([{ p: 10, label: 'A0', color: '#e74c3c' }, { p: 16, label: 'A1', color: '#16a34a', above: true }, { p: 12, label: 'A2(比A0)', color: '#e74c3c' }, { p: 15, label: 'A3(比A1)', color: '#16a34a', above: true }, { p: 11, label: 'A4(比A2)', color: '#e74c3c' }],
-      [], { w: 40, h: 104 }),
-    '同向相邻段 Ai 与 Ai+2 比较力度，背驰即操作');
-
-  // ⑫ 两类图形与操作
-  const figTwoTypes = mfig('两类图形与操作',
-    '<div style="display:flex;gap:16px;align-items:flex-end">'
-    + drawZS([{ p: 10, label: 'Ai', color: '#e74c3c' }, { p: 16, label: 'Ai+3不破', color: '#e74c3c', above: true }, { p: 12, label: '持有', color: '#2563eb' }], [], { w: 34, h: 88 })
-    + drawZS([{ p: 10, label: '偶段', color: '#e74c3c' }, { p: 15, label: '背驰→卖', color: '#e74c3c', above: true }, { p: 11, label: '奇段', color: '#16a34a' }, { p: 14, label: '背驰→买', color: '#16a34a' }], [], { w: 34, h: 88 })
-    + '</div>',
-    '①不破则继续持有；②盘整背驰则 偶卖/奇买');
-
-  // ⑬ 小级别进入、大级别上涨
-  const figSmallBig = mfig('小级别进入 + 大级别上涨',
-    drawZS([{ p: 10, label: '小级别进', color: '#16a34a' }, { p: 14 }, { p: 12 }, { p: 16 }, { p: 14 }, { p: 20, label: '大级别上涨', color: '#e74c3c', above: true }],
-      [{ lo: 12, hi: 16, x0: 0, x1: 5, label: '震荡' }], { w: 38, h: 104 }),
-    '小级别进入却遇大级别上涨：可升级为大级别操作');
-
-  // ⑭ 自动换档
-  const figAutoShift = mfig('自动换档',
-    drawZS([{ p: 10, label: 'Ai', color: '#e74c3c' }, { p: 15, label: 'Ai+1', color: '#16a34a', above: true }, { p: 11, label: 'Ai+2', color: '#e74c3c' }, { p: 14, label: 'Ai+3', color: '#16a34a', above: true }, { p: 13 }],
-      [{ lo: 11, hi: 14, x0: 1, x1: 3, label: '30分钟中枢' }], { w: 40, h: 100 }),
-    'Ai+1+Ai+2+Ai+3 构成高一级别中枢 → 自动换档');
-
-  // ⑮ 换档的条件
-  const figShiftCond = mfig('换档条件 A0+…+At = B1+B2',
-    drawZS([{ p: 10, label: 'A0', color: '#6b7280' }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 16, label: 'A4', color: '#6b7280' }, { p: 18 }, { p: 15 }],
-      [{ lo: 11, hi: 13, x0: 0, x1: 3, label: 'B1' }, { lo: 16, hi: 18, x0: 4, x1: 6, label: 'B2' }], { w: 38, h: 100 }),
-    '只要 A0+…+At = B1+B2，即可换档成高一级别分解');
-
-  // ⑯ 多重赋格
-  const figFugue = mfig('多重赋格：N 层各自节奏',
-    '<div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">'
-    + drawZS([{ p: 10, label: '30分', color: '#2563eb' }, { p: 14 }, { p: 11 }, { p: 13 }], [], { w: 38, h: 56 })
-    + drawZS([{ p: 10, label: '日线', color: '#e74c3c' }, { p: 18 }, { p: 12 }, { p: 17 }], [], { w: 38, h: 56 })
-    + drawZS([{ p: 10, label: '周线', color: '#16a34a' }, { p: 22 }, { p: 13 }, { p: 20 }], [], { w: 38, h: 56 })
-    + '</div>',
-    'N 重级别（30分/日/周…）各按节奏，独立又统一（赋格）');
+  const figTurn = `
+<div class="fig"><div class="lbl">下跌趋势背驰（第一类买点）</div>${drawZS([{p:20,tag:'顶'},{p:15},{p:18},{p:14},{p:17},{p:11},{p:14},{p:10},{p:13,label:'c段起点',color:'#16a34a'},{p:8,label:'一买·背驰',color:'#16a34a'}], [{lo:15,hi:17,x0:1,x1:4,label:'中枢A [15,17]'},{lo:11,hi:13,x0:5,x1:8,label:'中枢B [11,13]'}], {zgzd:true,w:50,h:150})}<div class="cap">c段 13→8 创新低但力度弱<br>8 处即<b>第一类买点</b>（背驰点）</div></div>
+<div class="fig" style="min-width:320px"><div class="lbl">背驰后三种转折（第29课）</div><div style="display:flex;gap:10px;align-items:flex-start">${drawZS([{p:13},{p:8,tag:'底',label:'一买'},{p:10,label:'触DD=10',color:'#f59e0b',above:true}], [{lo:11,hi:13,x0:0,x1:2,label:'中枢B'}], {w:26,h:92})}${drawZS([{p:13},{p:8,tag:'底',label:'一买'},{p:12,label:'回中枢',color:'#2563eb',above:true}], [{lo:11,hi:13,x0:0,x1:2,label:'中枢B'}], {w:26,h:92})}${drawZS([{p:13},{p:8,tag:'底',label:'一买'},{p:16,label:'反趋势',color:'#16a34a',above:true}], [{lo:11,hi:13,x0:0,x1:2,label:'中枢B'}], {w:26,h:92})}</div><ol class="turn"><li><b>级别扩展</b>：反弹最弱，只触及 B中枢 DD=10</li><li><b>更大级别盘整</b>：反弹回 B中枢，横向扩展</li><li><b>以上级别反趋势</b>：反弹强，直接转上涨</li></ol><div class="cap">判别关键：看反弹的第一个次级别走势<br>是否<b>回抽进最后一个中枢</b></div></div>`;
 
   __chapters.push({
-    id: 'ch14', title: '第14章 同级别分解', source: '原文第38、39、40课',
+    id: 'ch14', vol: '卷四 · 背驰与买卖点', title: '第14章 背驰', source: '原文第24、29、37课',
     figures: [
-      { kind: 'echarts', title: 'a+A 的同级别分解与力度比较', note: '把走势按固定级别拆成 <b>a=A0、A1、A2、A3…</b>（偶段向上、奇段向下）。图中 A2 升破 a 高点、A3 跌回 a 高点，于是 <b>A1+A2+A3 构成 30 分钟中枢 [15,16]</b>（第39课“一般性 a+A 情况”）。操作上只需不断比较 <b>Ai 与 Ai+2 的力度</b>（盘整背驰）决定买卖。', option: optCh14 },
-      { kind: 'html', title: '同级别分解的“换档”与多重赋格', note: '同一段走势，5 分钟同级别分解（A0…A5）可以<b>合并换档</b>成 30 分钟同级别分解（B1+B2）。第40课：只要 A0+A1+…+At = B1+B2，就可按高一级别分解继续操作——如同开车根据路况<b>换档</b>，多重级别各自独立又整体协调，像一曲<b>赋格</b>。', html: figShift },
+      { kind: 'echarts', title: '趋势背驰的 MACD 判断', note: '上涨趋势 <b>a+A+b+B+c</b>：c 段创出<b>新高</b>（21＞17），但下方 MACD 红柱<b>c 段面积明显小于 b 段</b>——价格新高、动能却减弱，这就是<span class="hl">趋势背驰</span>。其后<b>至少回拉中枢 B</b>。（下方柱形：红柱＝上涨动能、绿柱＝回调；注意 b 段第5根红柱高、c 段第9根红柱矮。）', option: optCh10 },
+      { kind: 'html', title: '盘整背驰 vs 趋势背驰', note: '<b>盘整背驰</b>只有一个中枢，C 段破中枢但力度弱，回跌不破中枢就构成<b>第三类买点</b>；<b>趋势背驰</b>有两个中枢，背驰后回跌<b>至少回中枢 B</b>。', html: figPan },
+      { kind: 'html', title: '背驰后的三种转折', note: '第29课<b>背驰-转折定理</b>：趋势背驰后，反弹只有三种可能，力度从弱到强依次是“级别扩展→更大级别盘整→反趋势”。判别关键：<b>反弹的第一个次级别走势能否回抽进最后一个中枢</b>。', html: figTurn },
     ],
     sections: [
-      { type: 'definition', title: '同级别分解的定义与唯一性', items: [
-        { term: '① 什么是同级别分解（第38课）', text: '<span class="hl">把所有走势按某一固定级别的走势类型进行分解。</span>例如以 30 分钟为操作标准，就把任何图形都分解成一段段 30 分钟走势类型的连接，操作中只选<b>上涨和盘整</b>类型、避开所有下跌类型。', formula: '同级别分解：全走势 = A1 + A2 + A3 + …（固定级别）', fig: figSameLevel },
-        { term: '② 分解的唯一性（第38课）', text: '多义性不是含糊性。一个好的分解，其规则下必须保证<b>分解的唯一性</b>。根据<span class="hl">“缠中说禅走势分解定理”</span>，<b>同级别分解具有唯一性</b>，不存在任何含糊乱分解的可能——这是它最大的优点。', fig: figUnique },
-        { term: '③ 不需要中枢延伸/扩展（第38课）', text: '同级别分解视角下<b>不需要中枢延伸或扩展</b>的概念：对 30 分钟来说，只要 5 分钟次级别的<b>三段“上下上”或“下上下”</b>有价格区间重合，就构成 30 分钟中枢。若次级别延伸出 6 段，就<b>当成两个 30 分钟盘整类型的连接</b>。', fig: figNoExtend },
-        { term: '④ 允许“盘整+盘整”（第38课）', text: '<span class="hl">在同级别分解下，允许“盘整+盘整”的连接。</span>注意：以前说的“不允许盘整+盘整”是在<b>非同级别分解</b>（按中枢）方式下的，二者不可搞混。', formula: '同级别分解 → 允许 盘整+盘整；非同级别（按中枢）→ 不允许', fig: figAllowPanPan },
+      { type: 'definition', title: '背驰的定义与 MACD 判断', items: [
+        { term: '① 背驰-买卖点定理（第24课）', text: '<span class="hl">任一背驰都必然制造某级别的买卖点；任一级别的买卖点都必然源自某级别走势的背驰。</span>即：看到背驰，必意味着要逆转（逆转≠永远反转，可能只是某级别的一段回拉）。', fig: mfig('背驰 ⟺ 买卖点', '<div style="font-size:12px;line-height:1.9;color:#1f2937"><b style="color:#e74c3c">背驰</b> → 制造某级别<b style="color:#16a34a">买卖点</b><br>某级别<b style="color:#16a34a">买卖点</b> → 源自某级别<b style="color:#e74c3c">背驰</b></div>', '背驰与买卖点互为充要、一一对应') },
+        { term: '② 背驰的前提：两段同向趋势（第24课）', text: '用 MACD 判断背驰，首先要有<b>两段同向的趋势</b>。同向趋势之间必有一个盘整或反向趋势连接，把这三段分别称为 A、B、C 段；其中 <b>B 的中枢级别比 A、C 里的中枢级别都大</b>（否则它们就连成一个大趋势了）。', fig: mfig('两段同向趋势 A、C 夹 B', drawZS([{ p: 8 }, { p: 13, tag: '顶' }, { p: 10 }, { p: 14 }, { p: 11 }, { p: 17, tag: '顶' }, { p: 14 }], [{ lo: 10, hi: 13, x0: 0, x1: 2, label: 'A' }, { lo: 11, hi: 16, x0: 3, x1: 6, label: 'B(级别更大)' }], { w: 34, h: 100 }), 'A、C 同向，B 的中枢级别更大') },
+        { term: '③ 标准背驰的 MACD 判据（第24课）', text: 'A、B、C 段在一个大趋势里，A 之前已有一个中枢，B 是另一个中枢——<b>B 中枢一般会把 MACD 黄白线（DIFF、DEA）回拉到 0 轴附近</b>；当 C 段走势类型完成时，其对应的<b>MACD 柱子面积（向上看红柱、向下看绿柱）比 A 段面积小</b>，就构成标准背驰。', formula: '背驰 ⟺ 黄白线回拉0轴 + C段MACD柱面积 < A段', fig: mfig('MACD 判据（两条件）', '<div style="font-size:12px;line-height:1.9;color:#1f2937">① B 中枢把 <b>DIFF/DEA</b> 回拉 <b>0 轴</b>附近<br>② C 段<b style="color:#e74c3c">红柱面积</b> < A 段红柱面积</div>', '两条件同时满足 = 标准背驰') },
+        { term: '④ a+A+b+B+c 结构（第29课）', text: '趋势的最一般结构是 <code>a+A+b+B+c</code>：A、B 是两个同向中枢，a、b、c 是连接段（级别最多为次级别，极端情况只是一个缺口）。<b>背驰比较的是 c 段与 b 段的力度</b>：c 段创新高/新低，但 MACD 面积小于 b 段。', fig: mfig('a+A+b+B+c 结构', drawZS([{ p: 8 }, { p: 12 }, { p: 9 }, { p: 11 }, { p: 14 }, { p: 17 }, { p: 15 }, { p: 18 }], [{ lo: 9, hi: 11, x0: 0, x1: 2, label: 'A' }, { lo: 15, hi: 17, x0: 5, x1: 7, label: 'B' }], { w: 30, h: 96 }), '比较 c 与 b 的力度，a、b、c 是连接段') },
+        { term: '⑤ 背驰后必回拉中枢（第24课）', text: '<span class="hl">一旦出现趋势背驰，其回跌一定至少重新回到 B 段（最后一个中枢）里。</span>这可以预先知道“至少的跌幅/涨幅”，是背驰最重要的实战价值。', fig: mfig('背驰后回拉最后中枢', drawZS([{ p: 20 }, { p: 15 }, { p: 18 }, { p: 14 }, { p: 17 }, { p: 11 }, { p: 14 }, { p: 10 }, { p: 13 }, { p: 8, tag: '底', label: '背驰' }, { p: 12, label: '回拉', color: '#2563eb' }], [{ lo: 15, hi: 17, x0: 1, x1: 4, label: 'A' }, { lo: 11, hi: 13, x0: 5, x1: 8, label: 'B' }], { w: 26, h: 96 }), '下跌背驰(8)后至少回到 B 中枢 [11,13]') },
       ]},
-      { type: 'definition', title: '机械化操作程式（第38课）', items: [
-        { term: '① 最基本的韵律', text: '同级别分解给出一个<b>机械化操作程式</b>，最大的韵律是：<span class="hl">向上段先买后卖、向下段先卖后买</span>。这个韵律错了，操作就一团糟。', fig: figRhythm, },
-        { term: '② 向上段的运作（第38课）', text: '从下跌背驰开始（30 分钟分解为例）：<b>第一段向上</b>——内部背驰/盘整背驰结束点先卖出；<b>第二段向下</b>——①不跌破第一段低点则重新买入；②跌破则与更前向下段比较：盘整背驰就买入，否则观望等新背驰；<b>第三段向上</b>——①低于第一段高点则一定卖出；②超过则看是否对第一段盘整背驰：背驰卖出、不背驰继续持有。如此延续，直到某段向上不创新高或盘整背驰，结束向上段运作。', fig: figUpOperate },
-        { term: '③ 向下段的运作', text: '向下段刚好<b>相反</b>：先卖后买，从向上段结束的背驰点开始，所有操作反过来即可。', fig: figDownOperate },
-        { term: '④ 机械节奏的意义（第39课）', text: '按这个机械节奏操作，人会形成一种<b>韵律感</b>；长期下来，该操作的图形出现时甚至会有生理感应。关键是先把<b>心态与韵律</b>调节好，一步错了就停下来。', fig: figMechanic },
+      { type: 'definition', title: '盘整背驰与背驰后的转折', items: [
+        { term: '① 盘整背驰（第24课）', text: '不特别声明时，“背驰”都指<b>趋势背驰</b>；盘整中用类似方法判断，称<b>盘整背驰</b>。向上盘整为例：若 C 段<b>不破中枢</b>且 MACD 面积小于 A 段 → 其后必回跌；若 C 段<b>上破中枢</b>但面积小 → 先出来，其后回跌<b>不重新跌回中枢</b>就在次级别第一类买点回补（这正好构成<b>第三类买点</b>），跌回则继续盘整。', fig: mfig('盘整背驰（一个中枢）', drawZS([{ p: 8, tag: '底' }, { p: 13, tag: '顶' }, { p: 10 }, { p: 14, tag: '顶' }, { p: 11 }, { p: 16, tag: '顶' }, { p: 14, label: '三买', color: '#9333ea' }], [{ lo: 11, hi: 13, x0: 1, x1: 4, label: '中枢' }], { w: 34, h: 100 }), 'C 段破中枢但力度弱，回跌不破中枢 → 三买') },
+        { term: '② 背驰-转折定理（第29课）', text: '<span class="hl">某级别趋势的背驰，将导致该趋势最后一个中枢的级别扩展、该级别更大级别的盘整、或该级别以上级别的反趋势。</span>三种情况完全分类了背驰后的力度与级别。', formula: '趋势背驰 → ① 最后中枢级别扩展 ② 更大级别盘整 ③ 以上级别反趋势', fig: mfig('背驰后三种转折', '<div style="font-size:12px;line-height:1.9;color:#1f2937">趋势背驰 →<br>① 最后中枢<b>级别扩展</b><br>② <b>更大级别</b>盘整<br>③ 以上级别<b>反趋势</b></div>', '三种可能，力度从弱到强') },
+        { term: '③ 三种转折详解（第29课）', text: '<b>① 级别扩展</b>（最弱）：反弹只触及最后一个中枢的 DD，把中枢扩成更大级别，走势尚未完成；<b>② 更大级别盘整</b>：反弹至少回抽最后一个中枢，走出“下跌+盘整”；<b>③ 以上级别反趋势</b>：反弹强，走出“下跌+上涨”。判别关键：看<b>反弹第一个次级别走势是否回抽进最后一个中枢</b>。', fig: mfig('三种转折的力度', '<div style="font-size:12px;line-height:1.9;color:#1f2937">弱 <b style="color:#f59e0b">级别扩展</b>（触 DD）<br>中 <b style="color:#2563eb">更大盘整</b>（回中枢）<br>强 <b style="color:#16a34a">反趋势</b>（直接反向）</div>', '关键：反弹第一次级别走势是否回抽进最后中枢') },
+        { term: '④ 转折是有级别的（第29课）', text: '围绕某级别中枢的震荡/延续中<b>不存在转折问题</b>，只有站在次级别才有转折。上涨的转折有两种（下跌与盘整），下跌的转折也有两种（上涨与盘整）。', fig: mfig('转折是有级别的', '<div style="font-size:12px;line-height:1.9;color:#1f2937">围绕本级别中枢震荡：<b>无转折</b><br>站在<b>次级别</b>：才有转折<br>上涨转折 = 下跌 或 盘整</div>', '中枢震荡中不存在转折问题') },
+        { term: '⑤ MACD 的局限性（第24课）', text: '由于 MACD 本身的局限，要<b>精确</b>判断背驰与盘整背驰，还是要<b>从中枢本身出发</b>。光用 MACD 辅助判断，准确率 90% 以上；<b>配合中枢，是 100% 绝对的</b>（可用纯数学推理证明）。', fig: mfig('MACD 辅助 + 中枢 = 100%', '<div style="font-size:12px;line-height:1.9;color:#1f2937">MACD 辅助：准确率 <b>90%+</b><br>配合<b>中枢</b>推理：<b>100%</b> 绝对</div>', '精确判断要从中枢本身出发') },
       ]},
-      { type: 'definition', title: 'Ai 与 Ai+2 的力度比较（第39课）', items: [
-        { term: '① a+A 的分解（第39课）', text: '对 5 分钟同级别分解，取典型 <code>a+A</code>：a 通过结合运算总是一个 5 分钟走势类型，A 分解为 <code>A = A1 + A2 + … + Am</code>。把 a 定义为 <code>A0</code>，则 <b>Ai 当 i 为奇数时向下、i 为偶数时向上</b>。', formula: 'a=A0；Ai 奇=向下、偶=向上；A = A1+A2+…+Am', fig: figAplusA },
-        { term: '② 一般性 a+A 情况（第39课）', text: '若 A2 升破 a 高点而 A3 不跌回，则 a+A1+A2+A3 可整体看成一个新的 a′（仍是 5 分钟走势）。<b>一般性地考虑 A3 跌破 a 高点</b>时，A1、A2、A3 必然构成 30 分钟中枢——于是这一般性情况都归结为：<span class="hl">a 是 5 分钟走势类型，A 包含一个 30 分钟中枢</span>。', formula: 'A3 跌破 a 高点 → A1+A2+A3 = 30分钟中枢', fig: figGeneralAA },
-        { term: '③ Ai 与 Ai+2 比较力度（第39课）', text: '把 a 定为 A0，则 <b>Ai 与 Ai+2 之间不断比较力度</b>，用<b>盘整背驰</b>方法决定买卖点（这和围绕中枢震荡类似，但这里是站在同级别分解基础上）。下一个 Ai+2 是当下产生的，不影响前面 Ai+1 的唯一性分解。', fig: figForceCmp },
-        { term: '④ 两类图形与操作（第39课）', text: '机械方法把图形分成两类：<b>①</b>“i 为偶 Ai+3 不跌破 Ai 高点”或“i 为奇 Ai+3 不升破 Ai 低点”；<b>②</b>“Ai 与 Ai+2 盘整背驰”。<b>盘整背驰</b>时：i+2 为偶→卖出、i+2 为奇→买入；<b>无背驰</b>时继续持有/不回补，直到某段创新高/新低失败或盘整背驰才操作。', formula: 'Ai vs Ai+2 盘整背驰 → 偶卖奇买；否则持有/观望', fig: figTwoTypes },
-      ]},
-      { type: 'definition', title: '多重赋格与换档（第40课）', items: [
-        { term: '① 小级别进入、大级别上涨（第40课）', text: '小级别进入却遇到大级别上涨，两个选择：一、继续按小级别操作（累、精度要求高、资金容量低）；二、<b>升级为大级别操作 + 部分保持小级别操作</b>。资金较大时后者更实用。', fig: figSmallBig },
-        { term: '② 自动换档（第40课）', text: '“Ai 与 Ai+2 盘整背驰”会演化出“i 为偶 Ai+3 跌破 Ai 高点”或“i 为奇 Ai+3 升破 Ai 低点”，从而演化出<b>高一级别的中枢</b>（如 Ai+1、Ai+2、Ai+3 构成 30 分钟中枢）。这保证同级别分解下，小级别操作可<b>按自动模式换档成高一级别操作</b>。', fig: figAutoShift },
-        { term: '③ 换档的条件（第40课）', text: '只要从 A0 到某个 At，使得 <code>A0+A1+…+At = B1+B2</code>（B1、B2 是 30 分钟级别的同级别分解），就可继续按后一种分解操作。是否换档，与你的<b>时间、操作风格、资金规模</b>有关。', fig: figShiftCond },
-        { term: '④ 多重赋格（第40课）', text: '对资金规模大的，这种级别操作可一直延伸成 <b>N 重层次</b>，每一重对应一定的资金与筹码、不同的节奏与波动，如同<b>赋格曲</b>：简单的动机在 N 个层次上运动，合成统一乐曲。每一层次操作<b>独立又在一个整体中</b>。', formula: '同级别分解的多重赋格：N 层级别各按其节奏，独立又统一', fig: figFugue },
-      ]},
-      { type: 'motivation', title: '把复杂走势“肢解”成可机械操作的段落', text: '同级别分解是缠论<b>从理论走向可执行</b>的关键：它把任意缠绕的走势，用固定级别<b>唯一地</b>肢解成一段段走势类型，然后只需“<b>只做上涨段、避开下跌段</b>”，配合 Ai 与 Ai+2 的力度比较，就能形成一套<b>机械化、不依赖预测</b>的操作程式。理解了它，操作就不再是“猜涨跌”，而是“按节奏换档”。' },
+      { type: 'motivation', title: '为什么背驰是“动力学”的核心', text: '缠论分<b>形态学</b>（分型/笔/线段/中枢，几何）与<b>动力学</b>（背驰、中枢能量结构）。形态学回答“走势是什么样”，背驰回答“<b>走势何时会转折</b>”。背驰把“走势必完美”从一句哲学命题，落实成“动能衰减”的可观测信号——它是所有买卖点（尤其第一类买卖点）的<span class="kw">动力学根源</span>。' },
       { type: 'pitfalls', title: '常见误区', items: [
-        '把同级别分解的<b>多义性</b>当成可以<b>胡乱分解</b>（同级别分解是<b>唯一</b>的，规则最严格）。',
-        '在同级别分解下还去套用<b>中枢延伸/扩展</b>概念（同级别分解不需要这些）。',
-        '混淆“<b>同级别允许盘整+盘整</b>”与“<b>非同级别不允许</b>”这两种规则。',
-        '忽略了<b>向上段先买后卖、向下段先卖后买</b>的基本韵律，导致节奏错乱。',
+        '把“<b>MACD 柱子缩短</b>”直接当背驰（错：必须<b>先有黄白线回拉 0 轴</b>，且是<b>两段同向趋势</b>的面积比较）。',
+        '混淆<b>趋势背驰</b>（两个中枢）与<b>盘整背驰</b>（一个中枢），两者回跌要求完全不同。',
+        '以为背驰后<b>一定大幅反转</b>（错：三种转折中“级别扩展”只是最弱反弹，走势仍在延续）。',
+        '<b>光看一个级别</b>就下背驰结论（错：背驰要看前后级别的走势，先定比较段再选 MACD 周期）。',
       ]},
       { type: 'exercises', title: '练习', items: [
-        { q: '为什么说同级别分解具有唯一性？', a: '因为它把所有走势<b>按某一固定级别</b>的走势类型分解，规则下不存在模糊地带；根据“缠中说禅走势分解定理”，<b>同级别分解具有唯一性</b>（第38课）。' },
-        { q: '同级别分解下，为什么允许“盘整+盘整”？', a: '同级别分解<b>不定义中枢延伸/扩展</b>，次级别延伸 6 段就当成两个盘整连接，所以<b>允许盘整+盘整</b>；“不允许盘整+盘整”是<b>非同级别</b>（按中枢）分解下的规则（第38课）。' },
-        { q: '第39课说“Ai 与 Ai+2 之间比较力度”，用什么方法？何时买入卖出？', a: '用<b>盘整背驰</b>比较 Ai 与 Ai+2 的力度；若盘整背驰，<b>i+2 为偶（向上段）卖出、i+2 为奇（向下段）买入</b>；若无背驰则继续持有/观望（第39课）。' },
+        { q: '构成“标准趋势背驰”需要哪几个条件？', a: '① 一段趋势（至少两个同向中枢）；② 最后一个中枢把 MACD 黄白线<b>回拉 0 轴附近</b>；③ c 段<b>创新高/新低</b>，但 <b>MACD 柱面积小于</b> 比较段（b 段）。' },
+        { q: '上涨趋势背驰后，回跌至少回到哪里？', a: '至少回到<b>最后一个中枢（B 段）</b>内（第24课）。这能预先知道“至少的跌幅”，据此决定卖出。' },
+        { q: '盘整背驰中，C 段上破中枢但力度弱，回跌不破中枢，会形成什么？', a: '形成<b>第三类买点</b>（第24课）：先出来，等次级别回跌不跌回中枢，就在次级别第一类买点回补。' },
       ]},
     ],
   });

@@ -1,95 +1,83 @@
-/* 第11章 三类买卖点 */
+/* 第8章 走势类型 */
 (function () {
 
-  function optCh11() {
-    const pts = [20, 15, 18, 14, 17, 11, 14, 10, 13, 8, 13, 10, 14, 12, 16, 13, 17, 14];
-    const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
-    const buys = [
-      { coord: [9, 8], name: '第一类买点', color: '#16a34a' },
-      { coord: [11, 10], name: '第二类买点', color: '#2563eb' },
-      { coord: [17, 14], name: '第三类买点', color: '#9333ea' },
+  function optCh8() {
+    const pts = [16, 11, 14, 12, 7, 4, 8, 5, 9, 6, 8, 13, 17, 14, 16, 20, 24, 21, 23];
+    const zones = [
+      { x0: 0, x1: 3, lo: 12, hi: 14, label: '下跌中枢① [12,14]' },
+      { x0: 4, x1: 7, lo: 5, hi: 7, label: '下跌中枢② [5,7]' },
+      { x0: 8, x1: 10, lo: 6, hi: 8, label: '盘整中枢 [6,8]' },
+      { x0: 12, x1: 14, lo: 14, hi: 16, label: '上涨中枢① [14,16]' },
+      { x0: 16, x1: 18, lo: 21, hi: 23, label: '上涨中枢② [21,23]' },
     ];
-    const markPointData = buys.map(b => ({
-      coord: b.coord, name: b.name, symbol: 'pin', symbolSize: 44,
-      itemStyle: { color: b.color },
-      label: { show: true, formatter: function (p) { return p.name; }, color: b.color, fontSize: 11, fontWeight: 'bold' },
-    }));
-    const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
-    markPointData.push(
+    const markAreaData = zones.map(z => [{ xAxis: z.x0, yAxis: z.lo, name: z.label }, { xAxis: z.x1, yAxis: z.hi }]);
+    // 关键转折点（顶/底 + 走势段名）
+    const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold' } });
+    const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top' } });
+    const markPointData = [
       mp(0, '顶·下跌起点', '#e74c3c', 'top'),
-      mp(16, '顶·反弹高点', '#e74c3c', 'top'),
-      seg(4.5, 20.5, '◀ 下跌趋势（2个中枢）', '#e74c3c'),
-      seg(14.5, 19.5, '上涨趋势 ▶', '#16a34a'),
-    );
+      mp(5, '底·下跌结束', '#16a34a', 'bottom'),
+      mp(10, '底·盘整结束', '#16a34a', 'bottom'),
+      mp(18, '顶·上涨结束', '#e74c3c', 'top'),
+      seg(2.5, 9.5, '◀ 下跌（2个向下中枢）', '#e74c3c'),
+      seg(7.5, 6.5, '盘整（1个中枢）', '#f59e0b'),
+      seg(14, 20.5, '上涨（2个向上中枢）▶', '#16a34a'),
+    ];
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      grid: { left: 60, right: 70, top: 40, bottom: 40 },
-      xAxis: { type: 'value', min: 0, max: 17, interval: 1 },
-      yAxis: { type: 'value', scale: true, name: '价格' },
+      grid: { left: 48, right: 60, top: 28, bottom: 34 },
+      xAxis: { type: 'value', min: 0, max: 18, interval: 2 },
+      yAxis: { type: 'value', scale: true },
       series: [{
-        name: '走势', type: 'line', data: pts.map((p, i) => [i, p]),
-        symbol: 'circle', symbolSize: 4, lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
+        name: '走势', type: 'line', data: pts.map((p, i) => [i, p]), symbol: 'circle', symbolSize: 4,
+        lineStyle: { color: '#1f2937', width: 2 }, itemStyle: { color: '#1f2937' },
         markArea: {
           silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
           label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 11 },
-          data: [mk(1, 4, 15, 17, '下跌中枢A [15,17]'), mk(5, 8, 11, 13, '下跌中枢B [11,13]'), mk(12, 15, 13, 14, '上涨中枢C [13,14]')],
-        },
-        markLine: {
-          silent: true, symbol: 'none',
-          lineStyle: { color: '#2563eb', type: 'dashed', width: 1 },
-          label: { show: true, position: 'end', formatter: function (p) { return p.name; }, color: '#2563eb', fontSize: 10 },
-          data: [
-            { yAxis: 17, name: 'ZG(A)=17' },
-            { yAxis: 15, name: 'ZD(A)=15' },
-            { yAxis: 14, name: 'ZG(C)=14' },
-            { yAxis: 13, name: 'ZG(B)=ZD(C)=13' },
-            { yAxis: 11, name: 'ZD(B)=11' },
-          ],
+          data: markAreaData,
         },
         markPoint: { data: markPointData },
       }],
     };
   }
 
-  const figBuy3 = `
-<div class="fig"><div class="lbl">第三类买点的构造（第20课）</div>${drawZS([{p:8,tag:'底'},{p:13,tag:'顶'},{p:10,tag:'底'},{p:14,tag:'顶'},{p:11,tag:'底'},{p:16,tag:'顶',label:'离开',color:'#2563eb'},{p:14,tag:'底',label:'三买',color:'#9333ea'}], [{lo:11,hi:13,x0:1,x1:4,label:'中枢 [11,13]'}], {zgzd:true,w:52,h:150})}<div class="cap">中枢 [11,13]（ZG=13 / ZD=11）<br>离开 11→16，回试 16→14 <b>不破 ZG</b><br>→ 第三类买点（14）</div></div>`;
-
-  const figMerge = `
-<div class="fig"><div class="lbl">第二、三类买点重合（第21课）</div>${drawZS([{p:15,tag:'顶'},{p:11,tag:'底'},{p:14,tag:'顶'},{p:12,tag:'底'},{p:8,tag:'底',label:'一买',color:'#16a34a'},{p:18,tag:'顶',label:'凌厉上破',color:'#2563eb'},{p:15,tag:'底',label:'二/三买',color:'#2563eb'}], [{lo:12,hi:14,x0:0,x1:3,label:'中枢 [12,14]'}], {zgzd:true,w:52,h:150})}<div class="cap">一类买点(8)后凌厉上破中枢 [12,14]（ZG=14 / ZD=12）<br>回抽 18→15 <b>不触及中枢</b><br>→ 二、三类买点重合（最强）</div></div>`;
+  const figExtend = `
+<div class="fig"><div class="lbl">走势类型“延伸”</div>${drawZS([{p:5,tag:'底'},{p:9,tag:'顶'},{p:6,tag:'底'},{p:8,tag:'顶'},{p:5,tag:'底'},{p:9,tag:'顶'},{p:7,tag:'底'}], [{lo:6,hi:8,x0:0,x1:6,label:'同一中枢'}], {zgzd:true,w:52,h:150})}<div class="cap">反复围绕同一中枢 [6,8]（ZG=8 / ZD=6）震荡<br>始终<b>不产生新中枢</b> → 盘整延伸，未结束</div></div>
+<div class="fig"><div class="lbl">走势类型“结束”</div>${drawZS([{p:5,tag:'底'},{p:9,tag:'顶'},{p:6,tag:'底'},{p:8,tag:'顶'},{p:13,label:'离开',color:'#2563eb',above:true},{p:16,tag:'顶'},{p:12},{p:15,tag:'顶'}], [{lo:6,hi:8,x0:0,x1:3,label:'原中枢'},{lo:13,hi:15,x0:4,x1:7,label:'新中枢'}], {zgzd:true,w:52,h:150})}<div class="cap">向上离开原中枢 [6,8]，形成<b>新中枢 [13,15]</b><br>盘整“结束”→ 转化为上涨</div></div>`;
 
   __chapters.push({
-    id: 'ch11', title: '第11章 三类买卖点', source: '原文第17、20、21课',
+    id: 'ch11', vol: '卷三 · 中枢与走势', title: '第11章 走势类型', source: '原文第17、18课',
     figures: [
-      { kind: 'echarts', title: '三类买点的全景位置', note: '下跌趋势（中枢 A、B）背驰出<b>第一类买点</b>（绿色，8）→ 第一次次级别回调出<b>第二类买点</b>（蓝色，10）→ 反弹后形成中枢 C，向上离开再回试不破 ZG 出<b>第三类买点</b>（紫色，14）。三类买点分别对应<b>中枢下（转折）、任意位（回调）、中枢上（新生/扩张）</b>。卖点方向相反。', option: optCh11 },
-      { kind: 'html', title: '第三类买点：离开中枢 + 回试不破 ZG', note: '次级别走势<b>向上离开</b>中枢后，次级别<b>回试不跌破 ZG</b>，就构成第三类买点。它的本质是“中枢新生或扩张”的信号，其后必然赢利。', html: figBuy3 },
-      { kind: 'html', title: '第二、三类买点重合：最强信号', note: '第一类买点后，次级别走势<b>凌厉直接上破</b>最后一个中枢，随后回抽<b>不触及</b>该中枢，就出现第二、三类买点重合（第21课）。此时往往意味着一波大级别上涨的开始。', html: figMerge },
+      { kind: 'echarts', title: '三类走势类型与它们的连接', note: '任何走势都可分解为<b>下跌、盘整、上涨</b>三类走势类型的连接（分解定理一）：下跌（两个向下中枢）→ 盘整（一个中枢）→ 上涨（两个向上中枢）。数一数：<b>1 个中枢=盘整，2 个同向中枢=趋势</b>。', option: optCh8 },
+      { kind: 'html', title: '走势类型的“延伸”与“结束”', note: '走势类型的<b>延伸</b>＝围绕同一中枢震荡、不产生新中枢；<b>结束</b>＝离开中枢后形成新中枢（或更大级别中枢），原走势类型就此完成、转化为别的类型——这正是“走势必完美”。', html: figExtend },
     ],
     sections: [
-      { type: 'definition', title: '买卖点的完备性', items: [
-        { term: '① 买卖点完备性定理（第21课）', text: '<span class="hl">市场必然产生赢利的买卖点，只有第一、二、三类。</span>这三类买卖点都是<b>被理论所保证的、100% 安全</b>的买卖点——之后市场必然发生转折，没有任何模糊或需要分辨的情况。', formula: '赢利买卖点 = 第一类 + 第二类 + 第三类（仅此三类）', fig: mfig('仅三类赢利买卖点', '<div style="font-size:12px;line-height:1.9;color:#1f2937"><b style="color:#16a34a">一</b>·<b style="color:#2563eb">二</b>·<b style="color:#9333ea">三</b> 类买卖点 = 全部</div>', '100% 安全，仅此三类') },
-        { term: '② 升跌完备性定理（第21课）', text: '<span class="hl">市场中的任何向上与下跌，都必然从三类买卖点中的某一类开始以及结束。</span>换言之，市场走势完全由这样的线段构成，线段的端点就是某级别的某类买卖点。', fig: mfig('涨跌都始于/终于买卖点', '<div style="font-size:12px;line-height:1.9;color:#1f2937">任何<b>上涨/下跌</b>：<br><b style="color:#16a34a">始于</b>某类买卖点 · <b style="color:#e74c3c">终于</b>某类买卖点</div>', '走势 = 买卖点连成的线段') },
-        { term: '③ 买卖点与中枢的关系（第21课）', text: '所有买卖点都对应着与该级别<b>最靠近的中枢</b>的关系：<b>中枢下</b>产生（转折）→ 第一类买点；<b>中枢上</b>产生（延续/新生/扩张）→ 第三类买点；第二类买点<b>可在任何位置</b>（上/中/下）。<span class="hl">一个上涨趋势确立后，不可能再有第一、二类买点，只可能有第三类买点。</span>', fig: mfig('三类买点与中枢位置', drawZS([{ p: 8, label: '一买(下)', color: '#16a34a' }, { p: 13, tag: '顶' }, { p: 11, label: '二买(任意)', color: '#2563eb' }, { p: 14, tag: '顶' }, { p: 12 }, { p: 16, tag: '顶' }, { p: 14, label: '三买(上)', color: '#9333ea' }], [{ lo: 12, hi: 13, x0: 1, x1: 4, label: '中枢' }], { w: 34, h: 104 }), '下=一买、任意=二买、上=三买') },
+      { type: 'definition', title: '走势的分类与“走势必完美”', items: [
+        { term: '① 走势的分类（第17课）', text: '<span class="hl">任何级别的所有走势，都能分解成“趋势”与“盘整”两类，而趋势又分为“上涨”与“下跌”两类。</span>（这是从无数图形中总结出的经验，是一切技术分析的唯一坚实基础。）', fig: mfig('三类走势：下跌/盘整/上涨', '<div style="display:flex;gap:6px;align-items:flex-start">' + drawZS([{ p: 16 }, { p: 11 }, { p: 14 }, { p: 12 }, { p: 7 }, { p: 4 }, { p: 8 }], [{ lo: 12, hi: 14, x0: 0, x1: 3, label: '跌' }, { lo: 5, hi: 7, x0: 4, x1: 6, label: '跌' }], { w: 24, h: 82 }) + drawZS([{ p: 10 }, { p: 15 }, { p: 11 }, { p: 14 }, { p: 12 }], [{ lo: 11, hi: 14, x0: 0, x1: 4, label: '盘' }], { w: 24, h: 82 }) + drawZS([{ p: 6 }, { p: 11 }, { p: 8 }, { p: 12 }, { p: 14 }, { p: 18 }, { p: 15 }], [{ lo: 8, hi: 11, x0: 0, x1: 3, label: '涨' }, { lo: 14, hi: 17, x0: 4, x1: 6, label: '涨' }], { w: 24, h: 82 }) + '</div>', '下跌(两向下中枢)/盘整(一中枢)/上涨(两向上中枢)') },
+        { term: '② 基本原理一：走势终完美（第17课）', text: '<span class="hl">任何级别的任何走势类型终要完成。</span>简称为<span class="kw">“走势终完美”</span>。它把静态的“走势可分解成趋势与盘整”转化成动态可用的“走势类型终要完成”——这是整个缠论的<span class="kw">核心命题</span>。', formula: '任何级别的任何走势类型终要完成 —— “走势终完美”', fig: mfig('走势终要完成', drawZS([{ p: 16 }, { p: 11 }, { p: 14 }, { p: 12 }, { p: 7 }, { p: 4 }, { p: 8, label: '完成', color: '#16a34a' }], [{ lo: 12, hi: 14, x0: 0, x1: 3, label: '下跌中枢1' }, { lo: 5, hi: 7, x0: 4, x1: 6, label: '下跌中枢2' }], { w: 36, h: 100 }), '下跌走势终要完成，在 8 处见底') },
+        { term: '③ “走势终完美”的两方面（第17课）', text: '<b>一方面</b>：任何走势（趋势或盘整）在图形上最终都要完成；<b>另一方面</b>：一旦某种走势类型完成，就会<b>转化为其他类型</b>的走势。这就是“不患”而有其位次。', fig: mfig('完成 → 转化为其他类型', drawZS([{ p: 16 }, { p: 11 }, { p: 14 }, { p: 12 }, { p: 7, label: '完成', color: '#16a34a' }, { p: 11 }, { p: 15 }], [{ lo: 12, hi: 14, x0: 0, x1: 3, label: '下跌' }], { w: 40, h: 100 }), '下跌完成(7)后转为上涨(→15)') },
+        { term: '④ 盘整与趋势（第17课，正式定义）', text: '<span class="kw">盘整</span>：某完成的走势类型<b>只包含一个</b>中枢。<span class="kw">趋势</span>：某完成的走势类型<b>至少包含两个以上依次同向</b>的中枢，向上称上涨、向下称下跌。', fig: mfig('1个中枢=盘整，2个同向=趋势', '<div style="display:flex;gap:6px;align-items:flex-start">' + drawZS([{ p: 10 }, { p: 15 }, { p: 11 }, { p: 14 }, { p: 12 }], [{ lo: 11, hi: 14, x0: 0, x1: 4, label: '盘整' }], { w: 26, h: 84 }) + drawZS([{ p: 6 }, { p: 11 }, { p: 8 }, { p: 12 }, { p: 14 }, { p: 18 }, { p: 15 }], [{ lo: 8, hi: 11, x0: 0, x1: 3, label: '中枢1' }, { lo: 14, hi: 17, x0: 4, x1: 6, label: '中枢2' }], { w: 26, h: 84 }) + '</div>', '左：盘整(1中枢)；右：趋势(2同向不重叠中枢)') },
+        { term: '⑤ 基本原理二（第17课）', text: '<span class="hl">任何级别任何完成的走势类型，必然包含一个以上的中枢。</span>（不包含中枢的走势图，只可能是“一次向下后永远向上”或反之，而那只意味着该品种被永久取消交易。）', fig: mfig('完成的走势必含中枢', drawZS([{ p: 10 }, { p: 15 }, { p: 11 }, { p: 14 }], [{ lo: 11, hi: 14, x0: 0, x1: 3, label: '中枢' }], { w: 40, h: 100 }), '任何完成的走势类型必含 ≥1 个中枢') },
+        { term: '⑥ 走势分解定理（第17课）', text: '<b>分解定理一</b>：任何级别的任何走势，都可分解成同级别“盘整”“下跌”“上涨”三种走势类型的连接。<br><b>分解定理二</b>：任何级别的任何走势类型，都至少由三段以上次级别走势类型构成。', fig: mfig('任意走势=三类走势的连接', drawZS([{ p: 10, label: '盘整' }, { p: 14 }, { p: 11 }, { p: 13 }, { p: 6, label: '下跌' }, { p: 3, label: '底', color: '#16a34a' }, { p: 7, label: '上涨' }, { p: 12, label: '顶', color: '#e74c3c', above: true }], [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '盘整中枢' }], { w: 38, h: 100 }), '盘整 + 下跌 + 上涨 依次连接') },
       ]},
-      { type: 'definition', title: '三类买点详解', items: [
-        { term: '① 第一类买点（第17、24课）', text: '只有<b>下跌确立后</b>的中枢下方才可能出现买点，这就是第一类买点——它由<b>下跌趋势的背驰</b>精确制造（背驰-买卖点定理）。下跌走势完成后只能转为上涨或盘整，故此处买入占据最有利位置。', formula: '第一类买点 = 下跌趋势背驰点（中枢之下）', fig: mfig('第一类买点：下跌背驰点', drawZS([{ p: 20, tag: '顶' }, { p: 15 }, { p: 18 }, { p: 14 }, { p: 17 }, { p: 11 }, { p: 14 }, { p: 10 }, { p: 13 }, { p: 8, tag: '底', label: '一买' }], [{ lo: 15, hi: 17, x0: 1, x1: 4, label: 'A' }, { lo: 11, hi: 13, x0: 5, x1: 8, label: 'B' }], { w: 28, h: 96 }), '下跌趋势背驰点（中枢之下）') },
-        { term: '② 第二类买点（第17课）', text: '第一类买点出现后，必然只会出现<b>盘整或上涨</b>；其后的<b>第一段次级别回调制造的低点</b>就是第二类买点。因为上涨与盘整都至少包含三个以上次级别运动（走势必完美），其后<b>必还有一次向上的次级别运动</b>，所以绝对安全。', formula: '第二类买点 = 第一类买点后第一次次级别回调低点', fig: mfig('第二类买点：第一次回调低点', drawZS([{ p: 8, tag: '底', label: '一买' }, { p: 13 }, { p: 10, tag: '底', label: '二买' }, { p: 15 }, { p: 12 }], [], { w: 40, h: 100 }), '一买(8)后第一次次级别回调低点(10)=二买') },
-        { term: '③ 第三类买点（第20课）', text: '<span class="hl">一个次级别走势类型向上离开中枢，然后以一个次级别走势类型回试，其低点不跌破 ZG，则构成第三类买点。</span>（卖点：向下离开后回抽不升破 ZD。）它是<b>中枢新生或扩张</b>的产物。', formula: '第三类买点 = 离开中枢后回试不破 ZG（中枢之上）', fig: mfig('第三类买点：回试不破 ZG', drawZS([{ p: 8, tag: '底' }, { p: 13, tag: '顶' }, { p: 10 }, { p: 14, tag: '顶' }, { p: 11 }, { p: 16, tag: '顶' }, { p: 14, label: '三买', color: '#9333ea' }], [{ lo: 11, hi: 13, x0: 1, x1: 4, label: '中枢' }], { w: 34, h: 104, zgzd: true }), '离开中枢(11→16)后回试不破 ZG=13 → 三买(14)') },
-        { term: '④ 第三类买点的两种结果（第21课）', text: '第三类买点后必然出现两种情况：<b>中枢新生</b>→ 形成上涨趋势；<b>中枢扩张</b>→ 形成更大级别中枢。无论哪种，只要第三类买点条件符合，<b>其后都必然赢利</b>（区别只是上涨趋势更直接、更诱人）。', fig: mfig('三买后两种演化', '<div style="font-size:12px;line-height:1.9;color:#1f2937">三买 → <b style="color:#16a34a">中枢新生</b>（上涨趋势）<br>三买 → <b style="color:#f59e0b">中枢扩张</b>（更大中枢）</div>', '两种都必然赢利') },
-        { term: '⑤ 二、三类买点重合（第21课）', text: '第一类买点出现后，若次级别走势<b>凌厉直接上破</b>前下跌的最后一个中枢，并在其上<b>回抽不触及</b>该中枢，就出现<b>第二、三类买点重合</b>。只有这两种买点可能重合（一类与二类前后出现、一类与三类一上一下，均不可能重合）。', fig: mfig('二、三类买点重合', drawZS([{ p: 15, tag: '顶' }, { p: 11 }, { p: 14, tag: '顶' }, { p: 12 }, { p: 8, tag: '底', label: '一买' }, { p: 18, tag: '顶' }, { p: 15, label: '二/三买', color: '#2563eb' }], [{ lo: 12, hi: 14, x0: 0, x1: 3, label: '中枢' }], { w: 34, h: 104 }), '一买(8)后凌厉上破中枢，回抽(15)不触及 → 重合') },
-        { term: '⑥ 卖点反之亦然', text: '把方向反过来，三类<b>卖点</b>对称成立：第一类卖点＝上涨趋势背驰点；第二类卖点＝第一类卖点后第一次次级别反弹高点；第三类卖点＝离开中枢后回抽不升破 ZD。', fig: mfig('卖点：方向相反', '<div style="font-size:12px;line-height:1.9;color:#1f2937"><b style="color:#e74c3c">一卖</b>=上涨背驰点<br><b style="color:#e74c3c">二卖</b>=一卖后首次反弹高点<br><b style="color:#e74c3c">三卖</b>=离开中枢回抽不升破 ZD</div>', '三类卖点与买点完全对称') },
+      { type: 'definition', title: '走势类型的延伸、结束与转化', items: [
+        { term: '① 走势类型的延伸（第18课）', text: '走势类型形成后（已有中枢），只要围绕中枢的次级波动<b>始终触及中枢区间、不产生新中枢</b>，该走势类型就在<b>延伸</b>。盘整延伸＝中枢震荡；趋势延伸＝沿原方向不断产生<b>新的同向中枢</b>。', fig: mfig('延伸：不产生新中枢', drawZS([{ p: 5 }, { p: 9 }, { p: 6 }, { p: 8 }, { p: 5 }, { p: 9 }, { p: 7 }], [{ lo: 6, hi: 8, x0: 0, x1: 6, label: '同一中枢' }], { w: 36, h: 100 }), '围绕同一中枢震荡，仍是一个中枢') },
+        { term: '② 走势类型的结束', text: '走势类型<b>结束</b>的标志，是产生<b>新中枢</b>（盘整变趋势）或<b>更大级别中枢</b>（级别扩张）。一旦结束，就必然<b>转化为其他类型</b>：下跌完成→转为上涨或盘整；上涨完成→转为下跌或盘整。', fig: mfig('结束：产生新中枢', drawZS([{ p: 5 }, { p: 9 }, { p: 6 }, { p: 8 }, { p: 13 }, { p: 16 }, { p: 12 }, { p: 15, label: '顶', color: '#e74c3c', above: true }], [{ lo: 6, hi: 8, x0: 0, x1: 3, label: '原中枢' }, { lo: 13, hi: 15, x0: 4, x1: 7, label: '新中枢' }], { w: 36, h: 100 }), '离开后形成新中枢 → 盘整结束转上涨') },
+        { term: '③ 当下两难：延续还是改变（第17课）', text: '在任一走势的<b>当下</b>，永远面对“究竟是<b>延续</b>还是<b>改变</b>”的两难，这在当下层次上是“不患”（无法绝对预判）的。因此只能做<b>完全分类</b>：把延续与改变的各种情形都考虑好，分类应对，而非预测。', fig: mfig('当下两难：延续 or 改变', drawZS([{ p: 10 }, { p: 14 }, { p: 11 }, { p: 13, label: '?', color: '#f59e0b', above: true }], [{ lo: 11, hi: 13, x0: 0, x1: 3, label: '中枢' }], { w: 40, h: 100 }), '当下无法绝对预判，只能完全分类应对') },
+        { term: '④ 第一、二类买点的由来（第17课）', text: '因为下跌走势完成后只能转化为上涨或盘整，故在<b>下跌完成的关节点</b>买入，就是第一类买点；而上涨与盘整都至少包含三个以上次级别运动，故第一类买点后<b>第一次次级别回调的低点</b>，其后必还有一次向上的次级别运动——这是<b>绝对安全</b>的第二类买点。卖点反之。', fig: mfig('一买、二买的由来', drawZS([{ p: 16 }, { p: 11 }, { p: 14 }, { p: 12 }, { p: 7, label: '一买', color: '#16a34a' }, { p: 11, label: '二买', color: '#2563eb' }, { p: 15, label: '顶', color: '#e74c3c', above: true }], [{ lo: 12, hi: 14, x0: 0, x1: 3, label: '下跌中枢' }], { w: 40, h: 104 }), '一买(7)后第一次回调低点(11)=二买') },
+        { term: '⑤ 买卖点定律一（第17课）', text: '<span class="hl">任何级别的第二类买卖点，都由次级别相应走势的第一类买卖点构成。</span>', fig: mfig('二买 = 次级别的一买', drawZS([{ p: 7, label: '一买', color: '#16a34a' }, { p: 11, label: '二买', color: '#2563eb' }, { p: 15, label: '顶', color: '#e74c3c', above: true }], [], { w: 46, h: 100 }), '本级别二买，由次级别走势的一买构成') },
+        { term: '⑥ 趋势转折定律（第17课）', text: '<span class="hl">任何级别的上涨转折，都是由某级别的第一类卖点构成的；任何级别的下跌转折，都是由某级别的第一类买点构成的。</span>（“某级别”不一定是次级别，也可能是不同级别同步共振。）', fig: mfig('趋势转折由一买/一卖构成', drawZS([{ p: 16 }, { p: 11 }, { p: 14 }, { p: 12 }, { p: 7, label: '一买', color: '#16a34a' }, { p: 11 }, { p: 15 }], [{ lo: 12, hi: 14, x0: 0, x1: 3, label: '下跌' }], { w: 40, h: 100 }), '下跌转折 = 某级别的一买构成') },
       ]},
-      { type: 'motivation', title: '三类买卖点让理论“闭环”', text: '缠论从“走势必完美”出发，经过中枢、走势类型、级别、背驰，最终落到<b>三类买卖点</b>——这是整个理论的<b>可操作终极目标</b>。完备性定理保证：市场盈利的买卖点<b>只有且仅有</b>这三类，且 100% 安全。学到这一步，理论就从一个“描述系统”变成了一个“<b>可执行的交易系统</b>”。' },
+      { type: 'motivation', title: '为什么“走势必完美”是缠论的根', text: '整个缠论只有一根主线：<b>走势必完美</b>。因为它，下跌走势终要完成、完成后必转化为上涨或盘整——这才使得<b>第一类买点</b>在逻辑上必然存在；也是它，让“走势可分解成三类走势类型的连接”从一句静态描述变成可操作的程序。其余所有定理（中枢、级别、买卖点、背驰）都是从它推演出来的。' },
       { type: 'pitfalls', title: '常见误区', items: [
-        '在<b>上涨趋势确立后</b>还去找第一、二类买点（错：上涨趋势里只可能有第三类买点）。',
-        '搞混三类买点与中枢的<b>位置关系</b>：一类在中枢<b>下</b>、三类在中枢<b>上</b>、二类任意。',
-        '以为第三类买点后<b>必然快速上涨</b>（可能是中枢扩张成更大级别中枢，横盘一段时间）。',
-        '只研究买点<b>忘了卖点</b>（卖点与买点完全对称，同样三类、同样 100% 安全）。',
+        '把“走势必完美”理解成“<b>一定会涨/跌到某个点位</b>”——错：它说的是<b>走势类型的完成与转化</b>，不是点位预测。',
+        '判断走势类型时<b>数错中枢</b>：把延伸的震荡当成了多个中枢（延伸仍是 1 个中枢）。',
+        '以为<b>趋势的两个中枢可以重叠</b>（错：必须同向且绝对不重叠）。',
+        '在<b>当下</b>妄图百分之百判断“延续还是改变”（错：当下只能完全分类，分类后机械应对）。',
       ]},
       { type: 'exercises', title: '练习', items: [
-        { q: '三类买点分别是什么？各自对应与中枢的什么位置关系？', a: '第一类＝<b>下跌趋势背驰点</b>（中枢之下，转折）；第二类＝第一类买点后<b>第一次次级别回调低点</b>（位置任意）；第三类＝<b>离开中枢后回试不破 ZG</b>（中枢之上，新生/扩张）。' },
-        { q: '为什么只有第二、三类买点能重合？', a: '一类与二类前后相继出现、一类与三类一在下一在上，都不可能重合。只有“一类买点后凌厉上破中枢、回抽不触及中枢”时，回抽低点同时是二类（第一次回调）与三类（回试不破中枢），才会重合。' },
-        { q: '第三类买点出现后，走势必然怎么走？', a: '必然<b>赢利</b>，但有两种演化：<b>中枢新生</b>（上涨趋势）或<b>中枢扩张</b>（更大级别中枢）。前者更直接，后者会先横盘。' },
+        { q: '一个走势里有 3 个中枢：前两个向下、互不重叠，第三个向上。这分解成哪几类走势类型？', a: '前两个向下同向中枢构成一段<b>下跌</b>趋势；之后向上的走势若只有一个中枢是<b>盘整</b>、若有两个向上中枢则是<b>上涨</b>。整体＝“下跌+盘整”或“下跌+上涨”的连接（分解定理一）。' },
+        { q: '“走势必完美”能保证某个下跌走势一定跌到某支撑位再涨吗？', a: '<b>不能</b>。它只保证下跌走势<b>终要完成</b>、完成后<b>转化为</b>上涨或盘整，但不预判完成的具体点位。点位只能靠区间套、背驰在<b>当下</b>去定位。' },
       ]},
     ],
   });
