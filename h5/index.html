@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>缠论可视化学习</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="vendor/vue.global.prod.js"></script>
+  <script src="vendor/echarts.min.js"></script>
+</head>
+<body>
+<div id="app" class="layout">
+  <aside class="sidebar">
+    <div class="brand">缠论可视化学习<small>按术语依赖顺序 · 自底向上</small></div>
+    <ul class="nav">
+      <li class="grp">卷一 · 形态学</li>
+      <li v-for="c in chapters" :class="{ active: c.id === cur.id }">
+        <a :href="'#/' + c.id">{{ c.title }}</a>
+      </li>
+      <li class="grp">后续章节（建设中）</li>
+      <li class="disabled" v-for="t in upcoming"><a>{{ t }}</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="chapter-head">
+      <h1>{{ cur.title }}</h1>
+      <span class="src-badge">{{ cur.source }}</span>
+    </div>
+
+    <!-- 多张图解（最上，先看后学） -->
+    <template v-for="(f, i) in cur.figures" :key="i">
+      <section class="block">
+        <h2><span class="tag viz">图解{{ cur.figures.length > 1 ? (i + 1) : '' }}</span>{{ f.title }}</h2>
+        <div v-if="f.kind === 'echarts'" :id="'fig' + i" class="chart-box"></div>
+        <div v-else class="fig-html" v-html="f.html"></div>
+        <p class="tip" v-html="f.note"></p>
+      </section>
+    </template>
+
+    <!-- 定义 / 动机 / 误区 / 练习 -->
+    <template v-for="s in cur.sections" :key="s.title">
+      <section class="block" v-if="s.type === 'definition'">
+        <h2><span class="tag">定义</span>{{ s.title }}</h2>
+        <div class="def-item" v-for="it in s.items" :key="it.term">
+          <div class="term">{{ it.term }}</div>
+          <p v-html="it.text"></p>
+          <div class="formula" v-if="it.formula" v-html="it.formula"></div>
+        </div>
+      </section>
+
+      <section class="block" v-else-if="s.type === 'motivation'">
+        <h2><span class="tag">动机</span>{{ s.title }}</h2>
+        <p v-html="s.text"></p>
+      </section>
+
+      <section class="block" v-else-if="s.type === 'pitfalls'">
+        <h2><span class="tag">误区</span>{{ s.title }}</h2>
+        <ul class="pitfalls"><li v-for="(p,i) in s.items" :key="i" v-html="p"></li></ul>
+      </section>
+
+      <section class="block" v-else-if="s.type === 'exercises'">
+        <h2><span class="tag">练习</span>{{ s.title }}</h2>
+        <details v-for="(e,i) in s.items" :key="i">
+          <summary>{{ e.q }}</summary>
+          <div class="ans" v-html="e.a"></div>
+        </details>
+      </section>
+    </template>
+
+    <div class="pager">
+      <a v-if="prev" :href="'#/' + prev.id">← {{ prev.title }}</a>
+      <span v-else></span>
+      <a v-if="next" :href="'#/' + next.id">{{ next.title }} →</a>
+    </div>
+  </main>
+</div>
+
+<!-- 加载顺序：核心算法 → 各章内容 → 应用入口 -->
+<script src="js/core.js"></script>
+<script src="js/chapters/ch2.js"></script>
+<script src="js/chapters/ch3.js"></script>
+<script src="js/chapters/ch4.js"></script>
+<script src="js/chapters/ch5.js"></script>
+<script src="js/chapters/ch6.js"></script>
+<script src="js/chapters/ch7.js"></script>
+<script src="js/chapters/ch8.js"></script>
+<script src="js/chapters/ch9.js"></script>
+<script src="js/chapters/ch10.js"></script>
+<script src="js/chapters/ch11.js"></script>
+<script src="js/chapters/ch12.js"></script>
+<script src="js/chapters/ch13.js"></script>
+<script src="js/chapters/ch14.js"></script>
+<script src="js/chapters/ch15.js"></script>
+<script src="js/chapters/ch16.js"></script>
+<script src="js/chapters/ch17.js"></script>
+<script src="js/chapters/ch18.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
