@@ -15,6 +15,20 @@
     <button class="nav-toggle" @click="navOpen = !navOpen" :title="navOpen ? '收起目录' : '展开目录'">
       <span v-if="navOpen">收起目录 ‹</span><span v-else>☰</span>
     </button>
+    <div class="search-box" v-if="navOpen">
+      <input v-model="searchQuery" placeholder="搜索术语 / 章节" />
+      <div class="search-results" v-if="searchQuery.trim()">
+        <template v-if="searchTerms.length">
+          <div class="sr-h">术语</div>
+          <a v-for="g in searchTerms" :key="g.term" :href="'#/' + g.ch" @click="searchQuery = ''">{{ g.term }}<span class="sr-def">{{ g.def }}</span></a>
+        </template>
+        <template v-if="searchChapters.length">
+          <div class="sr-h">章节</div>
+          <a v-for="c in searchChapters" :key="c.id" :href="'#/' + c.id" @click="searchQuery = ''">{{ c.title }}</a>
+        </template>
+        <div class="sr-empty" v-if="!searchTerms.length && !searchChapters.length">无匹配</div>
+      </div>
+    </div>
     <ul class="nav">
       <template v-for="g in groupedChapters" :key="g.vol">
         <li class="grp">{{ g.vol }}</li>
@@ -44,6 +58,17 @@
             <p class="tip" v-html="f.note"></p>
           </section>
         </template>
+        <section class="block fig-card" v-if="anim">
+          <h2><span class="tag viz">演示</span>{{ anim.title }}</h2>
+          <div class="stepper">
+            <div class="stepper-stage" v-html="anim.steps[animStep].html"></div>
+            <div class="stepper-bar">
+              <button class="step-btn" @click="animStep = Math.max(0, animStep - 1)" :disabled="animStep === 0">← 上一步</button>
+              <span class="stepper-ind">{{ animStep + 1 }} / {{ anim.steps.length }} · {{ anim.steps[animStep].label }}</span>
+              <button class="step-btn" @click="animStep = Math.min(anim.steps.length - 1, animStep + 1)" :disabled="animStep === anim.steps.length - 1">下一步 →</button>
+            </div>
+          </div>
+        </section>
       </div>
 
       <!-- 右：讲解 + 讲解内部小图解 -->
@@ -75,8 +100,27 @@
               <summary>{{ e.q }}</summary>
               <div class="ans" v-html="e.a"></div>
             </details>
+            <div class="quiz" v-if="quiz.length">
+              <div class="quiz-h">选择题 · 点击选项判断对错</div>
+              <div class="quiz-q" v-for="(q, qi) in quiz" :key="qi">
+                <div class="quiz-text">{{ qi + 1 }}. {{ q.q }}</div>
+                <div class="quiz-opts">
+                  <button class="quiz-opt" v-for="(op, oi) in q.options" :key="oi"
+                    :class="{ right: oi === q.answer && quizPicked[qi] != null, wrong: quizPicked[qi] === oi && oi !== q.answer }"
+                    :disabled="quizPicked[qi] != null"
+                    @click="pickQuiz(qi, oi)">{{ op }}</button>
+                </div>
+                <div class="quiz-explain" v-if="quizPicked[qi] != null" :class="{ ok: quizPicked[qi] === q.answer }">
+                  <b>{{ quizPicked[qi] === q.answer ? '✓ 正确' : '✗ 错误' }}</b> {{ q.explain }}
+                </div>
+              </div>
+            </div>
           </section>
         </template>
+        <section class="block" v-if="original">
+          <h2><span class="tag">原文</span>{{ original.title }}</h2>
+          <div class="original-text" v-html="original.text"></div>
+        </section>
       </div>
     </div>
 

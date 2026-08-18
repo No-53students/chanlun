@@ -80,3 +80,41 @@ details .ans { color: var(--green); padding: 6px 0 2px 18px; }
 .pager { display: flex; justify-content: space-between; margin-top: 28px; }
 .pager a { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; font-size: 14px; }
 .pager a:hover { border-color: var(--blue); }
+
+/* 全局搜索框 */
+.search-box { position: relative; padding: 12px 20px 0; }
+.search-box input { width: 100%; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; outline: none; }
+.search-box input:focus { border-color: var(--blue); }
+.search-results { position: absolute; left: 20px; right: 20px; top: 46px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,.08); max-height: 60vh; overflow-y: auto; z-index: 20; }
+.search-results a { display: block; padding: 8px 12px; font-size: 13px; color: var(--ink); border-left: 3px solid transparent; }
+.search-results a:hover { background: #eff6ff; }
+.sr-h { padding: 6px 12px 2px; font-size: 11px; color: var(--muted); letter-spacing: .5px; }
+.sr-def { display: block; font-size: 11px; color: var(--muted); line-height: 1.5; }
+.sr-empty { padding: 10px 12px; font-size: 13px; color: var(--muted); }
+
+/* 分步动画演示 */
+.stepper-stage { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; justify-content: center; padding: 12px 0; min-height: 110px; }
+.stepper-stage svg { max-width: 100%; height: auto; }
+.stepper-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.step-btn { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+.step-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+.step-btn:disabled { opacity: .4; cursor: default; }
+.stepper-ind { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+/* 原文对照 */
+.original-text { border-left: 3px solid var(--amber); padding-left: 14px; }
+.original-text p { line-height: 1.9; font-size: 14px; color: #374151; margin: 8px 0; }
+
+/* 交互练习（选择题） */
+.quiz { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.quiz-h { font-size: 13px; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
+.quiz-q { margin-bottom: 14px; }
+.quiz-text { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.6; }
+.quiz-opts { display: flex; flex-direction: column; gap: 5px; }
+.quiz-opt { text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer; transition: all .12s; }
+.quiz-opt:hover:not(:disabled) { border-color: var(--blue); }
+.quiz-opt.right { background: #f0fdf4; border-color: var(--green); color: #166534; }
+.quiz-opt.wrong { background: #fef2f2; border-color: var(--red); color: #991b1b; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-explain { font-size: 13px; margin-top: 6px; color: #991b1b; line-height: 1.6; }
+.quiz-explain.ok { color: #166534; }
