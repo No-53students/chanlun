@@ -7,6 +7,7 @@
   createApp({
     setup() {
       const curIdx = ref(0);
+      const navOpen = ref(true);
       const cur = computed(() => chapters[curIdx.value]);
       const prev = computed(() => curIdx.value > 0 ? chapters[curIdx.value - 1] : null);
       const next = computed(() => curIdx.value < chapters.length - 1 ? chapters[curIdx.value + 1] : null);
@@ -42,7 +43,7 @@
 
       watch(curIdx, () => nextTick(renderFigures));
 
-      return { chapters, upcoming, cur, prev, next };
+      return { chapters, upcoming, cur, prev, next, navOpen };
     },
   }).mount('#app');
 })();

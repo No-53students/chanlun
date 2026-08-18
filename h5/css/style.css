@@ -10,6 +10,12 @@ a { color: var(--blue); text-decoration: none; }
 .sidebar { width: 248px; flex: 0 0 248px; background: #fff; border-right: 1px solid var(--line); padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 .brand { font-weight: 700; font-size: 17px; padding: 0 20px 14px; border-bottom: 1px solid var(--line); }
 .brand small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.nav-toggle { display: flex; align-items: center; gap: 6px; width: 100%; background: none; border: 0; border-top: 1px solid var(--line); padding: 10px 20px; font-size: 13px; color: var(--muted); cursor: pointer; text-align: left; }
+.nav-toggle:hover { background: #f3f4f6; color: var(--ink); }
+.sidebar.collapsed { width: 52px; flex: 0 0 52px; padding: 12px 0; }
+.sidebar.collapsed .brand,
+.sidebar.collapsed .nav { display: none; }
+.sidebar.collapsed .nav-toggle { justify-content: center; border-top: 0; padding: 10px 0; font-size: 18px; }
 .nav { list-style: none; margin: 12px 0; padding: 0; }
 .nav li a { display: block; padding: 9px 20px; font-size: 14px; color: var(--ink); border-left: 3px solid transparent; }
 .nav li a:hover { background: #f3f4f6; }
@@ -50,6 +56,27 @@ details .ans { color: var(--green); padding: 6px 0 2px 18px; }
 .fig-html .bad { color: var(--red); }
 .fig-html .good { color: var(--green); }
 .tip { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.7; }
+
+/* 左右分栏：左=主图详图，右=讲解+小图解 */
+.content-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.fig-panel .block, .text-panel .block { margin-top: 0; }
+.fig-panel .block + .block, .text-panel .block + .block { margin-top: 18px; }
+.fig-card .chart-box { height: 430px; }
+.fig-panel { position: sticky; top: 20px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto; }
+
+.mini-fig { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; background: #fafbfc; border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; }
+.mini-fig .fig { min-width: 120px; }
+.mini-fig .fig .cap { font-size: 11px; color: var(--muted); text-align: center; margin-top: 4px; line-height: 1.5; }
+.mini-fig .fig .lbl { font-weight: 700; font-size: 12px; text-align: center; margin-bottom: 3px; }
+.mini-fig .arrow { align-self: center; font-size: 18px; color: var(--muted); }
+.mini-fig .bad { color: var(--red); }
+.mini-fig .good { color: var(--green); }
+
+@media (max-width: 1120px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .fig-panel { position: static; max-height: none; overflow: visible; }
+}
+
 .pager { display: flex; justify-content: space-between; margin-top: 28px; }
 .pager a { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; font-size: 14px; }
 .pager a:hover { border-color: var(--blue); }

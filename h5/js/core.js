@@ -163,7 +163,8 @@ function intervalsSVG(ivs, opts = {}) {
   return s;
 }
 
-// 折线 + 中枢矩形示意：points=[{p,tag}]，zones=[{lo,hi,x0,x1}]（x0/x1 为折线点下标）
+// 折线 + 中枢矩形示意：points=[{p,tag,label,color,above}]，zones=[{lo,hi,x0,x1,label}]（x0/x1 为折线点下标）
+// opts: { zgzd: 在中枢右侧标注 ZG/ZD 值虚线, lineColor, sw }
 function drawZS(points, zones, opts = {}) {
   const w = opts.w || 56, h = opts.h || 130, pad = 16;
   const min = Math.min(...points.map(x => x.p)), max = Math.max(...points.map(x => x.p));
@@ -176,18 +177,68 @@ function drawZS(points, zones, opts = {}) {
     const y0 = y(z.hi), y1 = y(z.lo);
     const x0 = x(z.x0) - w / 2, x1 = x(z.x1) + w / 2;
     s += `<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(y1 - y0).toFixed(1)}" fill="rgba(37,99,235,0.12)" stroke="#2563eb" stroke-dasharray="4 3"/>`;
+    if (z.label) {
+      s += `<text x="${((x0 + x1) / 2).toFixed(1)}" y="${(y0 - 4).toFixed(1)}" font-size="10" text-anchor="middle" fill="#2563eb" font-weight="bold">${z.label}</text>`;
+    }
+    if (opts.zgzd) {
+      s += `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${W}" y2="${y0.toFixed(1)}" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 3"/>`;
+      s += `<text x="${W - 2}" y="${(y0 - 3).toFixed(1)}" font-size="9" text-anchor="end" fill="#2563eb">ZG=${z.hi}</text>`;
+      s += `<line x1="${x0.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${W}" y2="${y1.toFixed(1)}" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 3"/>`;
+      s += `<text x="${W - 2}" y="${(y1 - 3).toFixed(1)}" font-size="9" text-anchor="end" fill="#2563eb">ZD=${z.lo}</text>`;
+    }
   });
   for (let i = 0; i < points.length - 1; i++) {
-    s += `<line x1="${x(i)}" y1="${y(points[i].p).toFixed(1)}" x2="${x(i + 1)}" y2="${y(points[i + 1].p).toFixed(1)}" stroke="#1f2937" stroke-width="2"/>`;
+    s += `<line x1="${x(i)}" y1="${y(points[i].p).toFixed(1)}" x2="${x(i + 1)}" y2="${y(points[i + 1].p).toFixed(1)}" stroke="${opts.lineColor || '#1f2937'}" stroke-width="${opts.sw || 2}"/>`;
   }
   points.forEach((pt, i) => {
-    if (pt.tag) {
-      const c = pt.tag === '顶' ? '#e74c3c' : '#16a34a';
-      s += `<circle cx="${x(i)}" cy="${y(pt.p).toFixed(1)}" r="3" fill="${c}"/>`;
-    }
+    const label = pt.label || pt.tag;
+    if (!label) return;
+    const c = pt.color || (pt.tag === '顶' ? '#e74c3c' : pt.tag === '底' ? '#16a34a' : '#1f2937');
+    s += `<circle cx="${x(i)}" cy="${y(pt.p).toFixed(1)}" r="3" fill="${c}"/>`;
+    const above = pt.tag === '顶' || pt.above === true;
+    const ty = above ? y(pt.p) - 8 : y(pt.p) + 14;
+    s += `<text x="${x(i)}" y="${ty.toFixed(1)}" font-size="10" text-anchor="middle" fill="${c}" font-weight="bold">${label}</text>`;
   });
   s += '</svg>';
   return s;
+}
+
+// 水平虚线 + 端侧标签（用于 GG/DD 等辅助标注，叠加在已有 SVG 场景）——返回 SVG 片段
+function hLineSVG(yVal, minVal, maxVal, w, h, pad, label, color, pos = 'start') {
+  const range = (maxVal - minVal) || 1;
+  const y = v => pad + (maxVal - v) / range * (h - 2 * pad);
+  const yy = y(yVal);
+  const tx = pos === 'end' ? w - 2 : 2;
+  const anchor = pos === 'end' ? 'end' : 'start';
+  return `<line x1="0" y1="${yy.toFixed(1)}" x2="${w}" y2="${yy.toFixed(1)}" stroke="${color}" stroke-width="1" stroke-dasharray="3 3"/><text x="${tx}" y="${(yy - 3).toFixed(1)}" font-size="9" text-anchor="${anchor}" fill="${color}">${label}</text>`;
+}
+
+// 带文字标注的 K 线示意：klines=[{o,c,l,h}]，labels=[{i,text,pos,color}]（pos='top' 标在最高点上方 / 'bottom' 标在最低点下方）
+function klineAnnSVG(klines, labels = [], opts = {}) {
+  const w = opts.w || 36, bodyW = opts.bodyW || 13, h = opts.h || 100, pad = 10, padT = opts.padT || 15, padB = opts.padB || 15;
+  const min = Math.min(...klines.map(k => k.l)), max = Math.max(...klines.map(k => k.h));
+  const range = (max - min) || 1;
+  const y = v => padT + (max - v) / range * (h - padT - padB);
+  const col = k => k.c >= k.o ? '#e74c3c' : '#16a34a';
+  let s = '';
+  klines.forEach((k, i) => {
+    const cx = pad + i * w + w / 2, c = col(k);
+    s += `<line x1="${cx}" y1="${y(k.h).toFixed(1)}" x2="${cx}" y2="${y(k.l).toFixed(1)}" stroke="${c}" stroke-width="1.5"/>`;
+    const yo = y(k.o), yc = y(k.c), top = Math.min(yo, yc), hgt = Math.max(2, Math.abs(yo - yc));
+    s += `<rect x="${(cx - bodyW / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bodyW}" height="${hgt.toFixed(1)}" fill="${c}" rx="1"/>`;
+  });
+  labels.forEach(lb => {
+    const k = klines[lb.i]; if (!k) return;
+    const cx = pad + lb.i * w + w / 2;
+    const ty = lb.pos === 'top' ? y(k.h) - 4 : y(k.l) + 12;
+    s += `<text x="${cx.toFixed(1)}" y="${ty.toFixed(1)}" font-size="9" text-anchor="middle" fill="${lb.color || '#6b7280'}">${lb.text}</text>`;
+  });
+  return `<svg viewBox="0 0 ${w * klines.length} ${h}" width="${w * klines.length}" height="${h}" style="display:block">${s}</svg>`;
+}
+
+// 小图容器：标签 + 图 + 图注（用于讲解点内嵌小图解）
+function mfig(lbl, svg, cap) {
+  return `<div class="fig"><div class="lbl">${lbl}</div>${svg}<div class="cap">${cap}</div></div>`;
 }
 
 /* ---------- 预计算第 2-4 章共用的 zigzag 数据 ---------- */
@@ -213,51 +264,78 @@ function optCh2() {
     const lastIdx = groups[gi][groups[gi].length - 1];
     return { value: [lastIdx, m.o, m.c, m.l, m.h], itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } };
   });
+  // 标注：三处包含（方向 + 合并规则）与被包含 K 线
+  const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: 'top' } });
+  const containPin = [2, 4, 8].map(i => ({ coord: [i, raw[i].h], name: '被包含', symbol: 'pin', symbolSize: 22, itemStyle: { color: '#f59e0b' }, label: { show: true, color: '#b45309', fontSize: 9, position: 'top' } }));
   return {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    grid: { left: 48, right: 20, top: 24, bottom: 40 },
+    grid: { left: 48, right: 20, top: 28, bottom: 40 },
     xAxis: { type: 'value', min: -0.5, max: idxMax + 0.5, interval: 1, axisLabel: { formatter: '第{value}根' } },
     yAxis: { type: 'value', scale: true },
     legend: { data: ['原始K线', '合并后K线'] },
     series: [
-      { name: '原始K线', type: 'candlestick', data: rawData, barWidth: 0.5 },
-      { name: '合并后K线', type: 'candlestick', data: mergedData, barWidth: 0.9 },
+      { name: '原始K线', type: 'candlestick', data: rawData, barWidth: 0.5, markPoint: { data: containPin } },
+      { name: '合并后K线', type: 'candlestick', data: mergedData, barWidth: 0.9,
+        markPoint: { data: [seg(1.5, 103, '① 向上合并 → 取高高', upColor), seg(3.5, 107, '② 向上合并 → 取高高', upColor), seg(7.5, 90, '③ 向下合并 → 取低低', downColor)] },
+        markLine: { silent: true, symbol: 'none', label: { show: true, position: 'end', formatter: function (p) { return p.name; }, fontSize: 10 }, data: [
+          { name: '向上合并高 H=104', yAxis: 104, lineStyle: { color: upColor, type: 'dashed', width: 1 } },
+          { name: '向下合并低 L=90', yAxis: 90, lineStyle: { color: downColor, type: 'dashed', width: 1 } },
+        ] } },
     ],
   };
 }
 
 function optCh3() {
-  const topScatter = zf.tops.map(i => ({ value: [zigCats[i], zig[i].h + 0.1] }));
-  const bottomScatter = zf.bottoms.map(i => ({ value: [zigCats[i], zig[i].l - 0.1] }));
+  const topScatter = zf.tops.map(i => ({ name: '顶分型 H=' + zig[i].h.toFixed(1), value: [zigCats[i], zig[i].h + 0.1] }));
+  const bottomScatter = zf.bottoms.map(i => ({ name: '底分型 L=' + zig[i].l.toFixed(1), value: [zigCats[i], zig[i].l - 0.1] }));
+  // 段名标注：上升 / 下降 K 线
+  const segName = [
+    { coord: ['K2', 12.5], symbol: 'none', label: { show: true, formatter: '上升K线', color: '#6b7280', fontSize: 11, fontWeight: 'bold' } },
+    { coord: ['K6', 13.0], symbol: 'none', label: { show: true, formatter: '下降K线', color: '#6b7280', fontSize: 11, fontWeight: 'bold' } },
+  ];
   return {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    grid: { left: 48, right: 20, top: 24, bottom: 56 },
+    grid: { left: 48, right: 20, top: 28, bottom: 56 },
     xAxis: { type: 'category', data: zigCats, axisLabel: { interval: 1 } },
     yAxis: { type: 'value', scale: true },
     dataZoom: [{ type: 'inside' }, { type: 'slider', height: 18, bottom: 8 }],
     series: [
-      { name: 'K线', type: 'candlestick', data: zig.map(k => [k.o, k.c, k.l, k.h]), itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
-      { name: '顶分型', type: 'scatter', data: topScatter, symbol: 'triangle', symbolRotate: 180, symbolSize: 16, itemStyle: { color: upColor } },
-      { name: '底分型', type: 'scatter', data: bottomScatter, symbol: 'triangle', symbolSize: 16, itemStyle: { color: downColor } },
+      { name: 'K线', type: 'candlestick', data: zig.map(k => [k.o, k.c, k.l, k.h]), itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor }, markPoint: { data: segName } },
+      { name: '顶分型', type: 'scatter', data: topScatter, symbol: 'triangle', symbolRotate: 180, symbolSize: 16, itemStyle: { color: upColor }, label: { show: true, position: 'top', formatter: function (p) { return p.name; }, color: upColor, fontSize: 10, fontWeight: 'bold' }, z: 20 },
+      { name: '底分型', type: 'scatter', data: bottomScatter, symbol: 'triangle', symbolSize: 16, itemStyle: { color: downColor }, label: { show: true, position: 'bottom', formatter: function (p) { return p.name; }, color: downColor, fontSize: 10, fontWeight: 'bold' }, z: 20 },
     ],
   };
 }
 
 function optCh4() {
-  const topScatter = zf.tops.map(i => ({ value: [zigCats[i], zig[i].h + 0.1] }));
-  const bottomScatter = zf.bottoms.map(i => ({ value: [zigCats[i], zig[i].l - 0.1] }));
+  const topScatter = zf.tops.map(i => ({ name: '顶分型 H=' + zig[i].h.toFixed(1), value: [zigCats[i], zig[i].h + 0.1] }));
+  const bottomScatter = zf.bottoms.map(i => ({ name: '底分型 L=' + zig[i].l.toFixed(1), value: [zigCats[i], zig[i].l - 0.1] }));
   const biLine = zig.map((k, i) => zbiMap.has(i) ? [zigCats[i], zbiMap.get(i) === 'top' ? k.h : k.l] : null);
+  const biPrice = p => p.type === 'top' ? zig[p.i].h : zig[p.i].l;
+  // 笔方向段名标注
+  const biSegs = [];
+  for (let k = 0; k < zbi.length - 1; k++) {
+    const a = zbi[k], b = zbi[k + 1], up = b.type === 'top';
+    biSegs.push({ coord: [zigCats[Math.round((a.i + b.i) / 2)], (biPrice(a) + biPrice(b)) / 2], symbol: 'none', label: { show: true, formatter: up ? '↑ 向上笔' : '↓ 向下笔', color: biColor, fontSize: 11, fontWeight: 'bold' } });
+  }
+  const hiTop = Math.max(...zf.tops.map(i => zig[i].h));
+  const loBot = Math.min(...zf.bottoms.map(i => zig[i].l));
   return {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    grid: { left: 48, right: 20, top: 24, bottom: 56 },
+    grid: { left: 48, right: 20, top: 28, bottom: 56 },
     xAxis: { type: 'category', data: zigCats, axisLabel: { interval: 1 } },
     yAxis: { type: 'value', scale: true },
     dataZoom: [{ type: 'inside' }, { type: 'slider', height: 18, bottom: 8 }],
     series: [
       { name: 'K线', type: 'candlestick', data: zig.map(k => [k.o, k.c, k.l, k.h]), itemStyle: { color: upColor, color0: downColor, borderColor: upColor, borderColor0: downColor } },
-      { name: '笔', type: 'line', data: biLine, connectNulls: true, symbol: 'none', lineStyle: { color: biColor, width: 2.2 }, z: 10 },
-      { name: '顶分型', type: 'scatter', data: topScatter, symbol: 'triangle', symbolRotate: 180, symbolSize: 16, itemStyle: { color: upColor }, z: 20 },
-      { name: '底分型', type: 'scatter', data: bottomScatter, symbol: 'triangle', symbolSize: 16, itemStyle: { color: downColor }, z: 20 },
+      { name: '笔', type: 'line', data: biLine, connectNulls: true, symbol: 'none', lineStyle: { color: biColor, width: 2.2 }, z: 10,
+        markPoint: { data: biSegs },
+        markLine: { silent: true, symbol: 'none', label: { show: true, position: 'end', formatter: function (p) { return p.name; }, fontSize: 10 }, data: [
+          { name: '顶分型最高 H=' + hiTop.toFixed(1), yAxis: hiTop, lineStyle: { color: upColor, type: 'dashed', width: 1 } },
+          { name: '底分型最低 L=' + loBot.toFixed(1), yAxis: loBot, lineStyle: { color: downColor, type: 'dashed', width: 1 } },
+        ] } },
+      { name: '顶分型', type: 'scatter', data: topScatter, symbol: 'triangle', symbolRotate: 180, symbolSize: 16, itemStyle: { color: upColor }, label: { show: true, position: 'top', formatter: function (p) { return p.name; }, color: upColor, fontSize: 10, fontWeight: 'bold' }, z: 20 },
+      { name: '底分型', type: 'scatter', data: bottomScatter, symbol: 'triangle', symbolSize: 16, itemStyle: { color: downColor }, label: { show: true, position: 'bottom', formatter: function (p) { return p.name; }, color: downColor, fontSize: 10, fontWeight: 'bold' }, z: 20 },
     ],
   };
 }
@@ -268,14 +346,32 @@ function optCh5() {
   const cats = ps.map((_, i) => 'P' + i);
   const biLine = ps.map((p, i) => [cats[i], p]);
   const segLine = [[cats[0], ps[0]], [cats[5], ps[5]], [cats[10], ps[10]]];
+  // 笔端点顶/底标注
+  const biMp = ps.map((p, i) => {
+    const isTop = i % 2 === 1;
+    return { coord: [cats[i], p], symbol: 'none', label: { show: true, formatter: isTop ? '顶' : '底', color: isTop ? upColor : downColor, fontSize: 9, position: isTop ? 'top' : 'bottom', distance: 2, fontWeight: 'bold' } };
+  });
+  // 线段关键点 + 段名
+  const segMp = [
+    { coord: [cats[0], ps[0]], symbol: 'circle', symbolSize: 11, itemStyle: { color: '#2563eb' }, label: { show: true, formatter: '底·线段起点 P0', color: '#2563eb', fontSize: 10, position: 'bottom', distance: 6, fontWeight: 'bold' } },
+    { coord: [cats[5], ps[5]], symbol: 'circle', symbolSize: 11, itemStyle: { color: '#e74c3c' }, label: { show: true, formatter: '顶·线段转折 P5', color: '#e74c3c', fontSize: 10, position: 'top', distance: 6, fontWeight: 'bold' } },
+    { coord: [cats[10], ps[10]], symbol: 'circle', symbolSize: 11, itemStyle: { color: '#2563eb' }, label: { show: true, formatter: '底·线段终点 P10', color: '#2563eb', fontSize: 10, position: 'bottom', distance: 6, fontWeight: 'bold' } },
+    { coord: [cats[2], 18.5], symbol: 'none', label: { show: true, formatter: '向上线段（5笔）', color: '#2563eb', fontSize: 12, fontWeight: 'bold' } },
+    { coord: [cats[8], 7.5], symbol: 'none', label: { show: true, formatter: '向下线段（5笔）', color: '#2563eb', fontSize: 12, fontWeight: 'bold' } },
+  ];
   return {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    grid: { left: 40, right: 20, top: 24, bottom: 30 },
+    grid: { left: 40, right: 68, top: 28, bottom: 30 },
     xAxis: { type: 'category', data: cats, axisLabel: { interval: 0 } },
     yAxis: { type: 'value', scale: true },
     series: [
-      { name: '笔', type: 'line', data: biLine, symbol: 'circle', symbolSize: 5, lineStyle: { color: biColor, width: 1.6 }, itemStyle: { color: biColor } },
-      { name: '线段', type: 'line', data: segLine, symbol: 'circle', symbolSize: 8, lineStyle: { color: '#2563eb', width: 3 }, itemStyle: { color: '#2563eb' }, z: 30 },
+      { name: '笔', type: 'line', data: biLine, symbol: 'circle', symbolSize: 5, lineStyle: { color: biColor, width: 1.6 }, itemStyle: { color: biColor }, markPoint: { data: biMp } },
+      { name: '线段', type: 'line', data: segLine, symbol: 'circle', symbolSize: 8, lineStyle: { color: '#2563eb', width: 3 }, itemStyle: { color: '#2563eb' }, z: 30,
+        markPoint: { data: segMp },
+        markLine: { silent: true, symbol: 'none', label: { show: true, position: 'end', formatter: function (p) { return p.name; }, fontSize: 10 }, data: [
+          { name: '线段高 P5=20', yAxis: 20, lineStyle: { color: '#e74c3c', type: 'dashed', width: 1 } },
+          { name: '线段低 P10=6', yAxis: 6, lineStyle: { color: '#16a34a', type: 'dashed', width: 1 } },
+        ] } },
     ],
   };
 }

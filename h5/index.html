@@ -10,8 +10,11 @@
 </head>
 <body>
 <div id="app" class="layout">
-  <aside class="sidebar">
+  <aside class="sidebar" :class="{ collapsed: !navOpen }">
     <div class="brand">缠论可视化学习<small>按术语依赖顺序 · 自底向上</small></div>
+    <button class="nav-toggle" @click="navOpen = !navOpen" :title="navOpen ? '收起目录' : '展开目录'">
+      <span v-if="navOpen">收起目录 ‹</span><span v-else>☰</span>
+    </button>
     <ul class="nav">
       <li class="grp">卷一 · 形态学</li>
       <li v-for="c in chapters" :class="{ active: c.id === cur.id }">
@@ -28,45 +31,52 @@
       <span class="src-badge">{{ cur.source }}</span>
     </div>
 
-    <!-- 多张图解（最上，先看后学） -->
-    <template v-for="(f, i) in cur.figures" :key="i">
-      <section class="block">
-        <h2><span class="tag viz">图解{{ cur.figures.length > 1 ? (i + 1) : '' }}</span>{{ f.title }}</h2>
-        <div v-if="f.kind === 'echarts'" :id="'fig' + i" class="chart-box"></div>
-        <div v-else class="fig-html" v-html="f.html"></div>
-        <p class="tip" v-html="f.note"></p>
-      </section>
-    </template>
+    <div class="content-grid">
+      <!-- 左：主图 / 详图（详细标注） -->
+      <div class="fig-panel">
+        <template v-for="(f, i) in cur.figures" :key="i">
+          <section class="block fig-card">
+            <h2><span class="tag viz">主图{{ cur.figures.length > 1 ? (i + 1) : '' }}</span>{{ f.title }}</h2>
+            <div v-if="f.kind === 'echarts'" :id="'fig' + i" class="chart-box"></div>
+            <div v-else class="fig-html" v-html="f.html"></div>
+            <p class="tip" v-html="f.note"></p>
+          </section>
+        </template>
+      </div>
 
-    <!-- 定义 / 动机 / 误区 / 练习 -->
-    <template v-for="s in cur.sections" :key="s.title">
-      <section class="block" v-if="s.type === 'definition'">
-        <h2><span class="tag">定义</span>{{ s.title }}</h2>
-        <div class="def-item" v-for="it in s.items" :key="it.term">
-          <div class="term">{{ it.term }}</div>
-          <p v-html="it.text"></p>
-          <div class="formula" v-if="it.formula" v-html="it.formula"></div>
-        </div>
-      </section>
+      <!-- 右：讲解 + 讲解内部小图解 -->
+      <div class="text-panel">
+        <template v-for="s in cur.sections" :key="s.title">
+          <section class="block" v-if="s.type === 'definition'">
+            <h2><span class="tag">定义</span>{{ s.title }}</h2>
+            <div class="def-item" v-for="it in s.items" :key="it.term">
+              <div class="term">{{ it.term }}</div>
+              <p v-html="it.text"></p>
+              <div class="formula" v-if="it.formula" v-html="it.formula"></div>
+              <div class="mini-fig" v-if="it.fig" v-html="it.fig"></div>
+            </div>
+          </section>
 
-      <section class="block" v-else-if="s.type === 'motivation'">
-        <h2><span class="tag">动机</span>{{ s.title }}</h2>
-        <p v-html="s.text"></p>
-      </section>
+          <section class="block" v-else-if="s.type === 'motivation'">
+            <h2><span class="tag">动机</span>{{ s.title }}</h2>
+            <p v-html="s.text"></p>
+          </section>
 
-      <section class="block" v-else-if="s.type === 'pitfalls'">
-        <h2><span class="tag">误区</span>{{ s.title }}</h2>
-        <ul class="pitfalls"><li v-for="(p,i) in s.items" :key="i" v-html="p"></li></ul>
-      </section>
+          <section class="block" v-else-if="s.type === 'pitfalls'">
+            <h2><span class="tag">误区</span>{{ s.title }}</h2>
+            <ul class="pitfalls"><li v-for="(p,i) in s.items" :key="i" v-html="p"></li></ul>
+          </section>
 
-      <section class="block" v-else-if="s.type === 'exercises'">
-        <h2><span class="tag">练习</span>{{ s.title }}</h2>
-        <details v-for="(e,i) in s.items" :key="i">
-          <summary>{{ e.q }}</summary>
-          <div class="ans" v-html="e.a"></div>
-        </details>
-      </section>
-    </template>
+          <section class="block" v-else-if="s.type === 'exercises'">
+            <h2><span class="tag">练习</span>{{ s.title }}</h2>
+            <details v-for="(e,i) in s.items" :key="i">
+              <summary>{{ e.q }}</summary>
+              <div class="ans" v-html="e.a"></div>
+            </details>
+          </section>
+        </template>
+      </div>
+    </div>
 
     <div class="pager">
       <a v-if="prev" :href="'#/' + prev.id">← {{ prev.title }}</a>

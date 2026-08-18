@@ -9,11 +9,13 @@
       value: [i + 0.5, v],
       itemStyle: { color: v >= 0 ? '#e74c3c' : '#16a34a' },
     }));
+    const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 4, fontWeight: 'bold' } });
+    const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
       grid: [
-        { left: 60, right: 30, top: 40, height: 220 },
-        { left: 60, right: 30, top: 310, height: 100 },
+        { left: 60, right: 90, top: 40, height: 220 },
+        { left: 60, right: 90, top: 310, height: 100 },
       ],
       xAxis: [
         { type: 'value', gridIndex: 0, min: 0, max: 9, interval: 1 },
@@ -31,21 +33,57 @@
           markArea: {
             silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
             label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#2563eb', fontSize: 11 },
-            data: [mk(1, 4, 11, 13, '中枢A'), mk(5, 8, 15, 17, '中枢B')],
+            data: [mk(1, 4, 11, 13, '中枢A [11,13]'), mk(5, 8, 15, 17, '中枢B [15,17]')],
+          },
+          markLine: {
+            silent: true, symbol: 'none',
+            label: { show: true, position: 'end', formatter: '{b}' },
+            lineStyle: { type: 'dashed', width: 1 },
+            data: [
+              { yAxis: 13, name: '中枢A ZG=13' },
+              { yAxis: 11, name: '中枢A ZD=11' },
+              { yAxis: 17, name: '中枢B ZG=17' },
+              { yAxis: 15, name: '中枢B ZD=15' },
+            ],
+          },
+          markPoint: {
+            data: [
+              mp(0, '底', '#16a34a', 'bottom'),
+              mp(1, '顶', '#e74c3c', 'top'),
+              mp(3, 'A·GG=14', '#e74c3c', 'top'),
+              mp(5, '顶', '#e74c3c', 'top'),
+              mp(6, 'B·DD=14', '#16a34a', 'bottom'),
+              mp(7, 'B·GG=18', '#e74c3c', 'top'),
+              mp(8, 'B·ZD=15', '#16a34a', 'bottom'),
+              mp(9, '背驰点 c顶', '#e74c3c', 'top'),
+              seg(0.5, 9.8, 'a', '#1f2937', 'bottom'),
+              seg(2.5, 12.6, 'A', '#2563eb', 'top'),
+              seg(4.5, 14.8, 'b', '#1f2937', 'top'),
+              seg(6.5, 16.2, 'B', '#2563eb', 'top'),
+              seg(8.5, 19.5, 'c', '#e74c3c', 'top'),
+            ],
           },
         },
-        { name: 'MACD', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: barData, barWidth: '55%' },
+        {
+          name: 'MACD', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: barData, barWidth: '55%',
+          markPoint: {
+            data: [
+              { coord: [4.5, 5], name: 'b段红柱面积（大）', symbol: 'circle', symbolSize: 6, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#e74c3c', fontSize: 10, position: 'top', distance: 2 } },
+              { coord: [8.5, 2], name: 'c段红柱面积（小）', symbol: 'circle', symbolSize: 6, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#e74c3c', fontSize: 10, position: 'top', distance: 2 } },
+            ],
+          },
+        },
       ],
     };
   }
 
   const figPan = `
-<div class="fig"><div class="lbl">盘整背驰（一个中枢）</div>${drawZS([{p:8,tag:'底'},{p:13,tag:'顶'},{p:10,tag:'底'},{p:14,tag:'顶'},{p:11,tag:'底'},{p:16,tag:'顶'},{p:14,tag:'底'}], [{lo:11,hi:13,x0:1,x1:4}])}<div class="cap">C段 11→16 上破中枢但力度弱<br>回跌 16→14 <b>不破中枢</b> → 第三类买点</div></div>
-<div class="fig"><div class="lbl">趋势背驰（两个中枢）</div>${drawZS([{p:8,tag:'底'},{p:13,tag:'顶'},{p:10,tag:'底'},{p:14,tag:'顶'},{p:11,tag:'底'},{p:17,tag:'顶'},{p:14,tag:'底'},{p:18,tag:'顶'},{p:15,tag:'底'},{p:21,tag:'顶'}], [{lo:11,hi:13,x0:1,x1:4},{lo:15,hi:17,x0:5,x1:8}])}<div class="cap">c段 15→21 创新高但力度弱<br>背驰后<b>至少回拉中枢B</b> [15,17]</div></div>`;
+<div class="fig"><div class="lbl">盘整背驰（一个中枢）</div>${drawZS([{p:8,tag:'底'},{p:13,tag:'顶'},{p:10,tag:'底'},{p:14,tag:'顶'},{p:11,tag:'底',label:'C段起点',color:'#16a34a'},{p:16,label:'C段顶',color:'#e74c3c',above:true},{p:14,label:'三买',color:'#9333ea'}], [{lo:11,hi:13,x0:1,x1:4,label:'中枢 [11,13]'}], {zgzd:true,w:52,h:150})}<div class="cap">C段 11→16 上破中枢但力度弱<br>回跌 16→14 <b>不破中枢</b> → 第三类买点</div></div>
+<div class="fig"><div class="lbl">趋势背驰（两个中枢）</div>${drawZS([{p:8,tag:'底'},{p:13,tag:'顶'},{p:10,tag:'底'},{p:14,tag:'顶'},{p:11,tag:'底'},{p:17,tag:'顶'},{p:14,tag:'底'},{p:18,tag:'顶'},{p:15,tag:'底',label:'c段起点',color:'#16a34a'},{p:21,label:'c段顶·背驰',color:'#e74c3c',above:true}], [{lo:11,hi:13,x0:1,x1:4,label:'中枢A [11,13]'},{lo:15,hi:17,x0:5,x1:8,label:'中枢B [15,17]'}], {zgzd:true,w:52,h:150})}<div class="cap">c段 15→21 创新高但力度弱<br>背驰后<b>至少回拉中枢B</b> [15,17]</div></div>`;
 
   const figTurn = `
-<div class="fig"><div class="lbl">下跌趋势背驰（第一类买点）</div>${drawZS([{p:20,tag:'顶'},{p:15},{p:18},{p:14},{p:17},{p:11},{p:14},{p:10},{p:13},{p:8,tag:'底'}], [{lo:15,hi:17,x0:1,x1:4},{lo:11,hi:13,x0:5,x1:8}])}<div class="cap">c段 13→8 创新低但力度弱<br>8 处即<b>第一类买点</b>（背驰点）</div></div>
-<div class="fig" style="min-width:280px"><div class="lbl">背驰后三种转折（第29课）</div><ol class="turn"><li><b>级别扩展</b>：反弹最弱，只触及 B中枢 DD=10</li><li><b>更大级别盘整</b>：反弹回 B中枢，横向扩展</li><li><b>以上级别反趋势</b>：反弹强，直接转上涨</li></ol><div class="cap">判别关键：看反弹的第一个次级别走势<br>是否<b>回抽进最后一个中枢</b></div></div>`;
+<div class="fig"><div class="lbl">下跌趋势背驰（第一类买点）</div>${drawZS([{p:20,tag:'顶'},{p:15},{p:18},{p:14},{p:17},{p:11},{p:14},{p:10},{p:13,label:'c段起点',color:'#16a34a'},{p:8,label:'一买·背驰',color:'#16a34a'}], [{lo:15,hi:17,x0:1,x1:4,label:'中枢A [15,17]'},{lo:11,hi:13,x0:5,x1:8,label:'中枢B [11,13]'}], {zgzd:true,w:50,h:150})}<div class="cap">c段 13→8 创新低但力度弱<br>8 处即<b>第一类买点</b>（背驰点）</div></div>
+<div class="fig" style="min-width:320px"><div class="lbl">背驰后三种转折（第29课）</div><div style="display:flex;gap:10px;align-items:flex-start">${drawZS([{p:13},{p:8,tag:'底',label:'一买'},{p:10,label:'触DD=10',color:'#f59e0b',above:true}], [{lo:11,hi:13,x0:0,x1:2,label:'中枢B'}], {w:26,h:92})}${drawZS([{p:13},{p:8,tag:'底',label:'一买'},{p:12,label:'回中枢',color:'#2563eb',above:true}], [{lo:11,hi:13,x0:0,x1:2,label:'中枢B'}], {w:26,h:92})}${drawZS([{p:13},{p:8,tag:'底',label:'一买'},{p:16,label:'反趋势',color:'#16a34a',above:true}], [{lo:11,hi:13,x0:0,x1:2,label:'中枢B'}], {w:26,h:92})}</div><ol class="turn"><li><b>级别扩展</b>：反弹最弱，只触及 B中枢 DD=10</li><li><b>更大级别盘整</b>：反弹回 B中枢，横向扩展</li><li><b>以上级别反趋势</b>：反弹强，直接转上涨</li></ol><div class="cap">判别关键：看反弹的第一个次级别走势<br>是否<b>回抽进最后一个中枢</b></div></div>`;
 
   __chapters.push({
     id: 'ch10', title: '第10章 背驰', source: '原文第24、29、37课',
@@ -56,18 +94,18 @@
     ],
     sections: [
       { type: 'definition', title: '背驰的定义与 MACD 判断', items: [
-        { term: '① 背驰-买卖点定理（第24课）', text: '<span class="hl">任一背驰都必然制造某级别的买卖点；任一级别的买卖点都必然源自某级别走势的背驰。</span>即：看到背驰，必意味着要逆转（逆转≠永远反转，可能只是某级别的一段回拉）。' },
-        { term: '② 背驰的前提：两段同向趋势（第24课）', text: '用 MACD 判断背驰，首先要有<b>两段同向的趋势</b>。同向趋势之间必有一个盘整或反向趋势连接，把这三段分别称为 A、B、C 段；其中 <b>B 的中枢级别比 A、C 里的中枢级别都大</b>（否则它们就连成一个大趋势了）。' },
-        { term: '③ 标准背驰的 MACD 判据（第24课）', text: 'A、B、C 段在一个大趋势里，A 之前已有一个中枢，B 是另一个中枢——<b>B 中枢一般会把 MACD 黄白线（DIFF、DEA）回拉到 0 轴附近</b>；当 C 段走势类型完成时，其对应的<b>MACD 柱子面积（向上看红柱、向下看绿柱）比 A 段面积小</b>，就构成标准背驰。', formula: '背驰 ⟺ 黄白线回拉0轴 + C段MACD柱面积 < A段' },
-        { term: '④ a+A+b+B+c 结构（第29课）', text: '趋势的最一般结构是 <code>a+A+b+B+c</code>：A、B 是两个同向中枢，a、b、c 是连接段（级别最多为次级别，极端情况只是一个缺口）。<b>背驰比较的是 c 段与 b 段的力度</b>：c 段创新高/新低，但 MACD 面积小于 b 段。' },
-        { term: '⑤ 背驰后必回拉中枢（第24课）', text: '<span class="hl">一旦出现趋势背驰，其回跌一定至少重新回到 B 段（最后一个中枢）里。</span>这可以预先知道“至少的跌幅/涨幅”，是背驰最重要的实战价值。' },
+        { term: '① 背驰-买卖点定理（第24课）', text: '<span class="hl">任一背驰都必然制造某级别的买卖点；任一级别的买卖点都必然源自某级别走势的背驰。</span>即：看到背驰，必意味着要逆转（逆转≠永远反转，可能只是某级别的一段回拉）。', fig: mfig('背驰 ⟺ 买卖点', '<div style="font-size:12px;line-height:1.9;color:#1f2937"><b style="color:#e74c3c">背驰</b> → 制造某级别<b style="color:#16a34a">买卖点</b><br>某级别<b style="color:#16a34a">买卖点</b> → 源自某级别<b style="color:#e74c3c">背驰</b></div>', '背驰与买卖点互为充要、一一对应') },
+        { term: '② 背驰的前提：两段同向趋势（第24课）', text: '用 MACD 判断背驰，首先要有<b>两段同向的趋势</b>。同向趋势之间必有一个盘整或反向趋势连接，把这三段分别称为 A、B、C 段；其中 <b>B 的中枢级别比 A、C 里的中枢级别都大</b>（否则它们就连成一个大趋势了）。', fig: mfig('两段同向趋势 A、C 夹 B', drawZS([{ p: 8 }, { p: 13, tag: '顶' }, { p: 10 }, { p: 14 }, { p: 11 }, { p: 17, tag: '顶' }, { p: 14 }], [{ lo: 10, hi: 13, x0: 0, x1: 2, label: 'A' }, { lo: 11, hi: 16, x0: 3, x1: 6, label: 'B(级别更大)' }], { w: 34, h: 100 }), 'A、C 同向，B 的中枢级别更大') },
+        { term: '③ 标准背驰的 MACD 判据（第24课）', text: 'A、B、C 段在一个大趋势里，A 之前已有一个中枢，B 是另一个中枢——<b>B 中枢一般会把 MACD 黄白线（DIFF、DEA）回拉到 0 轴附近</b>；当 C 段走势类型完成时，其对应的<b>MACD 柱子面积（向上看红柱、向下看绿柱）比 A 段面积小</b>，就构成标准背驰。', formula: '背驰 ⟺ 黄白线回拉0轴 + C段MACD柱面积 < A段', fig: mfig('MACD 判据（两条件）', '<div style="font-size:12px;line-height:1.9;color:#1f2937">① B 中枢把 <b>DIFF/DEA</b> 回拉 <b>0 轴</b>附近<br>② C 段<b style="color:#e74c3c">红柱面积</b> < A 段红柱面积</div>', '两条件同时满足 = 标准背驰') },
+        { term: '④ a+A+b+B+c 结构（第29课）', text: '趋势的最一般结构是 <code>a+A+b+B+c</code>：A、B 是两个同向中枢，a、b、c 是连接段（级别最多为次级别，极端情况只是一个缺口）。<b>背驰比较的是 c 段与 b 段的力度</b>：c 段创新高/新低，但 MACD 面积小于 b 段。', fig: mfig('a+A+b+B+c 结构', drawZS([{ p: 8 }, { p: 12 }, { p: 9 }, { p: 11 }, { p: 14 }, { p: 17 }, { p: 15 }, { p: 18 }], [{ lo: 9, hi: 11, x0: 0, x1: 2, label: 'A' }, { lo: 15, hi: 17, x0: 5, x1: 7, label: 'B' }], { w: 30, h: 96 }), '比较 c 与 b 的力度，a、b、c 是连接段') },
+        { term: '⑤ 背驰后必回拉中枢（第24课）', text: '<span class="hl">一旦出现趋势背驰，其回跌一定至少重新回到 B 段（最后一个中枢）里。</span>这可以预先知道“至少的跌幅/涨幅”，是背驰最重要的实战价值。', fig: mfig('背驰后回拉最后中枢', drawZS([{ p: 20 }, { p: 15 }, { p: 18 }, { p: 14 }, { p: 17 }, { p: 11 }, { p: 14 }, { p: 10 }, { p: 13 }, { p: 8, tag: '底', label: '背驰' }, { p: 12, label: '回拉', color: '#2563eb' }], [{ lo: 15, hi: 17, x0: 1, x1: 4, label: 'A' }, { lo: 11, hi: 13, x0: 5, x1: 8, label: 'B' }], { w: 26, h: 96 }), '下跌背驰(8)后至少回到 B 中枢 [11,13]') },
       ]},
       { type: 'definition', title: '盘整背驰与背驰后的转折', items: [
-        { term: '① 盘整背驰（第24课）', text: '不特别声明时，“背驰”都指<b>趋势背驰</b>；盘整中用类似方法判断，称<b>盘整背驰</b>。向上盘整为例：若 C 段<b>不破中枢</b>且 MACD 面积小于 A 段 → 其后必回跌；若 C 段<b>上破中枢</b>但面积小 → 先出来，其后回跌<b>不重新跌回中枢</b>就在次级别第一类买点回补（这正好构成<b>第三类买点</b>），跌回则继续盘整。' },
-        { term: '② 背驰-转折定理（第29课）', text: '<span class="hl">某级别趋势的背驰，将导致该趋势最后一个中枢的级别扩展、该级别更大级别的盘整、或该级别以上级别的反趋势。</span>三种情况完全分类了背驰后的力度与级别。', formula: '趋势背驰 → ① 最后中枢级别扩展 ② 更大级别盘整 ③ 以上级别反趋势' },
-        { term: '③ 三种转折详解（第29课）', text: '<b>① 级别扩展</b>（最弱）：反弹只触及最后一个中枢的 DD，把中枢扩成更大级别，走势尚未完成；<b>② 更大级别盘整</b>：反弹至少回抽最后一个中枢，走出“下跌+盘整”；<b>③ 以上级别反趋势</b>：反弹强，走出“下跌+上涨”。判别关键：看<b>反弹第一个次级别走势是否回抽进最后一个中枢</b>。' },
-        { term: '④ 转折是有级别的（第29课）', text: '围绕某级别中枢的震荡/延续中<b>不存在转折问题</b>，只有站在次级别才有转折。上涨的转折有两种（下跌与盘整），下跌的转折也有两种（上涨与盘整）。' },
-        { term: '⑤ MACD 的局限性（第24课）', text: '由于 MACD 本身的局限，要<b>精确</b>判断背驰与盘整背驰，还是要<b>从中枢本身出发</b>。光用 MACD 辅助判断，准确率 90% 以上；<b>配合中枢，是 100% 绝对的</b>（可用纯数学推理证明）。' },
+        { term: '① 盘整背驰（第24课）', text: '不特别声明时，“背驰”都指<b>趋势背驰</b>；盘整中用类似方法判断，称<b>盘整背驰</b>。向上盘整为例：若 C 段<b>不破中枢</b>且 MACD 面积小于 A 段 → 其后必回跌；若 C 段<b>上破中枢</b>但面积小 → 先出来，其后回跌<b>不重新跌回中枢</b>就在次级别第一类买点回补（这正好构成<b>第三类买点</b>），跌回则继续盘整。', fig: mfig('盘整背驰（一个中枢）', drawZS([{ p: 8, tag: '底' }, { p: 13, tag: '顶' }, { p: 10 }, { p: 14, tag: '顶' }, { p: 11 }, { p: 16, tag: '顶' }, { p: 14, label: '三买', color: '#9333ea' }], [{ lo: 11, hi: 13, x0: 1, x1: 4, label: '中枢' }], { w: 34, h: 100 }), 'C 段破中枢但力度弱，回跌不破中枢 → 三买') },
+        { term: '② 背驰-转折定理（第29课）', text: '<span class="hl">某级别趋势的背驰，将导致该趋势最后一个中枢的级别扩展、该级别更大级别的盘整、或该级别以上级别的反趋势。</span>三种情况完全分类了背驰后的力度与级别。', formula: '趋势背驰 → ① 最后中枢级别扩展 ② 更大级别盘整 ③ 以上级别反趋势', fig: mfig('背驰后三种转折', '<div style="font-size:12px;line-height:1.9;color:#1f2937">趋势背驰 →<br>① 最后中枢<b>级别扩展</b><br>② <b>更大级别</b>盘整<br>③ 以上级别<b>反趋势</b></div>', '三种可能，力度从弱到强') },
+        { term: '③ 三种转折详解（第29课）', text: '<b>① 级别扩展</b>（最弱）：反弹只触及最后一个中枢的 DD，把中枢扩成更大级别，走势尚未完成；<b>② 更大级别盘整</b>：反弹至少回抽最后一个中枢，走出“下跌+盘整”；<b>③ 以上级别反趋势</b>：反弹强，走出“下跌+上涨”。判别关键：看<b>反弹第一个次级别走势是否回抽进最后一个中枢</b>。', fig: mfig('三种转折的力度', '<div style="font-size:12px;line-height:1.9;color:#1f2937">弱 <b style="color:#f59e0b">级别扩展</b>（触 DD）<br>中 <b style="color:#2563eb">更大盘整</b>（回中枢）<br>强 <b style="color:#16a34a">反趋势</b>（直接反向）</div>', '关键：反弹第一次级别走势是否回抽进最后中枢') },
+        { term: '④ 转折是有级别的（第29课）', text: '围绕某级别中枢的震荡/延续中<b>不存在转折问题</b>，只有站在次级别才有转折。上涨的转折有两种（下跌与盘整），下跌的转折也有两种（上涨与盘整）。', fig: mfig('转折是有级别的', '<div style="font-size:12px;line-height:1.9;color:#1f2937">围绕本级别中枢震荡：<b>无转折</b><br>站在<b>次级别</b>：才有转折<br>上涨转折 = 下跌 或 盘整</div>', '中枢震荡中不存在转折问题') },
+        { term: '⑤ MACD 的局限性（第24课）', text: '由于 MACD 本身的局限，要<b>精确</b>判断背驰与盘整背驰，还是要<b>从中枢本身出发</b>。光用 MACD 辅助判断，准确率 90% 以上；<b>配合中枢，是 100% 绝对的</b>（可用纯数学推理证明）。', fig: mfig('MACD 辅助 + 中枢 = 100%', '<div style="font-size:12px;line-height:1.9;color:#1f2937">MACD 辅助：准确率 <b>90%+</b><br>配合<b>中枢</b>推理：<b>100%</b> 绝对</div>', '精确判断要从中枢本身出发') },
       ]},
       { type: 'motivation', title: '为什么背驰是“动力学”的核心', text: '缠论分<b>形态学</b>（分型/笔/线段/中枢，几何）与<b>动力学</b>（背驰、中枢能量结构）。形态学回答“走势是什么样”，背驰回答“<b>走势何时会转折</b>”。背驰把“走势必完美”从一句哲学命题，落实成“动能衰减”的可观测信号——它是所有买卖点（尤其第一类买卖点）的<span class="kw">动力学根源</span>。' },
       { type: 'pitfalls', title: '常见误区', items: [
