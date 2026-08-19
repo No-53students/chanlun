@@ -85,10 +85,10 @@
           name: 'MACD', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: barData, barWidth: '55%',
           markArea: {
             silent: true, itemStyle: { color: 'rgba(231,76,60,0.16)' },
-            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold' },
+            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold', backgroundColor: '#fff', padding: [2, 4], borderRadius: 3, borderColor: 'rgba(185,28,28,0.3)', borderWidth: 1 },
             data: [
-              macdArea(4, 5, 0, 3.4, 'b段红柱面积（大）'),
-              macdArea(8, 9, 0, 1.8, 'c段红柱面积（小）'),
+              macdArea(4, 5, 0, 3.8, 'b段红柱面积（大）'),
+              macdArea(8, 9, 0, 2.3, 'c段红柱面积（小）'),
             ],
           },
         },
@@ -116,7 +116,27 @@
       { type: 'definition', title: '背驰的定义与 MACD 判断', items: [
         { term: '① 背驰-买卖点定理（第24课）', text: '<span class="hl">任一背驰都必然制造某级别的买卖点；任一级别的买卖点都必然源自某级别走势的背驰。</span>即：看到背驰，必意味着要逆转（逆转≠永远反转，可能只是某级别的一段回拉）。', fig: mfig('背驰 ⟺ 买卖点', drawZS([{ p: 16, tag: '顶' }, { p: 13 }, { p: 14 }, { p: 11 }, { p: 12 }, { p: 8, tag: '底', label: '背驰点=一买', color: '#16a34a' }, { p: 12, label: '转折', color: '#e74c3c', above: true }], [{ lo: 11, hi: 13, x0: 1, x1: 4, label: '中枢' }], { w: 30, h: 96 }), '背驰点必制造买卖点；买卖点必源自背驰') },
         { term: '② 背驰的前提：两段同向趋势（第24课）', text: '用 MACD 判断背驰，首先要有<b>两段同向的趋势</b>。同向趋势之间必有一个盘整或反向趋势连接，把这三段分别称为 A、B、C 段；其中 <b>B 的中枢级别比 A、C 里的中枢级别都大</b>（否则它们就连成一个大趋势了）。', fig: mfig('两段同向趋势 A、C 夹 B', drawZS([{ p: 8 }, { p: 13, tag: '顶' }, { p: 10 }, { p: 14 }, { p: 11 }, { p: 17, tag: '顶' }, { p: 14 }], [{ lo: 10, hi: 13, x0: 0, x1: 2, label: 'A' }, { lo: 11, hi: 16, x0: 3, x1: 6, label: 'B(级别更大)' }], { w: 34, h: 100 }), 'A、C 同向，B 的中枢级别更大') },
-        { term: '③ 标准背驰的 MACD 判据（第24课）', text: 'A、B、C 段在一个大趋势里，A 之前已有一个中枢，B 是另一个中枢——<b>B 中枢一般会把 MACD 黄白线（DIFF、DEA）回拉到 0 轴附近</b>；当 C 段走势类型完成时，其对应的<b>MACD 柱子面积（向上看红柱、向下看绿柱）比 A 段面积小</b>，就构成标准背驰。', formula: '背驰 ⟺ 黄白线回拉0轴 + C段MACD柱面积 < A段', fig: mfig('MACD 判据（两条件）', drawZS([{ p: 8, label: 'a', color: '#1f2937' }, { p: 12, tag: '顶' }, { p: 9 }, { p: 11 }, { p: 14, label: 'b', color: '#1f2937' }, { p: 17, tag: '顶' }, { p: 15 }, { p: 18 }, { p: 20, label: 'c(面积小)', color: '#e74c3c', above: true }], [{ lo: 9, hi: 11, x0: 0, x1: 3, label: 'A' }, { lo: 15, hi: 17, x0: 4, x1: 7, label: 'B(回拉0轴)' }], { w: 24, h: 88, zgzd: true }), '① B中枢把黄白线回拉0轴 ② c段柱面积 < a段') },
+        { term: '③ 标准背驰的 MACD 判据（第24课）', tree: treeHTML({
+          start: 'n0',
+          nodes: {
+            n0: { q: '先确认是「趋势背驰」还是「盘整背驰」？（看有几个同向中枢）', opts: [
+              { t: '两个同向中枢（a+A+b+B+c 结构）', next: 'trend' },
+              { t: '一个中枢（盘整）', next: 'pan' },
+            ]},
+            trend: { q: '趋势背驰判据：最后一个中枢 B 是否把 MACD 黄白线回拉到 0 轴附近，且 c 段 MACD 柱面积 < b 段？', opts: [
+              { t: '是（黄白线回拉 0 轴 + c 面积 < b）', next: 'trend_yes' },
+              { t: '否', next: 'trend_no' },
+            ]},
+            trend_yes: { result: 'green', t: '趋势背驰成立 → 回跌至少回到最后一个中枢 B 内（可预知「至少跌幅」）。' },
+            trend_no: { result: 'red', t: '不是标准趋势背驰——可能黄白线没回拉 0 轴，或力度未衰竭，走势仍可延续。' },
+            pan: { q: '盘整背驰判据：C 段是否上破中枢，且 C 段 MACD 面积 < A 段？', opts: [
+              { t: 'C 段上破中枢、面积小于 A 段', next: 'pan_break' },
+              { t: 'C 段不破中枢、面积小于 A 段', next: 'pan_nobreak' },
+            ]},
+            pan_break: { result: 'amber', t: '盘整背驰（上破中枢）：先出来，其后回跌若不跌回中枢 → 在次级别第一类买点回补（构成第三类买点）；跌回则继续盘整。' },
+            pan_nobreak: { result: 'amber', t: '盘整背驰（不破中枢）：其后必回跌。' },
+          }
+        }), text: 'A、B、C 段在一个大趋势里，A 之前已有一个中枢，B 是另一个中枢——<b>B 中枢一般会把 MACD 黄白线（DIFF、DEA）回拉到 0 轴附近</b>；当 C 段走势类型完成时，其对应的<b>MACD 柱子面积（向上看红柱、向下看绿柱）比 A 段面积小</b>，就构成标准背驰。', formula: '背驰 ⟺ 黄白线回拉0轴 + C段MACD柱面积 < A段', fig: mfig('MACD 判据（两条件）', drawZS([{ p: 8, label: 'a', color: '#1f2937' }, { p: 12, tag: '顶' }, { p: 9 }, { p: 11 }, { p: 14, label: 'b', color: '#1f2937' }, { p: 17, tag: '顶' }, { p: 15 }, { p: 18 }, { p: 20, label: 'c(面积小)', color: '#e74c3c', above: true }], [{ lo: 9, hi: 11, x0: 0, x1: 3, label: 'A' }, { lo: 15, hi: 17, x0: 4, x1: 7, label: 'B(回拉0轴)' }], { w: 24, h: 88, zgzd: true }), '① B中枢把黄白线回拉0轴 ② c段柱面积 < a段') },
         { term: '④ a+A+b+B+c 结构（第29课）', text: '趋势的最一般结构是 <code>a+A+b+B+c</code>：A、B 是两个同向中枢，a、b、c 是连接段（级别最多为次级别，极端情况只是一个缺口）。<b>背驰比较的是 c 段与 b 段的力度</b>：c 段创新高/新低，但 MACD 面积小于 b 段。', fig: mfig('a+A+b+B+c 结构', drawZS([{ p: 8 }, { p: 12 }, { p: 9 }, { p: 11 }, { p: 14 }, { p: 17 }, { p: 15 }, { p: 18 }], [{ lo: 9, hi: 11, x0: 0, x1: 2, label: 'A' }, { lo: 15, hi: 17, x0: 5, x1: 7, label: 'B' }], { w: 30, h: 96 }), '比较 c 与 b 的力度，a、b、c 是连接段') },
         { term: '⑤ 背驰后必回拉中枢（第24课）', text: '<span class="hl">一旦出现趋势背驰，其回跌一定至少重新回到 B 段（最后一个中枢）里。</span>这可以预先知道“至少的跌幅/涨幅”，是背驰最重要的实战价值。', fig: mfig('背驰后回拉最后中枢', drawZS([{ p: 20 }, { p: 15 }, { p: 18 }, { p: 14 }, { p: 17 }, { p: 11 }, { p: 14 }, { p: 10 }, { p: 13 }, { p: 8, tag: '底', label: '背驰' }, { p: 12, label: '回拉', color: '#2563eb' }], [{ lo: 15, hi: 17, x0: 1, x1: 4, label: 'A' }, { lo: 11, hi: 13, x0: 5, x1: 8, label: 'B' }], { w: 26, h: 96 }), '下跌背驰(8)后至少回到 B 中枢 [11,13]') },
       ]},

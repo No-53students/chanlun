@@ -241,6 +241,286 @@ function mfig(lbl, svg, cap) {
   return `<div class="fig"><div class="lbl">${lbl}</div>${svg}<div class="cap">${cap}</div></div>`;
 }
 
+// 「💡 大白话」标注块：术语旁的白话 / 符号翻译说明（术语本身保留，这里只补一句人话）
+function plainHTML(t) {
+  return `<div class="plain">💡 <b>大白话</b>：${t}</div>`;
+}
+
+// 「🔑 类比」卡：生活化类比，帮助建立直觉
+function analogyHTML(title, t) {
+  return `<div class="analogy">🔑 <b>类比 · ${title}</b>：${t}</div>`;
+}
+
+// 「🧭 判定流程」纵向决策流程图：steps=[{title, lines:[...], tone:'blue'|'green'|'red'|'amber'|'gray'}]
+function flowHTML(steps) {
+  const toneMap = {
+    blue: { border: '#2563eb', bg: '#eff6ff', color: '#1f2937' },
+    green: { border: '#16a34a', bg: '#f0fdf4', color: '#166534' },
+    red: { border: '#e74c3c', bg: '#fef2f2', color: '#991b1b' },
+    amber: { border: '#f59e0b', bg: '#fffbeb', color: '#92400e' },
+    gray: { border: '#e5e7eb', bg: '#f9fafb', color: '#374151' },
+  };
+  const step = s => {
+    const c = toneMap[s.tone] || toneMap.gray;
+    const lines = (s.lines || []).map(l => `<div style="color:${c.color}">${l}</div>`).join('');
+    return `<div style="border:1px solid ${c.border};border-radius:8px;padding:8px 12px;margin:4px 0;background:${c.bg}"><b>${s.title}</b>${lines ? lines : ''}</div>`;
+  };
+  const arrow = '<div style="text-align:center;color:#6b7280;line-height:1.2">↓</div>';
+  return `<div class="flow">🧭 <b>判定流程</b>${steps.map(step).join(arrow)}</div>`;
+}
+
+// 「🖱️ 交互式决策树」：可点击的判定器，点当前情况逐步导向结论（绿=成立/结束，红=不成立/延续，琥珀=待定）
+// tree = { start:'n0', nodes:{ n0:{ q, opts:[{t,next}] }, 或 { result:'green'|'red'|'amber', t } } }
+let __treeSeq = 0;
+function treeHTML(tree) {
+  const id = 'tree-' + (++__treeSeq);
+  (window.__trees = window.__trees || {})[id] = tree;
+  return '<div class="tree" id="' + id + '">' + renderTreeNode(id, tree, tree.start) + '</div>';
+}
+function renderTreeNode(id, tree, nodeId) {
+  const n = tree.nodes[nodeId];
+  if (n.result) {
+    const cls = n.result === 'green' ? 'green' : (n.result === 'red' ? 'red' : 'amber');
+    return '<div class="tree-result ' + cls + '">' + n.t + '</div>'
+      + '<button type="button" class="tree-reset" onclick="treeGo(\'' + id + '\',\'' + tree.start + '\')">↻ 重新判断</button>';
+  }
+  const opts = (n.opts || []).map(function (o) {
+    return '<button type="button" class="tree-opt" onclick="treeGo(\'' + id + '\',\'' + o.next + '\')">' + o.t + '</button>';
+  }).join('');
+  return '<div class="tree-q">🧭 ' + n.q + '</div><div class="tree-opts">' + opts + '</div>';
+}
+// 点击选项后切换决策树节点（全局函数，供内联 onclick 调用）
+function treeGo(id, nodeId) {
+  const tree = window.__trees && window.__trees[id];
+  const el = document.getElementById(id);
+  if (el && tree) el.innerHTML = renderTreeNode(id, tree, nodeId);
+}
+
+// 「✏️ 动手画」：在图上点击标标记，判分即时比对标准答案
+// draw = { kind:'kline'|'line', title, intro, marks:['顶','底'|'一买'...], answer:{i:'值'},
+//          klines:[{o,c,l,h}] (kline) 或 pts:[{p,tag}], zones:[{lo,hi,x0,x1,label}] (line) }
+function drawMarkColor(m) {
+  return {
+    '顶': '#e74c3c', '底': '#16a34a',
+    '一买': '#16a34a', '二买': '#2563eb', '三买': '#9333ea',
+    '一卖': '#e74c3c', '二卖': '#f59e0b', '三卖': '#dc2626',
+    'ZG': '#2563eb', 'ZD': '#2563eb', 'GG': '#e74c3c', 'DD': '#16a34a',
+  }[m] || '#1f2937';
+}
+let __drawSeq = 0;
+function drawHTML(draw) {
+  const id = 'draw-' + (++__drawSeq);
+  (window.__draws = window.__draws || {})[id] = { id: id, data: draw, marks: {}, seq: [], scored: false };
+  return '<div class="draw" id="' + id + '">' + drawRender(id) + '</div>';
+}
+function drawKlineSVG(st) {
+  const klines = st.data.klines, marks = st.marks, scored = st.scored, ans = st.data.answer || {};
+  const w = 46, bodyW = 14, h = 150, pad = 18, padT = 28, padB = 30;
+  const min = Math.min(...klines.map(k => k.l)), max = Math.max(...klines.map(k => k.h));
+  const range = (max - min) || 1;
+  const y = v => padT + (max - v) / range * (h - padT - padB);
+  const x = i => pad + i * w;
+  const col = k => k.c >= k.o ? '#e74c3c' : '#16a34a';
+  const W = pad * 2 + w * (klines.length - 1);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + h + '" width="' + W + '" height="' + h + '" style="display:block;max-width:100%">';
+  klines.forEach(function (k, i) {
+    const cx = x(i);
+    const c = col(k);
+    const highY = y(k.h), lowY = y(k.l);
+    const top = Math.min(y(k.o), y(k.c)), hh = Math.max(1, Math.abs(y(k.c) - y(k.o)));
+    s += '<line x1="' + cx + '" y1="' + highY.toFixed(1) + '" x2="' + cx + '" y2="' + lowY.toFixed(1) + '" stroke="' + c + '" stroke-width="1"/>';
+    s += '<rect x="' + (cx - bodyW / 2).toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + bodyW + '" height="' + hh.toFixed(1) + '" fill="' + c + '"/>';
+    if (!scored) {
+      s += '<rect x="' + (cx - w / 2).toFixed(1) + '" y="0" width="' + w + '" height="' + h + '" fill="transparent" cursor="pointer" onclick="drawMark(\'' + st.id + '\',' + i + ')"/>';
+    }
+    const u = marks[i] || null, a = ans[i] || null;
+    const up = v => v && v.indexOf('顶') >= 0;
+    let text = null, color = null, my = null;
+    if (!scored) {
+      if (u) { text = u; color = drawMarkColor(u); my = up(u) ? highY - 6 : lowY + 16; }
+    } else if (a && a === u) { text = u + ' ✓'; color = '#16a34a'; my = up(a) ? highY - 6 : lowY + 16; }
+    else if (a && !u) { text = '应标' + a; color = '#f59e0b'; my = up(a) ? highY - 6 : lowY + 16; }
+    else if (a && u) { text = u + ' ✗'; color = '#e74c3c'; my = up(u) ? highY - 6 : lowY + 16; }
+    else if (!a && u) { text = u + ' ✗'; color = '#e74c3c'; my = up(u) ? highY - 6 : lowY + 16; }
+    if (text) s += '<text x="' + cx + '" y="' + my.toFixed(1) + '" font-size="11" text-anchor="middle" fill="' + color + '" font-weight="bold">' + text + '</text>';
+  });
+  s += '</svg>';
+  return s;
+}
+function drawLineSVG(st) {
+  const pts = st.data.pts, zones = st.data.zones || [], marks = st.marks, scored = st.scored, ans = st.data.answer || {};
+  const w = 40, h = 150, pad = 18;
+  const min = Math.min(...pts.map(x => x.p)), max = Math.max(...pts.map(x => x.p));
+  const range = (max - min) || 1;
+  const y = v => pad + (max - v) / range * (h - 2 * pad);
+  const x = i => pad + i * w;
+  const W = pad * 2 + w * (pts.length - 1);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + h + '" width="' + W + '" height="' + h + '" style="display:block;max-width:100%">';
+  zones.forEach(function (z) {
+    const y0 = y(z.hi), y1 = y(z.lo);
+    const x0 = x(z.x0) - w / 2, x1 = x(z.x1) + w / 2;
+    s += '<rect x="' + x0.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (y1 - y0).toFixed(1) + '" fill="rgba(37,99,235,0.12)" stroke="#2563eb" stroke-dasharray="4 3"/>';
+    if (z.label) s += '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="' + (y0 - 4).toFixed(1) + '" font-size="10" text-anchor="middle" fill="#2563eb" font-weight="bold">' + z.label + '</text>';
+  });
+  for (let i = 0; i < pts.length - 1; i++) {
+    s += '<line x1="' + x(i) + '" y1="' + y(pts[i].p).toFixed(1) + '" x2="' + x(i + 1) + '" y2="' + y(pts[i + 1].p).toFixed(1) + '" stroke="#1f2937" stroke-width="2"/>';
+  }
+  pts.forEach(function (pt, i) {
+    const cx = x(i), cy = y(pt.p);
+    const c = pt.color || (pt.tag === '顶' ? '#e74c3c' : pt.tag === '底' ? '#16a34a' : '#1f2937');
+    s += '<circle cx="' + cx + '" cy="' + cy.toFixed(1) + '" r="3" fill="' + c + '"/>';
+    if (pt.tag) {
+      const above = pt.tag === '顶' || pt.above === true;
+      const ty = above ? cy - 8 : cy + 14;
+      s += '<text x="' + cx + '" y="' + ty.toFixed(1) + '" font-size="9" text-anchor="middle" fill="' + c + '" font-weight="bold">' + pt.tag + '</text>';
+    }
+    if (!scored) s += '<rect x="' + (cx - w / 2).toFixed(1) + '" y="0" width="' + w + '" height="' + h + '" fill="transparent" cursor="pointer" onclick="drawMark(\'' + st.id + '\',' + i + ')"/>';
+    const u = marks[i] || null, a = ans[i] || null;
+    const markAbove = !(pt.tag && (pt.tag.indexOf('底') >= 0 || pt.tag.indexOf('低') >= 0));
+    const my = markAbove ? cy - 16 : cy + 28;
+    let text = null, color = null;
+    if (!scored) {
+      if (u) { text = u; color = drawMarkColor(u); }
+    } else if (a && a === u) { text = u + ' ✓'; color = '#16a34a'; }
+    else if (a && !u) { text = '应标' + a; color = '#f59e0b'; }
+    else if (a && u) { text = u + ' ✗'; color = '#e74c3c'; }
+    else if (!a && u) { text = u + ' ✗'; color = '#e74c3c'; }
+    if (text) s += '<text x="' + cx + '" y="' + my.toFixed(1) + '" font-size="11" text-anchor="middle" fill="' + color + '" font-weight="bold">' + text + '</text>';
+  });
+  s += '</svg>';
+  return s;
+}
+function drawLinkSVG(st) {
+  const pts = st.data.pts, seq = st.seq || [], scored = st.scored, ans = st.data.answer || [];
+  const w = 40, h = 150, pad = 18;
+  const min = Math.min(...pts.map(x => x.p)), max = Math.max(...pts.map(x => x.p));
+  const range = (max - min) || 1;
+  const y = v => pad + (max - v) / range * (h - 2 * pad);
+  const x = i => pad + i * w;
+  const W = pad * 2 + w * (pts.length - 1);
+  let s = '<svg viewBox="0 0 ' + W + ' ' + h + '" width="' + W + '" height="' + h + '" style="display:block;max-width:100%">';
+  for (let i = 0; i < pts.length - 1; i++) {
+    s += '<line x1="' + x(i) + '" y1="' + y(pts[i].p).toFixed(1) + '" x2="' + x(i + 1) + '" y2="' + y(pts[i + 1].p).toFixed(1) + '" stroke="#d1d5db" stroke-width="1.5"/>';
+  }
+  for (let k = 0; k < seq.length - 1; k++) {
+    const a = seq[k], b = seq[k + 1];
+    const c = pts[a].p < pts[b].p ? '#e74c3c' : '#16a34a';
+    s += '<line x1="' + x(a) + '" y1="' + y(pts[a].p).toFixed(1) + '" x2="' + x(b) + '" y2="' + y(pts[b].p).toFixed(1) + '" stroke="' + c + '" stroke-width="3" stroke-linecap="round"/>';
+  }
+  if (scored) {
+    for (let k = 0; k < ans.length - 1; k++) {
+      const a = ans[k], b = ans[k + 1];
+      s += '<line x1="' + x(a) + '" y1="' + y(pts[a].p).toFixed(1) + '" x2="' + x(b) + '" y2="' + y(pts[b].p).toFixed(1) + '" stroke="#2563eb" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>';
+    }
+  }
+  pts.forEach(function (pt, i) {
+    const cx = x(i), cy = y(pt.p);
+    const ord = seq.indexOf(i);
+    const inSeq = ord >= 0;
+    const c = pt.color || (pt.tag === '顶' ? '#e74c3c' : pt.tag === '底' ? '#16a34a' : '#1f2937');
+    s += '<circle cx="' + cx + '" cy="' + cy.toFixed(1) + '" r="' + (inSeq ? 5 : 3) + '" fill="' + c + '"' + (inSeq ? ' stroke="#1f2937" stroke-width="1.5"' : '') + '/>';
+    if (pt.tag) {
+      const above = pt.tag === '顶' || pt.above === true;
+      const ty = above ? cy - 8 : cy + 14;
+      s += '<text x="' + cx + '" y="' + ty.toFixed(1) + '" font-size="9" text-anchor="middle" fill="' + c + '" font-weight="bold">' + pt.tag + '</text>';
+    }
+    if (!scored) s += '<rect x="' + (cx - w / 2).toFixed(1) + '" y="0" width="' + w + '" height="' + h + '" fill="transparent" cursor="pointer" onclick="drawLinkMark(\'' + st.id + '\',' + i + ')"/>';
+    if (ord >= 0) {
+      const oy = pt.tag === '顶' ? cy - 20 : cy + 26;
+      s += '<text x="' + cx + '" y="' + oy.toFixed(1) + '" font-size="10" text-anchor="middle" fill="#2563eb" font-weight="bold">' + (ord + 1) + '</text>';
+    }
+  });
+  s += '</svg>';
+  return s;
+}
+function drawSVG(st) {
+  if (st.data.kind === 'line') return drawLineSVG(st);
+  if (st.data.kind === 'link') return drawLinkSVG(st);
+  return drawKlineSVG(st);
+}
+function drawRender(id) {
+  const st = window.__draws && window.__draws[id];
+  if (!st) return '';
+  let s = '<div class="draw-title">✏️ ' + st.data.title + '</div>';
+  if (st.data.intro) s += '<div class="draw-intro">' + st.data.intro + '</div>';
+  s += drawSVG(st);
+  s += '<div class="draw-bar">';
+  s += '<button type="button" class="step-btn" onclick="drawClear(\'' + id + '\')">↻ 清除</button>';
+  s += '<button type="button" class="step-btn" onclick="drawScore(\'' + id + '\')">判分</button>';
+  s += '</div>';
+  if (st.scored) s += drawScoreText(id);
+  return s;
+}
+function drawMark(id, i) {
+  const st = window.__draws && window.__draws[id];
+  if (!st || st.scored) return;
+  const list = st.data.marks || ['顶', '底'];
+  const cur = st.marks[i] || null;
+  const idx = list.indexOf(cur);
+  st.marks[i] = idx >= 0 ? (list[idx + 1] || null) : list[0];
+  drawUpdate(id);
+}
+function drawLinkMark(id, i) {
+  const st = window.__draws && window.__draws[id];
+  if (!st || st.scored) return;
+  const seq = st.seq || (st.seq = []);
+  const idx = seq.indexOf(i);
+  if (idx >= 0) seq.splice(idx, 1);
+  else seq.push(i);
+  drawUpdate(id);
+}
+function drawClear(id) {
+  const st = window.__draws && window.__draws[id];
+  if (!st) return;
+  st.marks = {}; st.seq = []; st.scored = false;
+  drawUpdate(id);
+}
+function drawScore(id) {
+  const st = window.__draws && window.__draws[id];
+  if (!st) return;
+  st.scored = true;
+  drawUpdate(id);
+}
+function drawScoreText(id) {
+  const st = window.__draws && window.__draws[id];
+  if (!st) return '';
+  if (st.data.kind === 'link') return drawLinkScoreText(st);
+  const ans = st.data.answer || {}, user = st.marks || {};
+  const isLine = st.data.kind === 'line';
+  const n = isLine ? st.data.pts.length : st.data.klines.length;
+  const unit = isLine ? '个点' : '根 K 线';
+  const item = i => isLine ? '第 ' + (i + 1) + ' 个点' : '第 ' + (i + 1) + ' 根';
+  let right = 0, errs = [];
+  for (let i = 0; i < n; i++) {
+    const a = ans[i] || null, u = user[i] || null;
+    if (a === u) right++;
+    else errs.push(i);
+  }
+  if (!errs.length) return '<div class="draw-result ok">✓ 全对！' + n + ' ' + unit + '全部标对。</div>';
+  const parts = errs.map(function (i) {
+    const a = ans[i] || null, u = user[i] || null;
+    const lbl = item(i);
+    if (a && u) return lbl + ' 应为「' + a + '」，标成了「' + u + '」';
+    if (a && !u) return lbl + ' 漏标「' + a + '」';
+    return lbl + ' 多标了「' + u + '」';
+  });
+  return '<div class="draw-result bad">✗ 对 ' + right + ' / ' + n + '：' + parts.join('；') + '。</div>';
+}
+function drawLinkScoreText(st) {
+  const ans = st.data.answer || [], seq = st.seq || [];
+  const same = ans.length === seq.length && ans.every(function (v, i) { return v === seq[i]; });
+  if (same) return '<div class="draw-result ok">✓ 全对！' + (ans.length - 1) + ' 笔全部连对（' + ans.length + ' 个端点依次正确）。</div>';
+  const errs = [];
+  ans.forEach(function (v) { if (seq.indexOf(v) < 0) errs.push('漏连第 ' + (v + 1) + ' 个点'); });
+  seq.forEach(function (v) { if (ans.indexOf(v) < 0) errs.push('多连了第 ' + (v + 1) + ' 个点'); });
+  if (!errs.length) errs.push('端点都选对了，但连线顺序不对（应按「底→顶→底」依次连）');
+  return '<div class="draw-result bad">✗ 未全对：' + errs.join('；') + '。标准连法见蓝色虚线。</div>';
+}
+function drawUpdate(id) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = drawRender(id);
+}
+
 // 背驰点涟漪散点系列（ECharts effectScatter）：叠加在价格 grid 上做「闪烁」，series 级 tooltip 提供浮窗说明
 function backchiEffect(data, color, tip) {
   return {
@@ -488,7 +768,7 @@ function macdBarSeries(DIFF, DEA, areas) {
   if (areas && areas.length) {
     s.markArea = {
       silent: true, itemStyle: { color: 'rgba(231,76,60,0.16)' },
-      label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold' },
+      label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold', backgroundColor: '#fff', padding: [2, 4], borderRadius: 3, borderColor: 'rgba(185,28,28,0.3)', borderWidth: 1 },
       data: areas,
     };
   }

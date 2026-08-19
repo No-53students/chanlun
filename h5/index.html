@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>缠论可视化学习</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="css/style.css" />
   <script src="vendor/vue.global.prod.js"></script>
   <script src="vendor/echarts.min.js"></script>
@@ -41,12 +42,22 @@
       <li class="grp">远期规划</li>
       <li class="disabled" v-for="t in upcoming"><a>{{ t }}</a></li>
     </ul>
+    <button class="wrongbook-btn" @click="showWrongBook = true" :title="'错题本（' + wrongBook.length + ' 题）'">
+      📕<span class="wb-btn-label" v-if="navOpen"> 错题本</span><span class="wb-badge" v-if="wrongBook.length">{{ wrongBook.length }}</span>
+    </button>
+    <button class="map-btn" @click="showMap = true" title="学习地图：水平评估 + 原文覆盖对照">
+      🗺️<span class="wb-btn-label" v-if="navOpen"> 学习地图</span>
+    </button>
   </aside>
 
   <main class="main">
+    <div class="tabs" v-show="showTabs">
+      <button v-for="t in tabs" :key="t.id" class="tab-btn" :class="{ on: t.id === tab }" @click="switchTab(t.id)">{{ t.label }}</button>
+    </div>
     <div class="chapter-head">
       <h1>{{ cur.title }}</h1>
       <span class="src-badge">{{ cur.source }}</span>
+      <button class="theme-btn" @click="toggleTheme" :title="dark ? '切换到白天模式' : '切换到黑夜模式'">{{ dark ? '☀️' : '🌙' }}</button>
     </div>
 
     <div class="content-grid">
@@ -74,6 +85,43 @@
             </div>
           </div>
         </section>
+        <section class="block fig-card" v-if="tutor">
+          <h2><span class="tag viz">推演</span>{{ tutor.title }}</h2>
+          <div class="tutor">
+            <div class="tutor-stage" :key="tutorStep" v-html="tutorSvg"></div>
+            <div class="tutor-note" v-if="tutorNote" v-html="tutorNote"></div>
+            <div class="tutor-q" v-if="tutorQuestion">
+              <div class="tutor-q-text">🧭 {{ tutorQuestion.q }}</div>
+              <div class="tutor-q-opts">
+                <button class="quiz-opt" v-for="(op, oi) in tutorQuestion.options" :key="oi"
+                  :class="{ right: oi === tutorQuestion.answer && tutorPicked != null, wrong: tutorPicked === oi && oi !== tutorQuestion.answer }"
+                  :disabled="tutorPicked != null"
+                  @click="tutorPick(oi)">{{ op }}</button>
+              </div>
+              <div class="quiz-explain" v-if="tutorPicked != null" :class="{ ok: tutorPicked === tutorQuestion.answer }">
+                <b>{{ tutorPicked === tutorQuestion.answer ? '✓ 正确' : '✗ 错误' }}</b> {{ tutorQuestion.explain }}
+              </div>
+            </div>
+            <div class="stepper-bar">
+              <button class="step-btn" @click="tutorPrev" :disabled="tutorStep === 0">← 上一步</button>
+              <div class="stepper-center">
+                <button class="step-btn" @click="tutorReset">↻ 重来</button>
+                <span class="stepper-ind">{{ tutorStep + 1 }} / {{ tutor.steps.length }} · {{ tutorLabel }}</span>
+              </div>
+              <button class="step-btn" @click="tutorNext" :disabled="tutorStep === tutor.steps.length - 1 || tutorBlocked">下一步 →</button>
+            </div>
+          </div>
+        </section>
+        <section class="block fig-card" v-if="level">
+          <h2><span class="tag viz">透镜</span>{{ level.title }}</h2>
+          <div class="level">
+            <div class="level-btns">
+              <button class="step-btn" v-for="(lv, i) in level.levels" :key="i" :class="{ on: i === levelIdx }" @click="setLevel(i)">{{ lv.name }}</button>
+            </div>
+            <div class="tutor-stage" :key="levelIdx" v-html="levelSvg"></div>
+            <div class="tutor-note" v-if="levelNote" v-html="levelNote"></div>
+          </div>
+        </section>
       </div>
 
       <!-- 右：讲解 + 讲解内部小图解 -->
@@ -83,9 +131,14 @@
             <h2><span class="tag">定义</span>{{ s.title }}</h2>
             <div class="def-item" v-for="it in s.items" :key="it.term">
               <div class="term">{{ it.term }}</div>
+              <div v-if="it.plain" v-html="it.plain"></div>
               <p v-html="it.text"></p>
+              <div v-if="it.analogy" v-html="it.analogy"></div>
               <div class="formula" v-if="it.formula" v-html="it.formula"></div>
               <div class="mini-fig" v-if="it.fig" v-html="it.fig"></div>
+              <div v-if="it.flow" v-html="it.flow"></div>
+              <div v-if="it.tree" v-html="it.tree"></div>
+              <div v-if="it.draw" v-html="it.draw"></div>
             </div>
           </section>
 
@@ -135,6 +188,67 @@
       <a v-if="next" :href="'#/' + next.id">{{ next.title }} →</a>
     </div>
   </main>
+
+  <div class="cheer-overlay" v-if="cheer" @click.self="cheer = null">
+    <div class="cheer-card">
+      <div class="cheer-emoji">{{ cheer.emoji }}</div>
+      <div class="cheer-title">{{ cheer.title }}</div>
+      <div class="cheer-text">{{ cheer.text }}</div>
+      <button class="cheer-btn" @click="cheer = null">继续学习 →</button>
+    </div>
+  </div>
+
+  <div class="wrongbook-overlay" v-if="showWrongBook" @click.self="showWrongBook = false">
+    <div class="wrongbook-card">
+      <div class="wrongbook-head">
+        <b>📕 错题本</b>
+        <span class="wrongbook-count">{{ wrongBook.length }} 题</span>
+      </div>
+      <div class="wrongbook-body" v-if="wrongBook.length">
+        <div class="wrongbook-item" v-for="(w, i) in wrongBook" :key="i">
+          <div class="wb-ch">{{ w.title }}</div>
+          <div class="wb-q">{{ w.q }}</div>
+          <div class="wb-wrong">✗ 你的答案：{{ w.wrong }}</div>
+          <div class="wb-right">✓ 正确答案：{{ w.right }}</div>
+          <div class="wb-explain" v-if="w.explain">{{ w.explain }}</div>
+        </div>
+      </div>
+      <div class="wrongbook-empty" v-else>还没有错题，继续保持！🎉</div>
+      <div class="wrongbook-bar">
+        <button class="cheer-btn" v-if="wrongBook.length" @click="clearWrong">清空错题本</button>
+        <button class="step-btn" @click="showWrongBook = false">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-overlay" v-if="showMap" @click.self="showMap = false">
+    <div class="map-card">
+      <div class="map-head">
+        <b>🗺️ 学习地图</b>
+        <span class="map-sub">学完这套 H5 的水平评估 · 相对原文 108 课的覆盖对照</span>
+      </div>
+      <div class="map-body" v-if="mapInfo">
+        <div class="map-level" v-html="mapInfo.level"></div>
+        <div class="map-stats">
+          <div class="map-stat"><b>{{ mapInfo.stats.chapters }}</b><span>章教程</span></div>
+          <div class="map-stat"><b>{{ mapInfo.stats.covered }}</b><span>覆盖原文课数</span></div>
+          <div class="map-stat"><b>{{ mapInfo.stats.missing }}</b><span>未覆盖课数</span></div>
+          <div class="map-stat"><b>{{ mapInfo.stats.total }}</b><span>原文总课数</span></div>
+        </div>
+        <div class="map-missing-h">相对原文缺失的 {{ mapInfo.stats.missing }} 课</div>
+        <div class="map-missing" v-for="m in mapInfo.missing" :key="m.no">
+          <span class="map-no">第{{ m.no }}课</span>
+          <span class="map-missing-title">{{ m.title }}</span>
+          <span class="map-cat">{{ m.cat }}</span>
+          <div class="map-missing-note" v-html="m.note"></div>
+        </div>
+        <div class="map-note" v-html="mapInfo.note"></div>
+      </div>
+      <div class="map-bar">
+        <button class="step-btn" @click="showMap = false">关闭</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- 加载顺序：核心算法 → 各章内容 → 应用入口 -->
@@ -192,6 +306,13 @@
 <script src="js/chapters/ch51.js"></script>
 <script src="js/chapters/ch52.js"></script>
 <script src="js/chapters/ch53.js"></script>
+<script src="js/chapters/ch54.js"></script>
+<script src="js/chapters/ch55.js"></script>
+<script src="js/chapters/ch56.js"></script>
+<script src="js/chapters/ch57.js"></script>
+<script src="js/chapters/ch58.js"></script>
+<script src="js/chapters/ch59.js"></script>
+<script src="js/chapters/ch60.js"></script>
 <script src="js/glossary.js"></script>
 <script src="js/anims/ch4.js"></script>
 <script src="js/anims/ch5.js"></script>
@@ -200,10 +321,20 @@
 <script src="js/anims/ch8.js"></script>
 <script src="js/anims/ch9.js"></script>
 <script src="js/anims/ch10.js"></script>
+<script src="js/anims/ch14.js"></script>
 <script src="js/originals/orig1.js"></script>
 <script src="js/originals/orig2.js"></script>
 <script src="js/quizzes/quiz1.js"></script>
 <script src="js/quizzes/quiz2.js"></script>
+<script src="js/tutors/ch08.js"></script>
+<script src="js/tutors/ch14.js"></script>
+<script src="js/tutors/ch54.js"></script>
+<script src="js/levels/ch12.js"></script>
+<script src="js/levels/ch13.js"></script>
+<script src="js/levels/ch54.js"></script>
+<script src="js/psy.js"></script>
+<script src="js/stock.js"></script>
+<script src="js/map.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

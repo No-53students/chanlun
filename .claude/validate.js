@@ -30,7 +30,7 @@ chFiles.forEach(f => load(path.join(chaptersDir, f)));
 const extra = [
   'glossary.js',
   'anims/ch4.js', 'anims/ch5.js', 'anims/ch6.js', 'anims/ch7.js',
-  'anims/ch8.js', 'anims/ch9.js', 'anims/ch10.js',
+  'anims/ch8.js', 'anims/ch9.js', 'anims/ch10.js', 'anims/ch14.js',
   'originals/orig1.js', 'originals/orig2.js',
   'quizzes/quiz1.js', 'quizzes/quiz2.js',
 ];
@@ -49,7 +49,7 @@ console.log('重复 id:', dup.length ? dup.join(',') : '无');
 let totalDef = 0, defNoFig = 0, echartsErr = 0, echartsCount = 0;
 for (const c of chapters) {
   for (const s of (c.sections || [])) {
-    if (s.type === 'definition') for (const it of (s.items || [])) { totalDef++; if (!it.fig) { defNoFig++; console.log('  缺fig:', c.id, it.term); } }
+    if (s.type === 'definition') for (const it of (s.items || [])) { totalDef++; if (!it.fig && !it.draw) { defNoFig++; console.log('  缺fig:', c.id, it.term); } }
   }
   for (const f of (c.figures || [])) {
     if (f.kind === 'echarts' && typeof f.option === 'function') { echartsCount++; try { f.option(); } catch (e) { echartsErr++; console.log('  option异常:', c.id, e.message); } }

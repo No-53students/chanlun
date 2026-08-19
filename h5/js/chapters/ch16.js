@@ -82,10 +82,10 @@
           name: 'MACD', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: barData, barWidth: '55%',
           markArea: {
             silent: true, itemStyle: { color: 'rgba(231,76,60,0.16)' },
-            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold' },
+            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold', backgroundColor: '#fff', padding: [2, 4], borderRadius: 3, borderColor: 'rgba(185,28,28,0.3)', borderWidth: 1 },
             data: [
-              macdArea(4, 5, 0, 3.4, 'b段红柱面积（大）'),
-              macdArea(8, 13, 0, 1.1, 'c段红柱面积（小）'),
+              macdArea(4, 5, 0, 3.8, 'b段红柱面积（大）'),
+              macdArea(8, 13, 0, 1.6, 'c段红柱面积（小）'),
             ],
           },
         },
