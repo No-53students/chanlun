@@ -5,7 +5,7 @@
     const pts = [20, 18, 16, 14, 10, 11.5, 9.8, 10.8, 9, 8, 9.5, 8.5, 8.8, 7, 6.2];
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const pin = (i, name, color) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, color, fontSize: 11, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const pin = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos, distance: 24, formatter: function (p) { return p.name; } } });
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
@@ -33,7 +33,7 @@
         },
         markPoint: { data: [
           mp(0, '顶 20', '#e74c3c', 'top'),
-          pin(4, '逆向缺口 14→10', '#9333ea'),
+          pin(4, '逆向缺口 14→10', '#9333ea', 'top'),
           mp(14, '底·类背驰 6.2', '#16a34a', 'bottom'),
           seg(1.5, 17.5, '◀ 下跌走势', '#1f2937'),
           seg(6, 11.8, '奔走型·上下上', '#2563eb'),

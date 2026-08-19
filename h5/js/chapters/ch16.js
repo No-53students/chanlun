@@ -3,16 +3,32 @@
 
   function optCh16() {
     const pts = [8, 13, 11, 14, 12, 17, 15, 16, 14, 18, 17, 20, 21, 22];
+    const DIFF = [4.0, 2.8, 4.0, 2.6, 6.0, 2.5, 3.2, 2.2, 3.8, 3.2, 3.4, 3.4, 3.4];
+    const DEA = [2.2, 2.4, 2.5, 2.6, 2.9, 2.7, 2.8, 2.6, 3.0, 3.0, 3.2, 3.3, 3.4];
+    const barData = DIFF.map((v, i) => ({
+      value: [i + 0.5, +(v - DEA[i]).toFixed(2)],
+      itemStyle: { color: v >= DEA[i] ? '#e74c3c' : '#16a34a' },
+    }));
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: pos || 'top', formatter: function (p) { return p.name; } } });
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 5, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      grid: { left: 55, right: 80, top: 40, bottom: 40 },
-      xAxis: { type: 'value', min: 0, max: 13, interval: 1 },
-      yAxis: { type: 'value', scale: true, name: '价格' },
+      legend: { data: ['走势', 'DIFF（白线）', 'DEA（黄线）', 'MACD 柱'], top: 6 },
+      grid: [
+        { left: 60, right: 90, top: 46, height: 190 },
+        { left: 60, right: 90, top: 300, height: 120 },
+      ],
+      xAxis: [
+        { type: 'value', gridIndex: 0, min: 0, max: 13, interval: 1 },
+        { type: 'value', gridIndex: 1, min: 0, max: 13, interval: 1, axisLabel: { show: false } },
+      ],
+      yAxis: [
+        { type: 'value', gridIndex: 0, scale: true, name: '价格', nameLocation: 'middle', nameGap: 40 },
+        { type: 'value', gridIndex: 1, name: 'MACD', nameLocation: 'middle', nameGap: 30 },
+      ],
       series: [{
-        name: '走势', type: 'line', data: pts.map((p, i) => [i, p]),
+        name: '走势', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: pts.map((p, i) => [i, p]),
         symbol: 'circle', symbolSize: 4, lineStyle: { width: 2, color: '#1f2937' }, itemStyle: { color: '#1f2937' },
         markArea: {
           silent: true, itemStyle: { color: 'rgba(37,99,235,0.10)' },
@@ -37,7 +53,7 @@
             mp(4, 'b·起点', '#1f2937', 'bottom'),
             mp(5, 'B·GG=17', '#e74c3c', 'top'),
             mp(8, 'B·DD=14', '#16a34a', 'bottom'),
-            { coord: [10, 17], name: '三买(17)', symbol: 'pin', symbolSize: 40, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#9333ea', fontSize: 11, position: 'bottom', distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } },
+            { coord: [10, 17], name: '三买(17)', symbol: 'pin', symbolSize: 40, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#9333ea', fontSize: 11, position: 'bottom', distance: 24, fontWeight: 'bold', formatter: function (p) { return p.name; } } },
             mp(13, 'c·顶', '#e74c3c', 'top'),
             seg(0.5, 7, 'a', '#1f2937', 'bottom'),
             seg(2.5, 12, 'A', '#2563eb', 'top'),
@@ -46,7 +62,35 @@
             seg(11.5, 23.5, 'c', '#e74c3c', 'top'),
           ],
         },
-      }],
+      },
+        {
+          name: 'DIFF（白线）', type: 'line', xAxisIndex: 1, yAxisIndex: 1,
+          data: DIFF.map((v, i) => [i + 0.5, v]), symbol: 'none',
+          lineStyle: { width: 1.8, color: '#94a3b8' }, itemStyle: { color: '#94a3b8' },
+          markLine: {
+            silent: true, symbol: 'none',
+            label: { show: true, position: 'end', formatter: function (p) { return p.name || ''; }, fontSize: 10 },
+            data: [{ yAxis: 0, name: '0 轴', lineStyle: { color: '#dc2626', width: 1.6, type: 'solid' }, label: { color: '#dc2626' } }],
+          },
+        },
+        {
+          name: 'DEA（黄线）', type: 'line', xAxisIndex: 1, yAxisIndex: 1,
+          data: DEA.map((v, i) => [i + 0.5, v]), symbol: 'none',
+          lineStyle: { width: 1.8, color: '#f59e0b' }, itemStyle: { color: '#f59e0b' },
+        },
+        {
+          name: 'MACD', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: barData, barWidth: '55%',
+          markArea: {
+            silent: true, itemStyle: { color: 'rgba(231,76,60,0.16)' },
+            label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold' },
+            data: [
+              macdArea(4, 5, 0, 3.4, 'b段红柱面积（大）'),
+              macdArea(8, 13, 0, 1.1, 'c段红柱面积（小）'),
+            ],
+          },
+        },
+        backchiEffect([[13, 22]], '#e74c3c', 'c 顶背驰：价格新高(22)，c 段红柱面积 < b 段 → c 对 b 背驰，按第32课离场'),
+      ],
     };
   }
 
@@ -68,7 +112,7 @@
   __chapters.push({
     id: 'ch16', vol: '卷四 · 背驰与买卖点', title: '第16章 a+A+b+B+c 的当下操作', source: '原文第32课',
     figures: [
-      { kind: 'echarts', title: 'a+A+b+B+c 上涨走势的结构', note: '一段 30 分钟上涨被分解为 <code>a+A+b+B+c</code>：<b>a、b、c</b> 是同级别的<b>次级别走势段</b>，<b>A、B</b> 是两个同级别中枢（A 已出现、B 待生长）。蓝色矩形是中枢 A[12,13]、B[15,16]，虚线是各自的 ZG/ZD。c 段要出现，必须先有<b>第三类买点</b>（紫色 17，离开 B 后回抽不破 ZG=16）；c 顶（22）是否背驰，决定是否离场。', option: optCh16 },
+      { kind: 'echarts', title: 'a+A+b+B+c 上涨走势的结构', note: '一段 30 分钟上涨被分解为 <code>a+A+b+B+c</code>：<b>a、b、c</b> 是同级别的<b>次级别走势段</b>，<b>A、B</b> 是两个同级别中枢（A 已出现、B 待生长）。蓝色矩形是中枢 A[12,13]、B[15,16]，虚线是各自的 ZG/ZD。下方 MACD：<b>b 段红柱面积（大）明显大于 c 段红柱面积（小）</b>——c 顶（22）创新高但动能减弱，即 <b>c 段对 b 段背驰</b>，按第32课应<b>离场</b>。c 段要出现，必须先有<b>第三类买点</b>（紫色 17，离开 B 后回抽不破 ZG=16）。', option: optCh16 },
       { kind: 'html', title: '当下判断的完全分类流程', note: '第32课的核心思维：<b>不预测，只分类</b>。b 段走不走、c 段有没有、B 是啥级别，都<b>不假设、不幻想</b>，而是按定义对每一个当下的走势做完全分类，机械地买卖点买卖点卖。', html: figFlow },
     ],
     sections: [

@@ -7,7 +7,7 @@
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
-    const pin = (i, name) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 34, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#7c3aed', fontSize: 10, fontWeight: 'bold', formatter: function (p) { return p.name; }, position: 'top' } });
+    const pin = (i, name) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 34, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#7c3aed', fontSize: 10, fontWeight: 'bold', formatter: function (p) { return p.name; }, position: 'top', distance: 24 } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
       grid: { left: 52, right: 92, top: 46, bottom: 40 },

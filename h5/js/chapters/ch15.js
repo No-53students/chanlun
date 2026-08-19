@@ -12,7 +12,7 @@
     const markPointData = buys.map(b => ({
       coord: b.coord, name: b.name, symbol: 'pin', symbolSize: 44,
       itemStyle: { color: b.color },
-      label: { show: true, formatter: function (p) { return p.name; }, color: b.color, fontSize: 11, fontWeight: 'bold' },
+      label: { show: true, formatter: function (p) { return p.name; }, color: b.color, fontSize: 11, fontWeight: 'bold', position: 'bottom', distance: 24 },
     }));
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
@@ -48,7 +48,9 @@
           ],
         },
         markPoint: { data: markPointData },
-      }],
+      },
+      backchiEffect([[9, 8]], '#16a34a', '第一类买点＝下跌趋势背驰点（中枢之下），背驰必然制造买卖点'),
+      ],
     };
   }
 

@@ -8,13 +8,13 @@
     ];
     const markAreaData = zones.map(z => [{ xAxis: z.x0, yAxis: z.lo, name: z.label }, { xAxis: z.x1, yAxis: z.hi }]);
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold' } });
-    const pin = (i, name, color) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold' } });
+    const pin = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24 } });
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top' } });
     const markPointData = [
       mp(0, '顶·前走势高点', '#e74c3c', 'top'),
       mp(11, '顶·反弹高点', '#e74c3c', 'top'),
-      pin(8, '机会①：线段底背驰', '#16a34a'),
-      pin(12, '机会②：中枢震荡买点', '#2563eb'),
+      pin(8, '机会①：线段底背驰', '#16a34a', 'bottom'),
+      pin(12, '机会②：中枢震荡买点', '#2563eb', 'bottom'),
       seg(3.5, 20.5, '下跌走势', '#e74c3c'),
       seg(10.5, 16.5, '反弹 + 中枢震荡', '#16a34a'),
     ];

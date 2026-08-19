@@ -30,7 +30,7 @@
     const price = [12.0, 12.6, 13.2, 12.8, 11.4, 12.4, 13.0, 13.4, 12.2, 11.6, 12.8, 13.4, 14.0, 13.0, 12.0, 12.6, 13.6, 14.4, 15.2, 16.0];
     const toLine = arr => arr.map((p, i) => [i, p]);
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos, formatter: function (p) { return p.name; } } });
-    const kiss = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 4, formatter: function (p) { return p.name; } } });
+    const kiss = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24, formatter: function (p) { return p.name; } } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
       legend: { data: ['走势', '短期均线(5日)', '长期均线(10日)'], top: 0 },

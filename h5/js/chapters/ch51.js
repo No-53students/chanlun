@@ -3,7 +3,7 @@
 
   function optCh51() {
     const mp = (i, p, name, color, pos) => ({ coord: [i, p], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 5, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const pin = (i, p, name, color) => ({ coord: [i, p], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const pin = (i, p, name, color, pos) => ({ coord: [i, p], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24, formatter: function (p) { return p.name; } } });
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos, formatter: function (p) { return p.name; } } });
 
     // 做顶出货全过程：三周 +70% → 跌停 → 此后 -90%
@@ -33,7 +33,7 @@
         markPoint: { data: [
           seg(3.0, 12.9, '低位分批出', '#92400e', 'bottom'),
           seg(6.5, 15.5, '压单即被扫', '#92400e', 'top'),
-          pin(10, 15.3, '最后一天屠刀·跌停', '#e74c3c'),
+          pin(10, 15.3, '最后一天屠刀·跌停', '#e74c3c', 'top'),
           mp(17, 5.2, '高位下来 -90%', '#16a34a', 'bottom'),
           seg(13, 6.5, '多杀多·一蹶不振', '#64748b', 'bottom'),
         ] },

@@ -23,7 +23,7 @@
           markPoint: { data: [
             mp(0, '底 10', '#16a34a', 'bottom', A),
             mp(4, '离开 16', '#e74c3c', 'top', A),
-            { coord: [5, 14], name: '第三类买点', symbol: 'pin', symbolSize: 44, itemStyle: { color: '#16a34a' }, label: { show: true, color: '#16a34a', fontSize: 11, fontWeight: 'bold', formatter: function (p) { return p.name; } } },
+            { coord: [5, 14], name: '第三类买点', symbol: 'pin', symbolSize: 44, itemStyle: { color: '#16a34a' }, label: { show: true, color: '#16a34a', fontSize: 11, fontWeight: 'bold', position: 'bottom', distance: 24, formatter: function (p) { return p.name; } } },
             seg(7, 22, '继续延伸 → 新高（利润最大）', '#e74c3c', 'top'),
           ] },
         },

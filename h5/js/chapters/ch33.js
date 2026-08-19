@@ -4,7 +4,7 @@
   // ---- 主图1：ECharts 分级底部：月线底分型 → 周线 → 日线逐级确认 ----
   function optCh33() {
     const mp = (i, p, name, color, pos) => ({ coord: [i, p], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 5, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const pin = (i, p, name, color) => ({ coord: [i, p], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const pin = (i, p, name, color, pos) => ({ coord: [i, p], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24, formatter: function (p) { return p.name; } } });
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos, formatter: function (p) { return p.name; } } });
 
     // 月线
@@ -36,7 +36,7 @@
     };
     s0.markPoint = { data: [
       mp(0, 4000, '顶', '#e74c3c', 'top'),
-      pin(5, 2284, '月线底分型（大底·2284）', '#16a34a'),
+      pin(5, 2284, '月线底分型（大底·2284）', '#16a34a', 'bottom'),
       seg(1.5, 3650, '月线级别下跌', '#e74c3c', 'top'),
     ] };
 
@@ -52,7 +52,7 @@
       data: [{ yAxis: 2601, name: '周线分型上沿 2601', lineStyle: { color: '#2563eb', type: 'dashed', width: 1 } }],
     };
     s1.markPoint = { data: [
-      pin(3, 2620, '站上 2601 → 周线确认', '#2563eb'),
+      pin(3, 2620, '站上 2601 → 周线确认', '#2563eb', 'top'),
       seg(5.0, 2500, '周线底分型确认', '#2563eb', 'bottom'),
     ] };
 
@@ -66,7 +66,7 @@
       ],
     };
     s2.markPoint = { data: [
-      pin(3, 2284, '日线区间套·精确买点', '#9333ea'),
+      pin(3, 2284, '日线区间套·精确买点', '#9333ea', 'bottom'),
       seg(5.0, 2360, '日线逐级确认', '#9333ea', 'bottom'),
     ] };
 

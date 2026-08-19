@@ -241,6 +241,53 @@ function mfig(lbl, svg, cap) {
   return `<div class="fig"><div class="lbl">${lbl}</div>${svg}<div class="cap">${cap}</div></div>`;
 }
 
+// 背驰点涟漪散点系列（ECharts effectScatter）：叠加在价格 grid 上做「闪烁」，series 级 tooltip 提供浮窗说明
+function backchiEffect(data, color, tip) {
+  return {
+    name: '背驰点', type: 'effectScatter', xAxisIndex: 0, yAxisIndex: 0,
+    data: data, symbolSize: 14, showEffectOn: 'render', z: 30,
+    rippleEffect: { brushType: 'stroke', scale: 4, period: 3 },
+    itemStyle: { color: color, shadowBlur: 12, shadowColor: color },
+    tooltip: { trigger: 'item', formatter: function () { return tip; } },
+  };
+}
+
+// K线包含合并连续动画：outer 包含方、inner 被包含方、merged 合并结果；dir 'up'|'down'
+// 内联 <style> + CSS keyframes，v-html 渲染即自动循环播放，零依赖全局 CSS
+function klineMergeAnimSVG(outer, inner, merged, dir) {
+  const w = 52, h = 120, pad = 14, bodyW = 12;
+  const all = [outer, inner, merged];
+  const min = Math.min(...all.map(k => k.l)), max = Math.max(...all.map(k => k.h));
+  const range = (max - min) || 1;
+  const y = v => pad + (max - v) / range * (h - 2 * pad);
+  const col = k => k.c >= k.o ? '#e74c3c' : '#16a34a';
+  const cx = i => pad + i * w + w / 2;
+  const kline = (k, x, color, dash) => {
+    const yo = y(k.o), yc = y(k.c), top = Math.min(yo, yc), hgt = Math.max(2, Math.abs(yo - yc));
+    let s = `<line x1="${x}" y1="${y(k.h).toFixed(1)}" x2="${x}" y2="${y(k.l).toFixed(1)}" stroke="${color}" stroke-width="1.5"${dash ? ' stroke-dasharray="3 2"' : ''}/>`;
+    s += `<rect x="${(x - bodyW / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bodyW}" height="${hgt.toFixed(1)}" fill="${color}" rx="1"/>`;
+    return s;
+  };
+  const dirTip = dir === 'up' ? '取高高' : '取低低';
+  const arrow = `<text x="${cx(2)}" y="${(h / 2 - 8).toFixed(1)}" font-size="9" text-anchor="middle" fill="#b45309">${dirTip}</text>`
+    + `<text x="${cx(2)}" y="${(h / 2 + 10).toFixed(1)}" font-size="16" text-anchor="middle" fill="#6b7280">→</text>`;
+  const W = pad * 2 + w * 4;
+  return `<svg viewBox="0 0 ${W} ${h}" width="${W}" height="${h}" style="display:block">
+  <style>
+    .m-outer { animation: mPulse 3s ease-in-out infinite; }
+    .m-inner { animation: mInner 3s ease-in-out infinite; }
+    .m-merged { animation: mMerged 3s ease-in-out infinite; }
+    @keyframes mPulse { 0%,30%,55%,100%{opacity:1} 42%{opacity:.4} }
+    @keyframes mInner { 0%,30%{opacity:1} 55%,100%{opacity:0} }
+    @keyframes mMerged { 0%,50%{opacity:0} 70%,100%{opacity:1} }
+  </style>
+  <g class="m-outer">${kline(outer, cx(0), col(outer), false)}</g>
+  <g class="m-inner">${kline(inner, cx(1), '#f59e0b', true)}</g>
+  ${arrow}
+  <g class="m-merged">${kline(merged, cx(3), col(merged), false)}</g>
+</svg>`;
+}
+
 /* ---------- 预计算第 2-4 章共用的 zigzag 数据 ---------- */
 
 var zig = genZigzag();
@@ -374,4 +421,76 @@ function optCh5() {
         ] } },
     ],
   };
+}
+
+/* ---------- MACD 副图辅助（价格主图 + DIFF/DEA/柱副图，供背驰章节复用） ---------- */
+
+// 双 grid 布局：上方价格、下方 MACD 副图（n = x 轴最大下标）
+function macdGrids(n) {
+  return {
+    grid: [
+      { left: 60, right: 90, top: 46, height: 190 },
+      { left: 60, right: 90, top: 300, height: 120 },
+    ],
+    xAxis: [
+      { type: 'value', gridIndex: 0, min: 0, max: n, interval: 1 },
+      { type: 'value', gridIndex: 1, min: 0, max: n, interval: 1, axisLabel: { show: false } },
+    ],
+    yAxis: [
+      { type: 'value', gridIndex: 0, scale: true, name: '价格', nameLocation: 'middle', nameGap: 40 },
+      { type: 'value', gridIndex: 1, name: 'MACD', nameLocation: 'middle', nameGap: 30 },
+    ],
+  };
+}
+
+// MACD 柱数据：柱 = DIFF − DEA，红涨绿跌
+function macdBars(DIFF, DEA) {
+  return DIFF.map((v, i) => ({
+    value: [i, +(v - DEA[i]).toFixed(2)],
+    itemStyle: { color: v >= DEA[i] ? upColor : downColor },
+  }));
+}
+
+// DIFF 白线 series（含 0 轴 markLine）
+function macdDiffSeries(DIFF) {
+  return {
+    name: 'DIFF（白线）', type: 'line', xAxisIndex: 1, yAxisIndex: 1,
+    data: DIFF.map((v, i) => [i, v]), symbol: 'none',
+    lineStyle: { width: 1.8, color: '#94a3b8' }, itemStyle: { color: '#94a3b8' },
+    markLine: {
+      silent: true, symbol: 'none',
+      label: { show: true, position: 'end', formatter: function (p) { return p.name || ''; }, fontSize: 10 },
+      data: [{ yAxis: 0, name: '0 轴（多空分界）', lineStyle: { color: '#dc2626', width: 1.6, type: 'solid' }, label: { color: '#dc2626' } }],
+    },
+  };
+}
+
+// DEA 黄线 series
+function macdDeaSeries(DEA) {
+  return {
+    name: 'DEA（黄线）', type: 'line', xAxisIndex: 1, yAxisIndex: 1,
+    data: DEA.map((v, i) => [i, v]), symbol: 'none',
+    lineStyle: { width: 1.8, color: '#f59e0b' }, itemStyle: { color: '#f59e0b' },
+  };
+}
+
+// 背驰面积高亮：areas = [{x0, x1, y0, y1, label}]，框出副图上两段柱区域
+function macdArea(x0, x1, y0, y1, label) {
+  return [{ xAxis: x0, yAxis: y0, name: label }, { xAxis: x1, yAxis: y1 }];
+}
+
+// MACD 柱 series（可带背驰面积高亮 markArea）
+function macdBarSeries(DIFF, DEA, areas) {
+  const s = {
+    name: 'MACD 柱', type: 'bar', xAxisIndex: 1, yAxisIndex: 1,
+    data: macdBars(DIFF, DEA), barWidth: '55%',
+  };
+  if (areas && areas.length) {
+    s.markArea = {
+      silent: true, itemStyle: { color: 'rgba(231,76,60,0.16)' },
+      label: { show: true, position: 'insideTop', formatter: function (p) { return p.name || ''; }, color: '#b91c1c', fontSize: 10, fontWeight: 'bold' },
+      data: areas,
+    };
+  }
+  return s;
 }

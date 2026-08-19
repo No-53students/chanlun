@@ -93,13 +93,16 @@ details .ans { color: var(--green); padding: 6px 0 2px 18px; }
 .sr-empty { padding: 10px 12px; font-size: 13px; color: var(--muted); }
 
 /* 分步动画演示 */
-.stepper-stage { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; justify-content: center; padding: 12px 0; min-height: 110px; }
+.stepper-stage { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; justify-content: center; padding: 12px 0; min-height: 110px; animation: stageIn .25s ease; }
+@keyframes stageIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 .stepper-stage svg { max-width: 100%; height: auto; }
 .stepper-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
 .step-btn { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
 .step-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
 .step-btn:disabled { opacity: .4; cursor: default; }
 .stepper-ind { font-size: 13px; color: var(--muted); font-weight: 600; }
+.stepper-center { display: flex; align-items: center; gap: 10px; }
+.step-btn.play.on { background: var(--blue); color: #fff; border-color: var(--blue); }
 
 /* 原文对照 */
 .original-text { border-left: 3px solid var(--amber); padding-left: 14px; }

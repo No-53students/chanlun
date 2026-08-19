@@ -32,14 +32,14 @@
     ];
     const markAreaData = zones.map(z => [{ xAxis: z.x0, yAxis: z.lo, name: z.label }, { xAxis: z.x1, yAxis: z.hi }]);
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold' } });
-    const pin = (i, name, color) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold' } });
+    const pin = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24 } });
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top' } });
     const markPointData = [
       mp(0, '底·起点', '#16a34a', 'bottom'),
       mp(1, '顶', '#e74c3c', 'top'),
       mp(5, '顶', '#e74c3c', 'top'),
-      pin(9, '走势完成点（顶 21）', '#e74c3c'),
-      pin(10, '回调落中枢B [15,17]（健康）', '#16a34a'),
+      pin(9, '走势完成点（顶 21）', '#e74c3c', 'top'),
+      pin(10, '回调落中枢B [15,17]（健康）', '#16a34a', 'bottom'),
       seg(4.5, 20.5, '上涨趋势（含中枢A、B）', '#e74c3c'),
       seg(9.5, 12, '回调 = 大级别中枢震荡', '#2563eb'),
     ];

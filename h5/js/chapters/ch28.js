@@ -9,7 +9,7 @@
     const zn = [11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 16, 16.5];
     const znData = zn.map((v, i) => [i + 0.5, v]);
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 5, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const pin = (i, name, color) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const pin = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24, formatter: function (p) { return p.name; } } });
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos, formatter: function (p) { return p.name; } } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
@@ -42,7 +42,7 @@
               mp(3, '顶·B=14', '#e74c3c', 'top'),
               mp(5, '顶（偏强）', '#e74c3c', 'top'),
               mp(9, '顶·离开 18', '#e74c3c', 'top'),
-              pin(10, '第三类买点（回抽不破 B）', '#9333ea'),
+              pin(10, '第三类买点（回抽不破 B）', '#9333ea', 'bottom'),
               seg(1.5, 13.2, '偏弱（Zn 在 Z 下）', '#16a34a', 'bottom'),
               seg(4.5, 14.8, '偏强（Zn 在 Z 上）', '#e74c3c', 'top'),
             ],
@@ -55,7 +55,7 @@
             data: [
               { coord: [0.5, 11.5], name: 'Zn（偏弱·在 Z 下）', symbol: 'circle', symbolSize: 8, itemStyle: { color: '#16a34a' }, label: { show: true, color: '#16a34a', fontSize: 9, position: 'bottom', formatter: function (p) { return p.name; } } },
               { coord: [1.5, 12], name: 'Zn = Z', symbol: 'circle', symbolSize: 8, itemStyle: { color: '#f59e0b' }, label: { show: true, color: '#b45309', fontSize: 9, position: 'top', formatter: function (p) { return p.name; } } },
-              { coord: [6.5, 14.5], name: 'Zn 超越 B → 变盘', symbol: 'pin', symbolSize: 40, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#9333ea', fontSize: 10, position: 'top', fontWeight: 'bold', formatter: function (p) { return p.name; } } },
+              { coord: [6.5, 14.5], name: 'Zn 超越 B → 变盘', symbol: 'pin', symbolSize: 40, itemStyle: { color: '#9333ea' }, label: { show: true, color: '#9333ea', fontSize: 10, position: 'top', distance: 24, fontWeight: 'bold', formatter: function (p) { return p.name; } } },
             ],
           },
         },

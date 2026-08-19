@@ -18,16 +18,16 @@
     ];
     const markAreaData = zones.map(z => [{ xAxis: z.x0, yAxis: z.lo, name: z.label }, { xAxis: z.x1, yAxis: z.hi }]);
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold' } });
-    const pin = (i, name, color) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold' } });
+    const pin = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 40, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24 } });
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top' } });
     const markPointData = [
       mp(0, '顶·下跌起点', '#e74c3c', 'top'),
       mp(2, '顶', '#e74c3c', 'top'),
       mp(4, '顶', '#e74c3c', 'top'),
-      pin(9, '① 一类买点（底背驰）', '#16a34a'),
-      pin(11, '② 二类买点', '#2563eb'),
-      pin(17, '③ 三类买点', '#9333ea'),
-      pin(20, '顶背驰：一类卖点', '#e74c3c'),
+      pin(9, '① 一类买点（底背驰）', '#16a34a', 'bottom'),
+      pin(11, '② 二类买点', '#2563eb', 'bottom'),
+      pin(17, '③ 三类买点', '#9333ea', 'bottom'),
+      pin(20, '顶背驰：一类卖点', '#e74c3c', 'top'),
       seg(4, 21.5, '下跌趋势', '#e74c3c'),
       seg(13.5, 20.5, '上涨趋势（持有）', '#16a34a'),
     ];

@@ -5,7 +5,7 @@
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: pos || 'top', formatter: function (p) { return p.name; } } });
     const mp = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 4, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const pin = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, color, fontSize: 11, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const pin = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, color, fontSize: 11, position: pos, distance: 24, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
 
     // 上：30 分钟大级别 a+A+b+B+c 上涨，c 段末端创新高（但 30 分无背驰，只在 c 内 1 分背驰）
     const p30 = [8, 13, 10, 14, 11, 17, 14, 18, 15, 21];

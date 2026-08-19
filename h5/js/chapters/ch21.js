@@ -5,10 +5,10 @@
     const pts = [10, 16, 13, 18, 15, 20, 17, 22]; // A0..A6：7 段同级别走势，交替上下
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
     const marks = [
-      { coord: [0, 10], name: 'A0=a（上涨段）', color: '#e74c3c' },
-      { coord: [1, 16], name: 'a 高点', color: '#1f2937' },
-      { coord: [3, 18], name: 'A2 升破 a 高点', color: '#1f2937' },
-      { coord: [4, 15], name: 'A3 跌回 a 高点', color: '#1f2937' },
+      { coord: [0, 10], name: 'A0=a（上涨段）', color: '#e74c3c', pos: 'bottom' },
+      { coord: [1, 16], name: 'a 高点', color: '#1f2937', pos: 'top' },
+      { coord: [3, 18], name: 'A2 升破 a 高点', color: '#1f2937', pos: 'top' },
+      { coord: [4, 15], name: 'A3 跌回 a 高点', color: '#1f2937', pos: 'bottom' },
     ];
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
     const segData = [
@@ -24,7 +24,7 @@
     const markPointData = marks.map(m => ({
       coord: m.coord, name: m.name, symbol: 'pin', symbolSize: 36,
       itemStyle: { color: m.color },
-      label: { show: true, formatter: function (p) { return p.name; }, color: m.color, fontSize: 10, fontWeight: 'bold' },
+      label: { show: true, formatter: function (p) { return p.name; }, color: m.color, fontSize: 10, fontWeight: 'bold', position: m.pos, distance: 24 },
     })).concat(segData);
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },

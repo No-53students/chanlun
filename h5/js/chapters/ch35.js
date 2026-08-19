@@ -15,7 +15,7 @@
       { o: 17, c: 18, l: 16.8, h: 18.2 },
     ];
     const cats = ks.map((_, i) => 'K' + i);
-    const pin = (i, name, color) => ({ coord: [cats[i], ks[i].h + 0.4], name, symbol: 'pin', symbolSize: 44, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', position: 'top', formatter: function (p) { return p.name; } } });
+    const pin = (i, name, color) => ({ coord: [cats[i], ks[i].h + 0.4], name, symbol: 'pin', symbolSize: 44, itemStyle: { color }, label: { show: true, color, fontSize: 10, fontWeight: 'bold', position: 'top', distance: 24, formatter: function (p) { return p.name; } } });
     const seg = (i, y, name, color, pos) => ({ coord: [cats[i], y], name, symbol: 'none', label: { show: true, color, fontSize: 11, fontWeight: 'bold', position: pos, formatter: function (p) { return p.name; } } });
     return {
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },

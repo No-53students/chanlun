@@ -63,11 +63,14 @@
         <section class="block fig-card" v-if="anim">
           <h2><span class="tag viz">演示</span>{{ anim.title }}</h2>
           <div class="stepper">
-            <div class="stepper-stage" v-html="anim.steps[animStep].html"></div>
+            <div class="stepper-stage" :key="animStep" v-html="anim.steps[animStep].html"></div>
             <div class="stepper-bar">
-              <button class="step-btn" @click="animStep = Math.max(0, animStep - 1)" :disabled="animStep === 0">← 上一步</button>
-              <span class="stepper-ind">{{ animStep + 1 }} / {{ anim.steps.length }} · {{ anim.steps[animStep].label }}</span>
-              <button class="step-btn" @click="animStep = Math.min(anim.steps.length - 1, animStep + 1)" :disabled="animStep === anim.steps.length - 1">下一步 →</button>
+              <button class="step-btn" @click="stepAnim(-1)" :disabled="animStep === 0">← 上一步</button>
+              <div class="stepper-center">
+                <button class="step-btn play" :class="{ on: animPlaying }" @click="toggleAnimPlay">{{ animPlaying ? '⏸ 暂停' : '▶ 播放' }}</button>
+                <span class="stepper-ind">{{ animStep + 1 }} / {{ anim.steps.length }} · {{ anim.steps[animStep].label }}</span>
+              </div>
+              <button class="step-btn" @click="stepAnim(1)" :disabled="animStep === anim.steps.length - 1">下一步 →</button>
             </div>
           </div>
         </section>

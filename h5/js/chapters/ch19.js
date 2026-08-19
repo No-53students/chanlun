@@ -56,7 +56,7 @@
           symbol: 'circle', symbolSize: 5, lineStyle: { width: 2, color: '#7c3aed' }, itemStyle: { color: '#7c3aed' },
           markPoint: {
             data: [
-              { coord: [7, 21], name: '区间套定位的转折点', symbol: 'pin', symbolSize: 42, itemStyle: { color: '#e74c3c' }, label: { show: true, formatter: function (p) { return p.name; }, color: '#e74c3c', fontSize: 10, fontWeight: 'bold' } },
+              { coord: [7, 21], name: '区间套定位的转折点', symbol: 'pin', symbolSize: 42, itemStyle: { color: '#e74c3c' }, label: { show: true, position: 'top', distance: 24, formatter: function (p) { return p.name; }, color: '#e74c3c', fontSize: 10, fontWeight: 'bold' } },
               mp(small, 0, '底·c段起点', '#16a34a', 'bottom'),
               mp(small, 5, '顶·次级别高点', '#e74c3c', 'top'),
               seg(3.5, 20.6, 'c段内部逐级背驰', '#e74c3c'),

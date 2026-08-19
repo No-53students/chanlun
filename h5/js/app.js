@@ -28,6 +28,26 @@
       // 分步动画演示
       const anim = computed(() => anims[cur.value.id] || null);
       const animStep = ref(0);
+      const animPlaying = ref(false);
+      let animTimer = null;
+      function stopAnim() {
+        animPlaying.value = false;
+        if (animTimer) { clearInterval(animTimer); animTimer = null; }
+      }
+      function stepAnim(delta) {
+        stopAnim();
+        const n = anim.value ? anim.value.steps.length : 0;
+        animStep.value = Math.min(n - 1, Math.max(0, animStep.value + delta));
+      }
+      function toggleAnimPlay() {
+        if (animTimer) { stopAnim(); return; }
+        if (!anim.value) return;
+        animPlaying.value = true;
+        animTimer = setInterval(() => {
+          const n = anim.value.steps.length;
+          animStep.value = (animStep.value + 1) % n;
+        }, 2500);
+      }
       // 原文对照
       const original = computed(() => originals[cur.value.id] || null);
       // 交互练习（选择题）
@@ -56,7 +76,8 @@
       let charts = [];
 
       function route() {
-        const id = location.hash.replace(/^#\//, '') || chapters[0].id;
+        const saved = localStorage.getItem('chanlun-last-chapter');
+        const id = location.hash.replace(/^#\//, '') || saved || chapters[0].id;
         const i = chapters.findIndex(c => c.id === id);
         if (i >= 0) curIdx.value = i;
       }
@@ -84,15 +105,18 @@
       });
 
       watch(curIdx, () => {
+        stopAnim();
         animStep.value = 0;
         quizPicked.value = [];
         searchQuery.value = '';
+        window.scrollTo(0, 0);
+        localStorage.setItem('chanlun-last-chapter', cur.value.id);
         nextTick(renderFigures);
       });
 
       return {
         chapters, upcoming, cur, prev, next, navOpen, groupedChapters,
-        anim, animStep, original, quiz, quizPicked, pickQuiz,
+        anim, animStep, animPlaying, stepAnim, toggleAnimPlay, original, quiz, quizPicked, pickQuiz,
         searchQuery, searchTerms, searchChapters,
         closeNav,
       };

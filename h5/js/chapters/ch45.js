@@ -40,8 +40,8 @@
           ],
         },
         markPoint: { data: [
-          { coord: [3, 10.0], name: '11:08 反抽不破 ZD → 三卖', symbol: 'pin', symbolSize: 38, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#b91c1c', fontSize: 10, position: 'top', formatter: function (p) { return p.name; } } },
-          { coord: [6, 9.1], name: '分笔背驰（绿柱缩短）', symbol: 'pin', symbolSize: 30, itemStyle: { color: '#16a34a' }, label: { show: true, color: '#15803d', fontSize: 10, position: 'bottom', formatter: function (p) { return p.name; } } },
+          { coord: [3, 10.0], name: '11:08 反抽不破 ZD → 三卖', symbol: 'pin', symbolSize: 38, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#b91c1c', fontSize: 10, position: 'top', distance: 24, formatter: function (p) { return p.name; } } },
+          { coord: [6, 9.1], name: '分笔背驰（绿柱缩短）', symbol: 'pin', symbolSize: 30, itemStyle: { color: '#16a34a' }, label: { show: true, color: '#15803d', fontSize: 10, position: 'bottom', distance: 24, formatter: function (p) { return p.name; } } },
           seg(6.6, 10.6, '强力回拉中枢', '#2563eb'),
         ] },
       }],

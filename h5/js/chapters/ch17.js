@@ -4,7 +4,7 @@
   function optCh17() {
     const mk = (x0, x1, lo, hi, name) => [{ xAxis: x0, yAxis: lo, name }, { xAxis: x1, yAxis: hi }];
     const mp = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 8, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 4, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
-    const buyPin = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, color, fontSize: 11, position: pos, distance: 6, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
+    const buyPin = (pts, i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 38, itemStyle: { color }, label: { show: true, color, fontSize: 11, position: pos, distance: 24, fontWeight: 'bold', formatter: function (p) { return p.name; } } });
     const seg = (x, y, name, color, pos) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: pos || 'top', formatter: function (p) { return p.name; } } });
 
     // 级别1：30 分钟（本级别）——下跌趋势背驰 = 第一类买点 = 本级别一买

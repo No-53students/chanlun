@@ -51,7 +51,7 @@
           },
           markPoint: {
             data: [
-              { coord: [3, 0], name: 'DIFF 跌破 0 轴 → 回避', symbol: 'pin', symbolSize: 46, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#e74c3c', fontSize: 11, fontWeight: 'bold', position: 'bottom', formatter: function (p) { return p.name; } } },
+              { coord: [3, 0], name: 'DIFF 跌破 0 轴 → 回避', symbol: 'pin', symbolSize: 46, itemStyle: { color: '#e74c3c' }, label: { show: true, color: '#e74c3c', fontSize: 11, fontWeight: 'bold', position: 'bottom', distance: 24, formatter: function (p) { return p.name; } } },
               { coord: [4, -0.1], name: 'DEA 亦破 0 轴', symbol: 'circle', symbolSize: 7, itemStyle: { color: '#f59e0b' }, label: { show: true, color: '#b45309', fontSize: 9, position: 'bottom', formatter: function (p) { return p.name; } } },
             ],
           },

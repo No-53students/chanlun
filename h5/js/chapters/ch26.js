@@ -9,16 +9,16 @@
     ];
     const markAreaData = zones.map(z => [{ xAxis: z.x0, yAxis: z.lo, name: z.label }, { xAxis: z.x1, yAxis: z.hi }]);
     const mp = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'circle', symbolSize: 9, itemStyle: { color }, label: { show: true, color, fontSize: 10, position: pos, distance: 6, fontWeight: 'bold' } });
-    const pin = (i, name, color) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold' } });
+    const pin = (i, name, color, pos) => ({ coord: [i, pts[i]], name, symbol: 'pin', symbolSize: 42, itemStyle: { color }, label: { show: true, formatter: function (p) { return p.name; }, color, fontSize: 10, fontWeight: 'bold', position: pos, distance: 24 } });
     const seg = (x, y, name, color) => ({ coord: [x, y], name, symbol: 'none', label: { show: true, color, fontSize: 12, fontWeight: 'bold', position: 'top' } });
     const markPointData = [
       mp(0, '顶·前走势高点', '#e74c3c', 'top'),
       mp(2, '顶', '#e74c3c', 'top'),
       mp(9, '顶·194', '#e74c3c', 'top'),
       mp(11, '底·195破位新低', '#16a34a', 'bottom'),
-      pin(6, '191 背驰点（一类买点）', '#16a34a'),
-      pin(8, '193 第二类卖点', '#2563eb'),
-      pin(10, '195 第三类卖点（中阴结束）', '#9333ea'),
+      pin(6, '191 背驰点（一类买点）', '#16a34a', 'bottom'),
+      pin(8, '193 第二类卖点', '#2563eb', 'top'),
+      pin(10, '195 第三类卖点（中阴结束）', '#9333ea', 'top'),
       seg(4.5, 20.8, '前走势（下跌）→ 背驰死亡', '#e74c3c'),
       seg(8.5, 17.5, '中阴阶段（盘整震荡）', '#f59e0b'),
     ];
