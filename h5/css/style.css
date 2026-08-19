@@ -34,10 +34,19 @@ a { color: var(--blue); text-decoration: none; }
 .block h2 .tag.viz { background: var(--green); }
 .block h2 .tag.mindset { background: #7e22ce; }
 .block h2 .tag.commentary { background: #0d9488; }
+.block h2 .tag.evolution { background: #d97706; }
+.block h2 .tag.quote { background: #475569; }
 .block.mindset { border-left: 3px solid #7e22ce; }
 .block.commentary { border-left: 3px solid #0d9488; }
+.block.evolution { border-left: 3px solid #d97706; }
+.block.quote { border-left: 3px solid #475569; }
 .block.mindset .term { color: #7e22ce; }
 .block.commentary .term { color: #0d9488; }
+.block.evolution .term { color: #d97706; }
+.block.quote .term { color: #475569; }
+.quote-item { border-left: 3px solid #cbd5e1; background: #f8fafc; padding: 10px 14px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+.quote-text { font-style: italic; color: #334155; line-height: 1.75; font-size: 14px; }
+.quote-src { margin-top: 6px; font-size: 12px; color: #64748b; text-align: right; }
 .block p { line-height: 1.85; font-size: 14px; margin: 6px 0; }
 .block ul, .block ol { padding-left: 22px; line-height: 1.85; font-size: 14px; margin: 6px 0; }
 .def-item { margin-bottom: 16px; }
@@ -297,6 +306,11 @@ details .ans { color: var(--green); padding: 6px 0 2px 18px; }
 [data-theme="dark"] .pitfalls li { color: #fbbf24; }
 [data-theme="dark"] .block.mindset .term { color: #c084fc; }
 [data-theme="dark"] .block.commentary .term { color: #2dd4bf; }
+[data-theme="dark"] .block.evolution .term { color: #fbbf24; }
+[data-theme="dark"] .block.quote .term { color: #cbd5e1; }
+[data-theme="dark"] .quote-item { background: #1f2937; border-left-color: #475569; }
+[data-theme="dark"] .quote-text { color: #cbd5e1; }
+[data-theme="dark"] .quote-src { color: #94a3b8; }
 [data-theme="dark"] .quiz-explain { color: #fca5a5; }
 [data-theme="dark"] .quiz-explain.ok { color: #86efac; }
 [data-theme="dark"] .nav li.disabled a { color: #4b5563; }

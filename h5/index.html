@@ -191,8 +191,29 @@
             <div class="def-item" v-for="it in s.items" :key="it.term">
               <div class="term">{{ it.term }}</div>
               <p v-html="it.text"></p>
+              <div class="formula" v-if="it.formula" v-html="it.formula"></div>
               <div class="mini-fig" v-if="it.fig" v-html="it.fig"></div>
             </div>
+          </section>
+
+          <section class="block evolution" v-else-if="s.type === 'evolution'">
+            <h2><span class="tag evolution">演化</span>{{ s.title }}</h2>
+            <p v-if="s.text" v-html="s.text"></p>
+            <div class="def-item" v-for="it in s.items" :key="it.term">
+              <div class="term">{{ it.term }}</div>
+              <p v-html="it.text"></p>
+              <div class="formula" v-if="it.formula" v-html="it.formula"></div>
+              <div class="mini-fig" v-if="it.fig" v-html="it.fig"></div>
+            </div>
+          </section>
+
+          <section class="block quote" v-else-if="s.type === 'quote'">
+            <h2><span class="tag quote">原话</span>{{ s.title }}</h2>
+            <p v-if="s.text" v-html="s.text"></p>
+            <blockquote class="quote-item" v-for="(q, qi) in s.quotes" :key="qi">
+              <div class="quote-text" v-html="q.text"></div>
+              <div class="quote-src" v-if="q.src">{{ q.src }}</div>
+            </blockquote>
           </section>
         </template>
         <section class="block" v-if="original">
